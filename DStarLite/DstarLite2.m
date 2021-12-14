@@ -3,26 +3,40 @@ clc
 
 %% Main
 
-global dim Sstart Sgoal obstacles robotLocVal obstacleVal goalVal moves g
+global dim Sstart Sgoal globalObstacles robotLocVal obstacleVal goalVal unknownVal moves g
+global map obstacles newObstacles
 
 goalVal = 2;
 robotLocVal = 5;
+unknownVal = 7;
 obstacleVal = 10;
 
 dim = [5, 3];
 Sstart = [1, 1];
 Sgoal = [5, 3];
 
-obstacles = [[2, 2]; [3, 2]; [4, 2]]';
+globalObstacles = [[2, 2]; [3, 2]; [4, 2]]';
+
+obstacles = [];
+newObstacles = [];
+
 moves = [[1, 0]; [1, 1]; [0, 1]; [-1, 1]; [-1, 0]; [-1, -1]; [0, -1]; [1, -1]]';
 
 Initialize();
+
+inizializeGlobalMap();
+inizializeMap();
 updateMap();
+newObstacles = [];
 
 ComputeShortestPath();
-[i, j] = in(Sstart);
+
+plotMap(map);
+disp(g)
 
 while(any(Sstart ~= Sgoal))
+    [i, j] = in(Sstart);
+    
     if g(i, j) == +inf
         disp("No possible path!");
         return
@@ -43,10 +57,18 @@ while(any(Sstart ~= Sgoal))
     %move to minPos
     Sstart = minPos;
     
-    updateMap();
-    plotMap();
-    
     % scan graph
+    isChanged = updateMap();
+    
+    % update graph
+    if isChanged
+        updateEdgesCost();
+%         Initialize();
+        ComputeShortestPath();
+    end
+    
+    plotMap(map);
+    disp(g)
     
 end
 disp("Goal reached!");
@@ -54,43 +76,88 @@ disp("Goal reached!");
 
 %% Functions
 
-function updateMap()
+function inizializeGlobalMap()
     % TODO
-    global map dim Sgoal obstacles robotLocVal obstacleVal Sstart goalVal
-    map = zeros(dim);
-    for o=obstacles
+    global globalMap dim globalObstacles obstacleVal
+    globalMap = zeros(dim);
+    for o=globalObstacles
         [i, j] = in(o);
-        map(i, j) = obstacleVal;
+        globalMap(i, j) = obstacleVal;
     end
+end
+
+function inizializeMap()
+    % TODO
+    global map dim Sgoal robotLocVal Sstart goalVal unknownVal
+    [s1, s2] = in(dim);
+    map(1:s1,1:s2) = unknownVal;
     [i, j] = in(Sstart);
     map(i, j) = robotLocVal;
     [i, j] = in(Sgoal);
     map(i, j) = goalVal;
 end
 
-function plotMap()
-    global map dim robotLocVal obstacleVal goalVal
+function isChanged = updateMap()
+    global globalMap map Sstart obstacleVal obstacles newObstacles
+    
+    [is, js] = in(Sstart);
+    isChanged = false;
+    
+    for i=-1:1
+        for j=-1:1
+            if isInside([is+i, js+j])
+                chr = globalMap(is+i, js+j);
+                map(is+i, js+j) = chr;
+                
+                if chr == obstacleVal
+                    new_obs = [is+i, js+j];
+                    if ~isAlredyIn(obstacles, new_obs')
+                        obstacles(:, end+1) = new_obs';
+                        newObstacles(:, end+1) = new_obs';
+                        isChanged = true;
+                    end
+                end
+            end
+        end
+    end
+
+end
+
+function plotMap(map)
+    global dim robotLocVal obstacleVal goalVal unknownVal Sstart Sgoal
     %myMap = [1 1 1; 1 0 0; 0 1 0; 0 0 1; 0 0 0];
     %heatmap(map, 'Colormap', myMap);
     [s1, s2] = in(dim);
     disp("|-----|");
+    matChr(1:s1,1:s2) = "";
+    for i=1:s1
+        for j=1:s2
+            posType = map(i, j);
+            if posType == obstacleVal
+                chr = "█";
+            elseif posType == unknownVal
+                chr = "▓";
+            else
+                chr = "░"; %
+            end
+            
+            matChr(i, j) = chr;
+        end
+    end
+    
+    [i, j] = in(Sstart);
+    matChr(i, j) = "☺";
+    [i, j] = in(Sgoal);
+    matChr(i, j) = "☼";
+    
     for i=1:s1
         out = "";
         for j=1:s2
-            posType = map(i, j);
-            if posType == robotLocVal
-                chr = "☺";
-            elseif posType == obstacleVal
-                chr = "█";
-            elseif posType == goalVal
-                chr = "☼";
-            else
-                chr = "░";
-            end
-            out = out + chr;
+            out = out + matChr(i, j);
         end
         disp("|"+out+"|");
     end
+    
     disp("|-----|"+newline);
 end
 
@@ -169,25 +236,46 @@ function u = U_pop()
     U_remove(u);
 end
 
+function res = isInside(s)
+    global dim
+    [x, y] = in(s);
+    
+    if x < 1 || x > dim(1)
+        res = false;
+        return;
+    end
+    if y < 1 || y > dim(2)
+        res = false;
+        return;
+    end
+    res = true;
+end
+
+function isIn = isAlredyIn(L, val)
+    isIn = false;
+    for elem=L
+        if all(elem==val)
+            isIn = true;
+            break
+        end
+    end
+end
+
 function Lp = u_pred(u)
-    global moves dim obstacles
+    global moves obstacles
     
     Lp = [];
     for m=moves
         pred_pos = u+m';
         
         %se dentro i bordi
-        [x, y] = in(pred_pos);
-        if x < 1 || x > dim(1)
-            continue
-        end
-        if y < 1 || y > dim(2)
+        if ~isInside(pred_pos)
             continue
         end
         
         isNotObs = true;
         for o=obstacles
-            if all(o'==u)
+            if all(o'==pred_pos)
                 isNotObs = false;
                 break
             end
@@ -195,14 +283,7 @@ function Lp = u_pred(u)
         
         if isNotObs
             % TODO
-            isNotIn = true;
-            for val=Lp
-                if all(val==pred_pos)
-                    isNotIn = false;
-                    break
-                end
-            end
-            if isNotIn
+            if ~isAlredyIn(Lp, pred_pos')
                 Lp(:, end+1) = pred_pos';
             end
         end
@@ -210,24 +291,20 @@ function Lp = u_pred(u)
 end
 
 function Ls = u_succ(u)
-    global moves dim obstacles
+    global moves obstacles
     
     Ls = [];
     for m=moves
         succ_pos = u+m';
         
         %se dentro i bordi
-        [x, y] = in(succ_pos);
-        if x < 1 || x > dim(1)
-            continue
-        end
-        if y < 1 || y > dim(2)
+        if ~isInside(succ_pos)
             continue
         end
         
         isNotObs = true;
         for o=obstacles
-            if all(o'==u)
+            if all(o'==succ_pos)
                 isNotObs = false;
                 break
             end
@@ -235,14 +312,7 @@ function Ls = u_succ(u)
         
         if isNotObs
             % TODO
-            isNotIn = true;
-            for val=Ls
-                if all(val==succ_pos)
-                    isNotIn = false;
-                    break
-                end
-            end
-            if isNotIn
+            if ~isAlredyIn(Ls, succ_pos')
                 Ls(:, end+1) = succ_pos';
             end
         end
@@ -293,7 +363,7 @@ function updateVertex(u)
     end
 end
 
-function [] = Initialize()
+function Initialize()
     global dim g rhs U Sgoal
     g = Inf(dim);
     rhs = Inf(dim);
@@ -305,7 +375,7 @@ function [] = Initialize()
     U{i, j} = calcKey(Sgoal);
 end
 
-function [] = ComputeShortestPath()
+function ComputeShortestPath()
     global Sstart g rhs
     
     [i, j] = in(Sstart);
@@ -318,8 +388,8 @@ function [] = ComputeShortestPath()
         if (g(ui, uj) > rhs(ui, uj))
             g(ui, uj) = rhs(ui, uj);
             pred = u_pred(u);
-            for i=1:length(pred)
-                s = pred(:, i)';
+            for k=1:length(pred)
+                s = pred(:, k)';
                 updateVertex(s);
             end
         else
@@ -332,4 +402,39 @@ function [] = ComputeShortestPath()
     end
 end
 
+function updateEdgesCost()
+    global U dim newObstacles
+    
+    % updato tutti i predecessori degli ostacoli nuovi
+    % li metto in una lista e estraggo il più vicino al goal
+    
+    updateCells = []
+    
+    
+    for o=newObstacles
+        pred = u_pred(o');
+        
+        for p=pred
+            if ~isAlredyIn(updateCells, p)
+                updateCells(:, end+1) = p;
+            end
+        end
+    end
+    
+    
+    
+    %for all directed edges (u, v)
+    %    update edge cost c(u, v)
+    %    updateVertex(u)
+    %end
+    
+    [s1, s2] = in(dim);
+    for i=1:s1
+        for j=1:s2
+            if belong2U([i, j])
+                U{iu, ju} = calcKey(U{iu, ju});
+            end
+        end
+    end
+end
 

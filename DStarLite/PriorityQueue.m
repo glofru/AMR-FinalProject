@@ -23,13 +23,14 @@ classdef PriorityQueue
         
         function pos = find(obj, s)
             for i=1:size(obj.queueS, 2)
-                if all(s==obj.queueS(i))
+                if all(s==obj.queueS(:, i))
                     pos=i;
+                    return;
                 end
             end
         end
         
-        function [] = remove(obj, s)
+        function obj = remove(obj, s)
             % remove a vertex s in U
             pos = obj.find(s);
             
@@ -37,7 +38,7 @@ classdef PriorityQueue
             obj.queueK(:, pos) = [];
         end
         
-        function res = min2(v1, v2)
+        function res = min2(obj, v1, v2)
             if (v1(1) < v2(1))
                 res = true;
             elseif (v1(1) == v2(1))
@@ -58,28 +59,35 @@ classdef PriorityQueue
             minV = [];
             minS = [];
             for i=1:size(obj.queueS, 2)
-                if isempty(minV) || min2(obj.queueS(i), minV)
-                    minV = obj.queueS(i);
-                    minS = i;
+                if isempty(minV) || obj.min2(obj.queueS(:, i), minV)
+                    minV = obj.queueK(:, i);
+                    minS = obj.queueS(:, i);
                 end
             end
         end
         
-        function [] = topKey()
+        function minV = topKey(obj)
             % return the smallest priority of all vertices
             % if empty return [+inf, +inf]
-            
+            minV = [];
+            for i=1:size(obj.queueS, 2)
+                if isempty(minV) || obj.min2(obj.queueS(:, i), minV)
+                    minV = obj.queueK(:, i);
+                end
+            end
         end
         
-        function [] = pop()
+        function obj = pop(obj)
             % delete the vertex with the smallest priority in U
             % and return it
-            
+            s = top(obj);
+            obj = obj.remove(s);
         end
         
-        function [] = update()
+        function obj = update(obj, s, k)
             % change priority of s in U to k
-            
+            pos = obj.find(s);
+            obj.queueK(:, pos) = k; 
         end
     end
 end

@@ -1,27 +1,30 @@
 classdef PriorityQueue
-    properties
+    properties (Access = private)
+        %
         queueS;
+        %
         queueK;
     end
     
     methods (Access = private)
-        function str = builsStruct(s, k)
-            str = struct('vertex', s, 'key', k);
-        end
+        
     end
     
-    methods
+    methods (Access = public)
         function obj = PriorityQueue()
+            % constructor
             obj.queueS = [];
             obj.queueK = [];
         end
         
         function obj = insert(obj, s, k)
+            % insert in the queue vertex s with valur k
             obj.queueS(:, end+1) = s;
             obj.queueK(:, end+1) = k;
         end
         
         function pos = find(obj, s)
+            % insert in the queue vertex s
             for i=1:size(obj.queueS, 2)
                 if all(s==obj.queueS(:, i))
                     pos=i;
@@ -31,35 +34,19 @@ classdef PriorityQueue
         end
         
         function obj = remove(obj, s)
-            % remove a vertex s in U
+            % remove from the queue vertex s
             pos = obj.find(s);
             
             obj.queueS(:, pos) = [];
             obj.queueK(:, pos) = [];
         end
         
-        function res = min2(obj, v1, v2)
-            if (v1(1) < v2(1))
-                res = true;
-            elseif (v1(1) == v2(1))
-                if (v1(2) < v2(2))
-                    res = true;
-                elseif (v1(2) == v2(2))
-                    res = false;
-                else % (v1(2) > v2(2))
-                    res = false;
-                end
-            else % (v1(1) > v2(1))
-                res = false;
-            end
-        end
-        
         function minS = top(obj)
-            % return a vertex with the smallest priority
+            % return a vertex with the smallest priority k
             minV = [];
             minS = [];
             for i=1:size(obj.queueS, 2)
-                if isempty(minV) || obj.min2(obj.queueS(:, i), minV)
+                if isempty(minV) || min2(obj.queueS(:, i), minV)
                     minV = obj.queueK(:, i);
                     minS = obj.queueS(:, i);
                 end
@@ -67,25 +54,25 @@ classdef PriorityQueue
         end
         
         function minV = topKey(obj)
-            % return the smallest priority of all vertices
+            % return the smallest priority k of all vertices
             % if empty return [+inf, +inf]
             minV = [];
             for i=1:size(obj.queueS, 2)
-                if isempty(minV) || obj.min2(obj.queueS(:, i), minV)
+                if isempty(minV) || min2(obj.queueS(:, i), minV)
                     minV = obj.queueK(:, i);
                 end
             end
         end
         
         function obj = pop(obj)
-            % delete the vertex with the smallest priority in U
+            % delete from the queue the vertex with the smallest priority k
             % and return it
             s = top(obj);
             obj = obj.remove(s);
         end
         
         function obj = update(obj, s, k)
-            % change priority of s in U to k
+            % change priority of s from k (old) to k
             pos = obj.find(s);
             obj.queueK(:, pos) = k; 
         end

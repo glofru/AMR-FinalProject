@@ -24,12 +24,23 @@ classdef PriorityQueue
         end
         
         function pos = find(obj, s)
-            % insert in the queue vertex s
+            % find in the queue vertex s
+            % if not exists return -1
+            pos = -1;
             for i=1:size(obj.queueS, 2)
                 if all(s==obj.queueS(:, i))
                     pos=i;
                     return;
                 end
+            end
+        end
+        
+        function isInside = has(obj, s)
+            % check if the queue has vertex s
+            
+            isInside = true;
+            if obj.find(s) == -1
+                isInside = false;
             end
         end
         
@@ -64,7 +75,7 @@ classdef PriorityQueue
             end
         end
         
-        function obj = pop(obj)
+        function [obj, s] = pop(obj)
             % delete from the queue the vertex with the smallest priority k
             % and return it
             s = top(obj);
@@ -74,7 +85,24 @@ classdef PriorityQueue
         function obj = update(obj, s, k)
             % change priority of s from k (old) to k
             pos = obj.find(s);
-            obj.queueK(:, pos) = k; 
+            if pos == -1
+                obj = obj.insert(s, k);
+            else
+                obj.queueK(:, pos) = k; 
+            end
+        end
+    end
+    
+    % plot functions
+    methods (Access = public)
+        function plotPriorityQueue(obj)
+            disp("Priority Queue:")
+            data = [obj.queueS; obj.queueK];
+            for col=data
+                disp(strjoin(["    [", col(1:2)', "] --> [", col(3:4)', "]"]))
+            end
         end
     end
 end
+
+

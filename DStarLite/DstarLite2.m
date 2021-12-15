@@ -11,11 +11,12 @@ robotLocVal = 5;
 unknownVal = 7;
 obstacleVal = 10;
 
-dim = [5, 3];
+dim = [5, 5]; %[5, 3];
 Sstart = [1; 1];
-Sgoal = [5; 3];
+Sgoal = [5; 5];
 
-globalObstacles = [[2; 2], [3; 2], [4; 2]];
+globalObstacles = [[2; 2], [3; 2], [4; 2], [5; 2],...
+                   [2; 4], [3; 4], [4; 4]];
 
 obstacles = [];
 newObstacles = [];
@@ -32,7 +33,7 @@ newObstacles = [];
 ComputeShortestPath();
 
 plotMap(map);
-disp(g)
+% disp(g)
 
 while(any(Sstart ~= Sgoal))
     [i, j] = in(Sstart);
@@ -57,18 +58,17 @@ while(any(Sstart ~= Sgoal))
     %move to minPos
     Sstart = minPos;
     
-%     % scan graph
-%     isChanged = updateMap();
-%     
-%     % update graph
-%     if isChanged
-%         updateEdgesCost();
-% %         Initialize();
-%         ComputeShortestPath();
-%     end
-    
+    % scan graph
+    isChanged = updateMap();
     plotMap(map);
-    disp(g)
+%     disp(g)
+%     disp(rhs)
+    
+    % update graph
+    if isChanged
+        updateEdgesCost();
+        ComputeShortestPath();
+    end
     
 end
 disp("Goal reached!");
@@ -128,7 +128,13 @@ function plotMap(map)
     %myMap = [1 1 1; 1 0 0; 0 1 0; 0 0 1; 0 0 0];
     %heatmap(map, 'Colormap', myMap);
     [s1, s2] = in(dim);
-    disp("|-----|");
+    outHeader = "█";
+    for i=1:s2
+        outHeader = outHeader + "█";
+    end
+    outHeader = outHeader + "█";
+    disp(outHeader);
+    
     matChr(1:s1,1:s2) = "";
     for i=1:s1
         for j=1:s2
@@ -155,10 +161,10 @@ function plotMap(map)
         for j=1:s2
             out = out + matChr(i, j);
         end
-        disp("|"+out+"|");
+        disp("█"+out+"█");
     end
     
-    disp("|-----|"+newline);
+    disp(outHeader+newline);
 end
 
 function res = h(s1, s2)
@@ -220,7 +226,7 @@ function Lp = u_pred(u)
         
         isNotObs = true;
         for o=obstacles
-            if all(o'==pred_pos)
+            if all(o==pred_pos)
                 isNotObs = false;
                 break
             end
@@ -331,32 +337,39 @@ function ComputeShortestPath()
         end
         
         pred = u_pred(u);
-        for k=1:length(pred)
-            s = pred(:, k);
-            updateVertex(s);
+        for p=pred
+            updateVertex(p);
+        end
+        
+        if U.isEmpty()
+            return
         end
     end
 end
 
 function updateEdgesCost()
-    global U dim newObstacles
+    global U dim newObstacles rhs g
     
     % updato tutti i predecessori degli ostacoli nuovi
     % li metto in una lista e estraggo il più vicino al goal
     
-    updateCells = []
+    updateCells = PriorityQueue();
     
     
     for o=newObstacles
-        pred = u_pred(o');
+        [i, j] = in(o);
+        
+        g(i, j) = +inf;
+        rhs(i, j) = +inf;
+        pred = u_pred(o);
         
         for p=pred
-            if ~isAlredyIn(updateCells, p)
-                updateCells(:, end+1) = p;
+            if ~updateCells.has(p)
+                updateCells = updateCells.insert(p, calcKey(p));
             end
         end
     end
-    
+    newObstacles = [];
     
     
     %for all directed edges (u, v)
@@ -364,11 +377,17 @@ function updateEdgesCost()
     %    updateVertex(u)
     %end
     
-    [s1, s2] = in(dim);
-    for i=1:s1
-        for j=1:s2
-            if belong2U([i, j])
-                U{iu, ju} = calcKey(U{iu, ju});
+    while ~updateCells.isEmpty()
+        [updateCells, s, k_old] = updateCells.pop();
+        updateVertex(s);
+        k = calcKey(s);
+        if ~(k == k_old)
+            pred = u_pred(s);
+        
+            for p=pred
+                if ~updateCells.has(p)
+                    updateCells = updateCells.insert(p, calcKey(p));
+                end
             end
         end
     end

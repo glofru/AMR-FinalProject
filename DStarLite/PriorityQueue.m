@@ -35,6 +35,10 @@ classdef PriorityQueue
             end
         end
         
+        function res = isEmpty(obj)
+            res = isempty(obj.queueS);
+        end
+        
         function isInside = has(obj, s)
             % check if the queue has vertex s
             
@@ -52,12 +56,15 @@ classdef PriorityQueue
             obj.queueK(:, pos) = [];
         end
         
-        function minS = top(obj)
+        function [minS, minV] = top(obj)
             % return a vertex with the smallest priority k
+            % optional minV
+            
             minV = [];
             minS = [];
             for i=1:size(obj.queueS, 2)
-                if isempty(minV) || min2(obj.queueS(:, i), minV)
+                appMinV = obj.queueK(:, i); % TODO
+                if isempty(minV) || min2(appMinV, minV)
                     minV = obj.queueK(:, i);
                     minS = obj.queueS(:, i);
                 end
@@ -69,16 +76,21 @@ classdef PriorityQueue
             % if empty return [+inf, +inf]
             minV = [];
             for i=1:size(obj.queueS, 2)
-                if isempty(minV) || min2(obj.queueS(:, i), minV)
+                if isempty(minV) || min2(obj.queueK(:, i), minV)
                     minV = obj.queueK(:, i);
                 end
             end
+            
+            if isempty(minV)
+                error("the priority queue is empty");
+            end
         end
         
-        function [obj, s] = pop(obj)
+        function [obj, s, k] = pop(obj)
             % delete from the queue the vertex with the smallest priority k
             % and return it
-            s = top(obj);
+            % optional k
+            [s, k] = top(obj);
             obj = obj.remove(s);
         end
         

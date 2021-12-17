@@ -10,7 +10,10 @@ classdef D_Star < handle
         end
 
         function [state, index] = min_state(obj)
-            if ~isempty(obj.open_list)
+            if isempty(obj.open_list)
+                state = State.empty;
+                index = -1;
+            else
                 index = 1;
                 state = obj.open_list(index);
                 for i = 2:size(obj.open_list)
@@ -19,9 +22,6 @@ classdef D_Star < handle
                         index = i;
                     end
                 end
-            else
-                state = State.empty;
-                index = -1;
             end
         end
 
@@ -33,26 +33,22 @@ classdef D_Star < handle
                 k_old = obj.k_min;
                 obj.remove(X, index);
                 neighbors = obj.map.get_neighbors(X);
-                n = size(neighbors, 2);
                 if k_old < X.h
-                    for i=1:n
-                        y = neighbors(i);
+                    for y = neighbors
                         if y.h <= k_old && X.h > y.h + X.cost(y)
                             X.parent = y;
                             X.h = y.h + X.cost(y);
                         end
                     end
                 elseif k_old == X.h
-                    for i=1:n
-                        y = neighbors(i);
+                    for y = neighbors
                         if y.tag == "new" || y.parent == X && y.h ~= X.h + X.cost(y)|| y.parent ~= X && y.h > X.h + X.cost(y)
                             y.parent = X;
                             obj.insert(y, X.h + X.cost(y));
                         end
                     end
                 else
-                    for i=1:n
-                        y = neighbors(i);
+                    for y = neighbors
                         if y.tag == "new" || y.parent == X && y.h ~= X.h + X.cost(y)
                             y.parent = X;
                             obj.insert(y, X.h + X.cost(y));
@@ -65,6 +61,14 @@ classdef D_Star < handle
                 end
 
                 k = obj.k_min;
+            end
+        end
+
+        function k = k_min(obj)
+            if isempty(obj.open_list)
+                k = -1;
+            else
+                k = min([obj.open_list.k]);
             end
         end
 
@@ -91,10 +95,7 @@ classdef D_Star < handle
         function modify(obj, state)
             obj.modify_cost(state);
             while true
-                disp("A")
                 k_min = obj.process_state();
-                disp(k_min)
-                disp(state.h)
                 if k_min >= state.h
                     break
                 end
@@ -104,14 +105,6 @@ classdef D_Star < handle
         function modify_cost(obj, state)
             if state.tag == "close"
                 obj.insert(state, state.parent.h + state.cost(state.parent))
-            end
-        end
-
-        function k_min = k_min(obj)
-            if isempty(obj.open_list)
-                k_min = -1;
-            else
-                k_min = min([obj.open_list.k]);
             end
         end
 

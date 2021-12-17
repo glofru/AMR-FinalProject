@@ -1,4 +1,6 @@
 clc;
+refresh_path()
+
 m = Map(20, 20);
 m.set_obstacle([4 3; 4 4; 4 5; 4 6; 5 3; 6 3; 7 3]);
 m.print_map();
@@ -8,3 +10,9 @@ goal = m.map(17, 11);
 d = D_Star(m);
 d.run(start, goal);
 m.print_map();
+
+% Fuck MATLAB
+function refresh_path()
+    rehash path
+    savepath
+end

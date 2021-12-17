@@ -13,6 +13,7 @@ classdef State < handle
         function obj = State(x, y)
             obj.x = x;
             obj.y = y;
+            obj.parent = State.empty;
             obj.state = ".";
             obj.tag = "new";
             obj.h = 0;

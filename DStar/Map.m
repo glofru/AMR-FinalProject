@@ -41,9 +41,7 @@ classdef Map < handle
                 for j=-1:1
                     if i == 0 && j == 0
                         continue
-                    elseif state.x + i < 1 || state.x + i > obj.row
-                        continue
-                    elseif state.y + j < 1 || state.y + j > obj.col
+                    elseif state.x + i < 1 || state.x + i > obj.row || state.y + j < 1 || state.y + j > obj.col
                         continue
                     else
                         neighbors(end+1) = obj.map(state.x + i, state.y + j);

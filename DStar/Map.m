@@ -1,15 +1,27 @@
 classdef Map < handle
+    properties (Constant)
+        MAP_OBSTACLE = "#";
+        MAP_EMPTY = ".";
+        MAP_PATH = "P";
+        
+        MAP_START = "S";
+        MAP_GOAL = "G";
+    end
+    
     properties
         row
         col
         map
+        obsts
     end
 
     methods
-        function obj = Map(row, col)
+        function obj = Map(row, col, obsts)
             obj.row = row;
             obj.col = col;
             obj.init_map();
+            obj.obsts = obsts;
+            obj.set_obstacle(obsts);
         end
 
         function init_map(obj)
@@ -34,6 +46,50 @@ classdef Map < handle
             tmp = tmp + "\n";
             fprintf(tmp);
         end
+        
+        function print_map_tag(obj)
+            tmp = "";
+            for i=1:obj.row
+                for j=1:obj.col
+                    switch(obj.map(i, j).tag)
+                        case State.TAG_NEW
+                            tmp = tmp + "N ";
+                            continue
+                        case State.TAG_OPEN
+                            tmp = tmp + "O ";
+                            continue
+                        case State.TAG_CLOSED
+                            tmp = tmp + "C ";
+                            continue
+                    end
+                end
+                tmp = tmp + "\n";
+            end
+            tmp = tmp + "\n";
+            fprintf(tmp);
+        end
+        
+        function res = isInside(obj, x, y)
+            if x < 1 || x > obj.row
+                res = false;
+                return;
+            end
+            if y < 1 || y > obj.col
+                res = false;
+                return;
+            end
+            res = true;
+        end
+        
+        function res = isObstacle(obj, x, y)
+            res = false;
+            for o=obj.obsts
+                if all(o==[x; y])
+                    res = true;
+                    break
+                end
+            end
+        end
 
         function neighbors = get_neighbors(obj, state)
             neighbors = State.empty;
@@ -51,13 +107,9 @@ classdef Map < handle
         end
 
         function set_obstacle(obj, point_list)
-            [r, ~] = size(point_list);
-            for i=1:r
-                point = point_list(i, :);
-                if point(1) < 1 || point(1) > obj.row || point(2) < 1 || point(2) > obj.col
-                    continue
-                else
-                    obj.map(point(1), point(2)).state = "#";
+            for point=point_list
+                if obj.isInside(point(1), point(2))
+                    obj.map(point(1), point(2)).state = Map.MAP_OBSTACLE;
                 end
             end
         end

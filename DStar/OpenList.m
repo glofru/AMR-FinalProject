@@ -35,16 +35,16 @@ classdef OpenList < handle
             end
         end
         
-        function res = isEmpty(obj)
+        function res = is_empty(obj)
             res = isempty(obj.queueS);
         end
         
-        function isInside = has(obj, s)
+        function is_inside = has(obj, s)
             % check if the queue has vertex s
             
-            isInside = true;
+            is_inside = true;
             if obj.find(s) == -1
-                isInside = false;
+                is_inside = false;
             end
         end
         
@@ -69,7 +69,7 @@ classdef OpenList < handle
             end
         end
         
-        function minV = topKey(obj)
+        function minV = top_key(obj)
             % return the smallest priority k of all vertices
             % if empty return [+inf, +inf]
             minV = [];
@@ -105,7 +105,7 @@ classdef OpenList < handle
     
     % plot functions
     methods (Access = public)
-        function plotPriorityQueue(obj)
+        function plot_priority_queue(obj)
             disp("Priority Queue:")
             data = [obj.queueS; obj.queueK];
             for col=data

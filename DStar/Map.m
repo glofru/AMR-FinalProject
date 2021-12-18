@@ -69,19 +69,17 @@ classdef Map < handle
             fprintf(tmp);
         end
         
-        function res = isInside(obj, x, y)
+        function res = is_inside(obj, x, y)
             if x < 1 || x > obj.row
                 res = false;
-                return;
-            end
-            if y < 1 || y > obj.col
+            elseif y < 1 || y > obj.col
                 res = false;
-                return;
+            else
+                res = true;
             end
-            res = true;
         end
         
-        function res = isObstacle(obj, x, y)
+        function res = is_obstacle(obj, x, y)
             res = false;
             for o=obj.obsts
                 if all(o==[x; y])
@@ -108,7 +106,7 @@ classdef Map < handle
 
         function set_obstacle(obj, point_list)
             for point=point_list
-                if obj.isInside(point(1), point(2))
+                if obj.is_inside(point(1), point(2))
                     obj.map(point(1), point(2)).state = Map.MAP_OBSTACLE;
                 end
             end

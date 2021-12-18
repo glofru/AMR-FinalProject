@@ -28,12 +28,11 @@ classdef D_Star < handle
             
             for m=obj.moves
                 
-                succ_pos = pos+m;
+                succ_pos = pos + m;
                 x = succ_pos(1);
                 y = succ_pos(2);
 
-                %se dentro i bordi
-                if ~obj.map.isInside(x, y) || obj.map.isObstacle(x, y)
+                if ~obj.map.is_inside(x, y) || obj.map.is_obstacle(x, y)
                     continue
                 end
 
@@ -43,12 +42,11 @@ classdef D_Star < handle
             end
         end
 
-        function res = processState(obj)
+        function res = process_state(obj)
             [obj.open_list, X, Kold] = obj.open_list.pop();
             X.tag = State.TAG_CLOSED;
             if isempty(X)
-                res = -1;
-                return
+                error("Path not found")
             end
             
             succ = obj.successor(X);
@@ -119,16 +117,14 @@ classdef D_Star < handle
         end
 
         function run(obj, start, goal)
-            
             PSret = 0;
             while start.tag ~= State.TAG_CLOSED && PSret ~= -1
-                PSret = obj.processState();
-                obj.map.print_map_tag();
+                PSret = obj.process_state();
+%                 obj.map.print_map_tag();
             end
             
             if start.tag ~= State.TAG_CLOSED && PSret == -1
-                disp("No possible path!");
-                return
+                error("No possible path")
             end
     
             currPos = start;
@@ -138,14 +134,14 @@ classdef D_Star < handle
                 currPos.state = Map.MAP_PATH;
 
                 % scan graph
-                %isChanged = updateMap();
+                % is_changed = updateMap();
                 obj.map.print_map();
 
                 % update graph
-                %if isChanged
-                %    updateEdgesCost();
-                %    ComputeShortestPath();
-                %end
+                % if is_changed
+                %    update_edges_cost();
+                %    compute_shortest_path();
+                % end
                 
             end
         end

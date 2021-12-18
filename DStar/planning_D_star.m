@@ -1,17 +1,17 @@
 clear all;
-clc
-%refresh_path()
+clc;
+refresh_path();
 
 %% Main
 
 moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
-obsts = [[2; 2], [3; 2], [4; 2]];
-m = Map(5, 3, obsts);
+obsts = [[4; 3], [4; 4], [4; 5], [4; 6], [5; 3], [6; 3], [7; 3]];
+m = Map(20, 20, obsts);
 
-start = m.map(1, 1);
+start = m.map(2, 3);
 start.state = Map.MAP_START;
-goal = m.map(5, 3);
+goal = m.map(17, 11);
 goal.state = Map.MAP_GOAL;
 
 disp("Initial Map!")
@@ -23,8 +23,8 @@ d.run(start, goal);
 m.print_map();
 
 
-% % Fuck MATLAB
-% function refresh_path()
-%     rehash path
-%     savepath
-% end
+% Fuck MATLAB
+function refresh_path()
+    rehash path
+    savepath
+end

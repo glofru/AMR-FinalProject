@@ -1,9 +1,7 @@
 classdef PriorityQueue
-    properties (Access = private)
+    properties %(Access = private)
         %
-        queueS;
-        %
-        queueK;
+        queue;
     end
     
     methods (Access = private)
@@ -13,22 +11,21 @@ classdef PriorityQueue
     methods (Access = public)
         function obj = PriorityQueue()
             % constructor
-            obj.queueS = [];
-            obj.queueK = [];
+            obj.queue = State.empty(1, 0);
         end
         
         function obj = insert(obj, s, k)
-            % insert in the queue vertex s with valur k
-            obj.queueS(:, end+1) = s;
-            obj.queueK(:, end+1) = k;
+            % insert in the queue vertex s with value k
+            s.k = k;
+            obj.queue(end+1) = s;
         end
         
         function pos = find(obj, s)
             % find in the queue vertex s
             % if not exists return -1
             pos = -1;
-            for i=1:size(obj.queueS, 2)
-                if all(s==obj.queueS(:, i))
+            for i=1:length(obj.queue)
+                if all(s==obj.queue(i))
                     pos=i;
                     return;
                 end
@@ -36,7 +33,7 @@ classdef PriorityQueue
         end
         
         function res = isEmpty(obj)
-            res = isempty(obj.queueS);
+            res = isempty(obj.queue);
         end
         
         function isInside = has(obj, s)
@@ -52,8 +49,7 @@ classdef PriorityQueue
             % remove from the queue vertex s
             pos = obj.find(s);
             
-            obj.queueS(:, pos) = [];
-            obj.queueK(:, pos) = [];
+            obj.queue(pos) = [];
         end
         
         function [minS, minV] = top(obj)
@@ -62,11 +58,10 @@ classdef PriorityQueue
             
             minV = [];
             minS = [];
-            for i=1:size(obj.queueS, 2)
-                appMinV = obj.queueK(:, i); % TODO
-                if isempty(minV) || min2(appMinV, minV)
-                    minV = obj.queueK(:, i);
-                    minS = obj.queueS(:, i);
+            for elem=obj.queue
+                if isempty(minV) || min2(elem.k, minV)
+                    minV = elem.k;
+                    minS = elem;
                 end
             end
         end
@@ -75,9 +70,9 @@ classdef PriorityQueue
             % return the smallest priority k of all vertices
             % if empty return [+inf, +inf]
             minV = [];
-            for i=1:size(obj.queueS, 2)
-                if isempty(minV) || min2(obj.queueK(:, i), minV)
-                    minV = obj.queueK(:, i);
+            for elem=obj.queue
+                if isempty(minV) || min2(elem.k, minV)
+                    minV = elem.k;
                 end
             end
             
@@ -100,7 +95,7 @@ classdef PriorityQueue
             if pos == -1
                 obj = obj.insert(s, k);
             else
-                obj.queueK(:, pos) = k; 
+                s.k;
             end
         end
     end
@@ -109,9 +104,8 @@ classdef PriorityQueue
     methods (Access = public)
         function plotPriorityQueue(obj)
             disp("Priority Queue:")
-            data = [obj.queueS; obj.queueK];
-            for col=data
-                disp(strjoin(["    [", col(1:2)', "] --> [", col(3:4)', "]"]))
+            for elem=obj.queue
+                disp(strjoin(["    [", elem.x, ", ", elem.y, "] --> [", elem.k, "]"]))
             end
         end
     end

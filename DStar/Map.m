@@ -9,9 +9,17 @@ classdef Map < handle
     end
     
     properties
+        %
         row
+        %
         col
+        
+        %
         map
+        
+        %
+        % | x1, x2, x3, ...
+        % | y1, y2, y3, ...
         obsts
     end
 
@@ -19,9 +27,11 @@ classdef Map < handle
         function obj = Map(row, col, obsts)
             obj.row = row;
             obj.col = col;
+            
             obj.init_map();
+            
             obj.obsts = obsts;
-            obj.set_obstacle(obsts);
+            obj.setObstacles(obsts);
         end
 
         function init_map(obj)
@@ -34,8 +44,16 @@ classdef Map < handle
                 obj.map = [obj.map; tmp];
             end
         end
-
-        function print_map(obj)
+        
+        function setObstacles(obj, point_list)
+            for point=point_list
+                if obj.isInside(point(1), point(2))
+                    obj.map(point(1), point(2)).state = Map.MAP_OBSTACLE;
+                end
+            end
+        end
+        
+         function print_map(obj)
             tmp = "";
             for i=1:obj.row
                 for j=1:obj.col
@@ -90,29 +108,5 @@ classdef Map < handle
                 end
             end
         end
-
-        function neighbors = get_neighbors(obj, state)
-            neighbors = State.empty;
-            for i=-1:1
-                for j=-1:1
-                    if i == 0 && j == 0
-                        continue
-                    elseif state.x + i < 1 || state.x + i > obj.row || state.y + j < 1 || state.y + j > obj.col
-                        continue
-                    else
-                        neighbors(end+1) = obj.map(state.x + i, state.y + j);
-                    end
-                end
-            end
-        end
-
-        function set_obstacle(obj, point_list)
-            for point=point_list
-                if obj.isInside(point(1), point(2))
-                    obj.map(point(1), point(2)).state = Map.MAP_OBSTACLE;
-                end
-            end
-        end
     end
-
 end

@@ -47,7 +47,7 @@ classdef Map < handle
         
         function setObstacles(obj, point_list)
             for point=point_list
-                if obj.isInside(point(1), point(2))
+                if obj.is_inside(point(1), point(2))
                     obj.map(point(1), point(2)).state = Map.MAP_OBSTACLE;
                 end
             end

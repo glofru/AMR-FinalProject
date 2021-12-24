@@ -10,7 +10,9 @@ Final project for the course of Autonomous and Mobile Robotics 2020/2021.
 
 ## 📝 Assignment
 
-👷 WIP 👷
+1.  Implement D* and the 2 versions of D*Lite
+2.  Implement Field D*
+3.  👷 WIP 👷
 
 ## 📜 Report
 

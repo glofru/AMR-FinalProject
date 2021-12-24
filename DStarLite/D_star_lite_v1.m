@@ -21,7 +21,6 @@ classdef D_star_lite_v1 < handle
             obj.obstacles = obstacles;
             obj.newObstacles = [];
             
-            
             % inizialize map
             obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, [], Map.TYPE_UNKNOWN);
             
@@ -29,7 +28,6 @@ classdef D_star_lite_v1 < handle
             obj.currPos.state = Map.MAP_POSITION;
             obj.goal = obj.localMap.map(Sgoal(1), Sgoal(2));
             obj.goal.state = Map.MAP_GOAL;
-            
             
             % inizialize state vals
             for i=1:obj.localMap.row
@@ -42,11 +40,14 @@ classdef D_star_lite_v1 < handle
             obj.goal.rhs = 0;
             obj.U = obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos));
 
-            
             % first scan
             obj.updateMap();
+            
+            %tic
+            % TODO optimize
             % compute first path
             obj.computeShortestPath();
+            %disp('computeShortestPath: '+string(toc)+' s'+newline);
         end
         
         function isIn = isAlredyIn(obj, L, val) % TODO
@@ -167,6 +168,10 @@ classdef D_star_lite_v1 < handle
         end
         
         function computeShortestPath(obj)
+            if obj.U.isEmpty()
+                    return
+            end
+                
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                 [obj.U, u] = obj.U.pop();

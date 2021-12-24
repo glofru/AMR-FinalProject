@@ -116,5 +116,41 @@ classdef Map < handle
 
             disp(outHeader+newline);
         end
+        
+        function plotMap_g(obj)
+            outHeader = "";
+            for i=1:(obj.col+2)
+                outHeader = outHeader + Map.MAP_OBSTACLE;
+            end
+            disp(outHeader);
+
+            for i=1:obj.row
+                out = "";
+                for j=1:obj.col
+                    out = out + obj.map(i, j).g;
+                end
+                disp(Map.MAP_OBSTACLE+out+Map.MAP_OBSTACLE);
+            end
+
+            disp(outHeader+newline);
+        end
+        
+        function plotMap_rhs(obj)
+            outHeader = "";
+            for i=1:(obj.col+2)
+                outHeader = outHeader + Map.MAP_OBSTACLE;
+            end
+            disp(outHeader);
+
+            for i=1:obj.row
+                out = "";
+                for j=1:obj.col
+                    out = out + obj.map(i, j).rhs;
+                end
+                disp(Map.MAP_OBSTACLE+out+Map.MAP_OBSTACLE);
+            end
+
+            disp(outHeader+newline);
+        end
     end
 end

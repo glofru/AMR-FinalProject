@@ -9,7 +9,7 @@ disp("Whitc search algorithm?"+newline+...
      "    3) D*Lite v2"+newline)
 algorithmType = input('search algorithm: ');
 
-L = 5;
+L = 25;
 dim = [L, L];
 Sstart = [1; 1];
 Sgoal = [L; L];
@@ -77,6 +77,25 @@ while execute
             disp('run terminated in: '+string(toc)+' s'+newline);
 
         case 3
+            tic
+            addpath('./DStarLite')
+            map = Map(dim(1), dim(2), globalObstacles, Map.TYPE_KNOWN);
+            map.map(Sstart(1), Sstart(2)).state = Map.MAP_START;
+            map.map(Sgoal(1), Sgoal(2)).state = Map.MAP_GOAL;
+
+            disp("Global Map!")
+            map.plotMap();
+
+            obstacles = [];
+            algorithm = D_star_lite_v2(map, obstacles, Sstart, Sgoal, moves);
+            disp("Initial Map!")
+            algorithm.localMap.plotMap();
+            disp('Inizialization terminated in: '+string(toc)+' s'+newline);
+            pause()
+
+            tic
+            algorithm.run();
+            disp('run terminated in: '+string(toc)+' s'+newline);
 
 
         otherwise

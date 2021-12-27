@@ -9,24 +9,22 @@ disp("Whitc search algorithm?"+newline+...
      "    3) D*Lite v2"+newline)
 algorithmType = input('search algorithm: ');
 
-L = 25;
-dim = [L, L];
+D1 = 25;
+D2 = 50;
+dim = [D1; D2];
 Sstart = [1; 1];
-Sgoal = [L; L];
+Sgoal = [D1; D2];
 
 execute = true;
 while execute
 
-    globalObstacles = zeros(2, round(L*L/2));
-    for i=1:round(L*L/2)
-        x = round(mod(rand*L, L))+1;
-        y = round(mod(rand*L, L))+1;
+    globalObstacles = zeros(2, round(D1*D2/2));
+    for i=1:round(D1*D2/2)
+        x = round(mod(rand*D1, D1))+1;
+        y = round(mod(rand*D2, D2))+1;
 
         % obstacles overlap, ok, not an error
-        if all([x; y]==Sstart) || all([x; y]==Sgoal)
-            [x; y]
-            i = i-1;
-        else
+        if ~(all([x; y]==Sstart) || all([x; y]==Sgoal))
             globalObstacles(:, i) = [x; y];
         end
     end

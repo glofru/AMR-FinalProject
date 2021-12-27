@@ -10,7 +10,7 @@ classdef D_star_lite_v2 < handle
         U;
         obstacles;
         newObstacles;
-        %%%%v2
+        
         Slast;
         km;
     end
@@ -21,7 +21,7 @@ classdef D_star_lite_v2 < handle
             obj.globalMap = globalMap;
             obj.moves = moves;
             obj.U = PriorityQueue();
-            obj.km = 0;  %%%
+            obj.km = 0;
             obj.obstacles = obstacles;
             obj.newObstacles = [];
             
@@ -30,7 +30,7 @@ classdef D_star_lite_v2 < handle
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
             obj.currPos.state = Map.MAP_POSITION;
-            obj.Slast = obj.currPos; %%%
+            obj.Slast = obj.currPos;
             obj.goal = obj.localMap.map(Sgoal(1), Sgoal(2));
             obj.goal.state = Map.MAP_GOAL;
             
@@ -168,7 +168,7 @@ classdef D_star_lite_v2 < handle
             end
 
             if u.g ~= u.rhs
-                obj.U = obj.U.update(u, u.calcKey(obj.currPos, obj.km));
+                obj.U = obj.U.insert(u, u.calcKey(obj.currPos, obj.km));
             end
         end
         
@@ -274,8 +274,8 @@ classdef D_star_lite_v2 < handle
 
                 % update graph
                 if isChanged
-                   obj.km = obj.km + h(obj.Slast, obj.currPos); %%%%
-                   obj.Slast = obj.currPos;  %%%%%%%%%%
+                   obj.km = obj.km + h(obj.Slast, obj.currPos);
+                   obj.Slast = obj.currPos;
                    obj.updateEdgesCost();
                    obj.computeShortestPath();
                 end

@@ -16,8 +16,16 @@ classdef PriorityQueue
         
         function obj = insert(obj, s, k)
             % insert in the queue vertex s with value k
-            s.k = k;
-            obj.queue(end+1) = s;
+            % if already exists change priority of s from k (old) to k
+            
+            pos = obj.find(s);
+            if pos == -1
+                s.k = k;
+                obj.queue(end+1) = s;
+            else
+                s.k = k;
+            end
+            
         end
         
         function pos = find(obj, s)
@@ -87,16 +95,6 @@ classdef PriorityQueue
             % optional k
             [s, k] = top(obj);
             obj = obj.remove(s);
-        end
-        
-        function obj = update(obj, s, k)
-            % change priority of s from k (old) to k
-            pos = obj.find(s);
-            if pos == -1
-                obj = obj.insert(s, k);
-            else
-                s.k;
-            end
         end
     end
     

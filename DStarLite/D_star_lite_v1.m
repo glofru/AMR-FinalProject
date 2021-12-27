@@ -163,7 +163,7 @@ classdef D_star_lite_v1 < handle
             end
 
             if u.g ~= u.rhs
-                obj.U = obj.U.update(u, u.calcKey(obj.currPos));
+                obj.U = obj.U.insert(u, u.calcKey(obj.currPos));
             end
         end
         
@@ -174,6 +174,7 @@ classdef D_star_lite_v1 < handle
                 
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
+%                 obj.U.plotPriorityQueue();
                 [obj.U, u] = obj.U.pop();
 
                 if (u.g > u.rhs)
@@ -266,6 +267,7 @@ classdef D_star_lite_v1 < handle
 
                 % update graph
                 if isChanged
+                    % TODO optimize
                    obj.updateEdgesCost();
                    obj.computeShortestPath();
                 end

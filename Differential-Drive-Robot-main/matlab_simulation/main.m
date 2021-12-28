@@ -64,6 +64,7 @@ switch algorithm
         path = planning_fun_D_star_lite_v1(state_robot,dt,limit,goal,image,resolution,max_iteration);
         
     case 6
+        path = planning_fun_D_star_lite_v2(state_robot,dt,limit,goal,image,resolution,max_iteration);
         
     otherwise
         error("Wrong!");

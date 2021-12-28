@@ -13,34 +13,34 @@ classdef D_star_lite_v1 < handle
         
         
         
-        map_limit;
+        mapLimit;
         map;
         start;
-        cells_isopen;
-        size_x;
-        size_y;
+        sizeX;
+        sizeY;
         resolution;
         maxIter;
     end
     
     methods
-        function obj = D_star_lite_v1(initial_state,sampling_time,limit,goal,map,resolution,maxIter)
-            obj.map_limit = limit; %limit/resolution
+        function obj = D_star_lite_v1(init_state, sampling_time, limit, goal,...
+                map, resolution, maxIter)
+            obj.mapLimit = limit;
             obj.goal = int16(goal/resolution);
-            obj.start = [int16(initial_state(1)/resolution) int16(initial_state(2)/resolution)];
+            obj.start = [int16(init_state(1)/resolution) int16(init_state(2)/resolution)];
             obj.resolution = resolution;
             obj.maxIter = maxIter;
             %obj.map = im2double(map);
             %[x, y, g, h, open, parent id (the position in the array)]
-            obj.map = zeros(size(map,1)*size(map,2),6);
-            obj.size_x = size(map,1);
-            obj.size_y = size(map,2);
+            obj.sizeX = size(map,1);
+            obj.sizeY = size(map,2);
+            obj.map = zeros(obj.sizeX*obj.sizeY,6);
             %[open, cost]
 %             obj.cells_isopen = zeros(size(map,1)*size(map,2),3);
             %obj.cells_closed = zeros(size(map,1)*size(map,2),1);
             
-            for i = 1:size(map,1)
-               for j = 1:size(map,2) 
+            for i = 1:obj.sizeX
+               for j = 1:obj.sizeY
                   if(map(i,j) < 250) 
 %                       obj.cells_isopen(i +(j-1)*size(map,2),:) = [-1,10000,10000];
                       obj.obstacles = [obj.obstacles, [i; j]];
@@ -67,7 +67,7 @@ classdef D_star_lite_v1 < handle
             obj.newObstacles = [];
             
             % inizialize map
-            obj.localMap = Map(obj.size_x, obj.size_y, obj.obstacles, Map.TYPE_UNKNOWN);
+            obj.localMap = Map(obj.sizeX, obj.sizeY, obj.obstacles, Map.TYPE_UNKNOWN);
             
             obj.currPos = obj.localMap.map(obj.start(1), obj.start(2));
             obj.currPos.state = Map.MAP_POSITION;
@@ -117,9 +117,6 @@ classdef D_star_lite_v1 < handle
                 for j=-1:1
                     if obj.localMap.isInside(is+i, js+j)
                         chr = obj.globalMap(is+i, js+j);
-                        
-                        % TODO
-                        %obj.localMap.map(is+i, js+j).state = chr;
                             
                         if chr < 250% == Map.MAP_OBSTACLE
                             new_obs = [is+i, js+j];
@@ -293,9 +290,9 @@ classdef D_star_lite_v1 < handle
         end
         
         function final_path = run(obj)
-            final_path = ones(obj.maxIter,6);
+            final_path = ones(obj.maxIter, 6);
             dimension_path = 1;
-            final_path(dimension_path,1:2) = [obj.currPos.x, obj.currPos.y]; 
+            final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y]; 
             
             while(obj.currPos ~= obj.goal && dimension_path < obj.maxIter)
                 if obj.currPos.g == inf
@@ -332,14 +329,12 @@ classdef D_star_lite_v1 < handle
                     obj.updateEdgesCost();
                     obj.computeShortestPath();
                 end
-
             end
             
-            final_path = final_path(1:dimension_path,:);
+            final_path = final_path(1:dimension_path, :);
             
             if dimension_path >= obj.maxIter
                 disp("No possible path!");
-                return
             else
                 disp("Goal reached!");
             end

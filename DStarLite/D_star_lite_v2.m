@@ -283,13 +283,5 @@ classdef D_star_lite_v2 < handle
             end
             disp("Goal reached!");
         end
-        
-        
-        
-        
-        
-        function best_cell = find_next_cell(obj)
-            
-        end
     end
 end

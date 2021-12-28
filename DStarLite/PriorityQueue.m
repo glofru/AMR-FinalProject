@@ -22,6 +22,11 @@ classdef PriorityQueue
             if pos == -1
                 s.k = k;
                 obj.queue(end+1) = s;
+                
+                % TODO
+                if s.state == Map.MAP_UNKNOWN || s.state == Map.MAP_EMPTY
+                    s.state = Map.MAP_VISITED;
+                end
             else
                 s.k = k;
             end

@@ -8,6 +8,9 @@ classdef Map < handle
         MAP_START = "ⓢ";
         MAP_GOAL = "♛";
         
+        MAP_VISITED = "╬"
+        MAP_PATH = "≡"
+        
         TYPE_KNOWN = 0;
         TYPE_UNKNOWN = 1;
     end
@@ -99,7 +102,7 @@ classdef Map < handle
         
         % ### PLOT FUNCTIONS ### %
         
-        function plotMap(obj)
+        function plotMap_old(obj) % TODO
             outHeader = "";
             for i=1:(obj.col+2)
                 outHeader = outHeader + Map.MAP_OBSTACLE;
@@ -115,6 +118,47 @@ classdef Map < handle
             end
 
             disp(outHeader+newline);
+        end
+        
+        function rgbImage = buildImageMap(obj)
+            rgbImage = zeros(obj.row, obj.col, 3)+255;
+
+            for i = 1:obj.row
+                for j = 1:obj.col
+                    switch obj.map(i, j).state
+                        case Map.MAP_OBSTACLE % "█"
+                            rgbImage(i,j,:) = [0, 0, 0];
+                            
+                        case Map.MAP_GOAL % "♛"
+                            rgbImage(i,j,:) = [255, 0, 0];
+                            
+                        case Map.MAP_PATH % "≡"
+                            rgbImage(i,j,:) = [255, 0, 0];
+                            
+                        case Map.MAP_VISITED % "╬"
+                            rgbImage(i,j,:) = [0, 255, 0];
+                            
+                        case Map.MAP_EMPTY % "░"
+                            rgbImage(i,j,:) = [255, 255, 255];
+                            
+                        case Map.MAP_UNKNOWN % "▓"
+                            rgbImage(i,j,:) = [255, 120, 120];
+                            
+                        case Map.MAP_POSITION % "☺"
+                            rgbImage(i,j,:) = [0, 0, 255];
+                            
+                        case Map.MAP_START % "ⓢ"
+                            rgbImage(i,j,:) = [120, 0, 120];
+                    end
+                end
+            end
+        end
+        
+        function plotMap(obj)
+            J = obj.buildImageMap();
+            %J = imrotate(rgbImage,90);
+            %J = imresize( J , 100);
+            imshow(J,'InitialMagnification',1000);
         end
         
         function plotMap_g(obj)

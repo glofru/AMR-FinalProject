@@ -72,7 +72,11 @@ classdef D_star_lite_v1 < handle
                 for j=-1:1
                     if obj.localMap.isInside(is+i, js+j)
                         chr = obj.globalMap.map(is+i, js+j).state;
-                        obj.localMap.map(is+i, js+j).state = chr;
+                        
+                        % TODO
+                        if obj.localMap.map(is+i, js+j).state ~= Map.MAP_PATH
+                            obj.localMap.map(is+i, js+j).state = chr;
+                        end
                             
                         if chr == Map.MAP_OBSTACLE
                             new_obs = [is+i, js+j];
@@ -175,7 +179,14 @@ classdef D_star_lite_v1 < handle
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
 %                 obj.U.plotPriorityQueue();
+                obj.localMap.plotMap();
                 [obj.U, u] = obj.U.pop();
+                
+                % TODO
+                if u.state == Map.MAP_UNKNOWN || u.state == Map.MAP_EMPTY || ...
+                        u.state == Map.MAP_VISITED
+                    u.state = Map.MAP_START;
+                end
 
                 if (u.g > u.rhs)
                     u.g = u.rhs;
@@ -258,6 +269,7 @@ classdef D_star_lite_v1 < handle
                 end
 
                 %move to minPos
+                obj.currPos.state = Map.MAP_PATH; % TODO
                 obj.currPos = minPos;
 
                 % scan graph
@@ -268,20 +280,12 @@ classdef D_star_lite_v1 < handle
                 % update graph
                 if isChanged
                     % TODO optimize
-                   obj.updateEdgesCost();
-                   obj.computeShortestPath();
+                    obj.updateEdgesCost();
+                    obj.computeShortestPath();
                 end
 
             end
             disp("Goal reached!");
-        end
-        
-        
-        
-        
-        
-        function best_cell = find_next_cell(obj)
-            
         end
     end
 end

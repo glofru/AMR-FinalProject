@@ -62,6 +62,7 @@ while execute
 
             disp("Global Map!")
             map.plotMap();
+            pause()
 
             obstacles = [];
             algorithm = D_star_lite_v1(map, obstacles, Sstart, Sgoal, moves);
@@ -101,7 +102,11 @@ while execute
     end
     
     execute = input("Another map? [0=No/1=Yes] ");
-    if execute ~= 0 && execute ~= 1
+    try
+        if execute ~= 0 && execute ~= 1
+            execute = 0;
+        end
+    catch
         execute = 0;
     end
     

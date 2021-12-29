@@ -24,8 +24,8 @@ classdef PriorityQueue
                 obj.queue(end+1) = s;
                 
                 % TODO
-                if s.state == Map.MAP_UNKNOWN || s.state == Map.MAP_EMPTY
-                    s.state = Map.MAP_VISITED;
+                if s.state == MapState.UNKNOWN || s.state == MapState.EMPTY
+                    s.state = MapState.VISITED;
                 end
             else
                 s.k = k;

@@ -23,7 +23,7 @@ classdef State < handle
                 %
                 y {}
                 %
-                state {} = Map.MAP_UNKNOWN
+                state {} = MapState.UNKNOWN
             end
             obj.x = x;
             obj.y = y;

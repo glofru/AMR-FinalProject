@@ -54,10 +54,10 @@ classdef D_star_lite_v2 < handle
             obj.localMap = Map(obj.size_x, obj.size_y, obj.obstacles, Map.TYPE_UNKNOWN);
             
             obj.currPos = obj.localMap.map(obj.start(1), obj.start(2));
-            obj.currPos.state = Map.MAP_POSITION;
+            obj.currPos.state = MapState.POSITION;
             obj.Slast = obj.currPos;
             obj.goal = obj.localMap.map(obj.goal(1), obj.goal(2));
-            obj.goal.state = Map.MAP_GOAL;
+            obj.goal.state = MapState.GOAL;
             
             % inizialize state vals
             for i=1:obj.localMap.row
@@ -105,7 +105,7 @@ classdef D_star_lite_v2 < handle
                             
                         if chr < 250
                             new_obs = [is+i, js+j];
-                            obj.localMap.map(is+i, js+j).state = Map.MAP_OBSTACLE;
+                            obj.localMap.map(is+i, js+j).state = MapState.OBSTACLE;
                             if ~obj.isAlredyIn(obj.obstacles, new_obs')
                                 obj.obstacles(:, end+1) = new_obs';
                                 obj.newObstacles(:, end+1) = new_obs';
@@ -115,7 +115,7 @@ classdef D_star_lite_v2 < handle
                     end
                 end
             end
-            obj.currPos.state = Map.MAP_POSITION;
+            obj.currPos.state = MapState.POSITION;
         end
         
         
@@ -209,9 +209,9 @@ classdef D_star_lite_v2 < handle
                 [obj.U, u] = obj.U.pop();
 
                 % TODO
-                if u.state == Map.MAP_UNKNOWN || u.state == Map.MAP_EMPTY || ...
-                        u.state == Map.MAP_VISITED
-                    u.state = Map.MAP_START;
+                if u.state == MapState.UNKNOWN || u.state == MapState.EMPTY || ...
+                        u.state == MapState.VISITED
+                    u.state = MapState.START;
                 end
                                   
                 
@@ -302,7 +302,7 @@ classdef D_star_lite_v2 < handle
                 end
 
                 %move to minPos
-                obj.currPos.state = Map.MAP_PATH; % TODO 
+                obj.currPos.state = MapState.PATH; % TODO 
                 obj.currPos = minPos;
                 dimension_path = dimension_path + 1;
                 final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y];

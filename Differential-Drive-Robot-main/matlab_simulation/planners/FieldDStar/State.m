@@ -23,7 +23,7 @@ classdef State < handle
                 %
                 y {}
                 %
-                state {} = MapState.UNKNOWN
+                state {} = Map.MAP_UNKNOWN
             end
             obj.x = x;
             obj.y = y;
@@ -35,15 +35,8 @@ classdef State < handle
             obj.k = 0;
         end
 
-        function K = calcKey(obj, Sstart, km)
-            arguments
-                obj
-                
-                Sstart
-                
-                km = 0
-            end
-            k1 = min(obj.g, obj.rhs + obj.h(Sstart) + km);
+        function K = calcKey(obj, Sstart)
+            k1 = min(obj.g, obj.rhs + obj.h(Sstart));
             k2 = min(obj.g, obj.rhs);
 
             K = [k1, k2];

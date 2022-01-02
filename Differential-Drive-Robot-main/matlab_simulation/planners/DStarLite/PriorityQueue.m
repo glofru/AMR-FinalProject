@@ -101,12 +101,6 @@ classdef PriorityQueue
             [s, k] = top(obj);
             obj = obj.remove(s);
         end
-        
-        function [obj, s, k] = extract(obj, pos)
-            s = obj.queue(pos);
-            k = s.k;
-            obj = obj.remove(s);
-        end
     end
     
     % plot functions

@@ -57,18 +57,6 @@ classdef Field_D_star < handle
                end
             end
             
-            D1 = obj.size_x;
-            D2 = obj.size_y;
-            for i=1:round(D1*D2/4)
-                x = round(mod(rand*D1, D1))+1;
-                y = round(mod(rand*D2, D2))+1;
-
-                % obstacles overlap, ok, not an error
-                if ~(all([x, y]==obj.start) || all([x, y]==obj.goal))
-                    map(x, y) = 0;
-                end
-            end
-            
             
             
             % copy vals
@@ -82,9 +70,9 @@ classdef Field_D_star < handle
             obj.localMap = Map(obj.size_x, obj.size_y, obj.obstacles, Map.TYPE_UNKNOWN);
             
             obj.currPos = obj.localMap.map(obj.start(1), obj.start(2));
-            obj.currPos.state = MapState.POSITION;
+            obj.currPos.state = Map.MAP_POSITION;
             obj.goal = obj.localMap.map(obj.goal(1), obj.goal(2));
-            obj.goal.state = MapState.GOAL;
+            obj.goal.state = Map.MAP_GOAL;
             
             % inizialize state vals
             for i=1:obj.localMap.row
@@ -133,9 +121,9 @@ classdef Field_D_star < handle
                         % TODO
                         %obj.localMap.map(is+i, js+j).state = chr;
                             
-                        if chr < 250% == MapState.OBSTACLE
+                        if chr < 250% == Map.MAP_OBSTACLE
                             new_obs = [is+i, js+j];
-                            obj.localMap.map(is+i, js+j).state = MapState.OBSTACLE;
+                            obj.localMap.map(is+i, js+j).state = Map.MAP_OBSTACLE;
                             if ~obj.isAlredyIn(obj.obstacles, new_obs')
                                 obj.obstacles(:, end+1) = new_obs';
                                 obj.newObstacles(:, end+1) = new_obs';
@@ -145,7 +133,7 @@ classdef Field_D_star < handle
                     end
                 end
             end
-            obj.currPos.state = MapState.POSITION;
+            obj.currPos.state = Map.MAP_POSITION;
         end
         
         function Lp = predecessor(obj, u)
@@ -282,9 +270,9 @@ classdef Field_D_star < handle
                 [obj.U, u] = obj.U.pop();
                 
                 % TODO
-                if u.state == MapState.UNKNOWN || u.state == MapState.EMPTY || ...
-                        u.state == MapState.VISITED
-                    u.state = MapState.START;
+                if u.state == Map.MAP_UNKNOWN || u.state == Map.MAP_EMPTY || ...
+                        u.state == Map.MAP_VISITED
+                    u.state = Map.MAP_START;
                 end
 
                 if (u.g > u.rhs)
@@ -372,7 +360,7 @@ classdef Field_D_star < handle
                 end
 
                 %move to minPos
-                obj.currPos.state = MapState.PATH; % TODO
+                obj.currPos.state = Map.MAP_PATH; % TODO
                 obj.currPos = minPos;
                 
                 dimension_path = dimension_path + 1;

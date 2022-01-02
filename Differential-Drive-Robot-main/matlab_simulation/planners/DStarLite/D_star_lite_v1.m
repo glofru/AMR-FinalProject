@@ -57,18 +57,6 @@ classdef D_star_lite_v1 < handle
                end
             end
             
-            D1 = obj.sizeX;
-            D2 = obj.sizeY;
-            for i=1:round(D1*D2/4)
-                x = round(mod(rand*D1, D1))+1;
-                y = round(mod(rand*D2, D2))+1;
-
-                % obstacles overlap, ok, not an error
-                if ~(all([x, y]==obj.start) || all([x, y]==obj.goal))
-                    map(x, y) = 0;
-                end
-            end
-            
             
             
             % copy vals
@@ -130,7 +118,7 @@ classdef D_star_lite_v1 < handle
                     if obj.localMap.isInside(is+i, js+j)
                         chr = obj.globalMap(is+i, js+j);
                             
-                        if chr < 250% == MapState.OBSTACLE
+                        if chr < 250% == Map.MAP_OBSTACLE
                             new_obs = [is+i, js+j];
                             obj.localMap.map(is+i, js+j).state = MapState.OBSTACLE;
                             if ~obj.isAlredyIn(obj.obstacles, new_obs')
@@ -286,7 +274,7 @@ classdef D_star_lite_v1 < handle
             %end
 
             while ~updateCells.isEmpty()
-                [updateCells, s, k_old] = updateCells.extract(1);%pop();
+                [updateCells, s, k_old] = updateCells.pop();
                 obj.updateVertex(s);
                 k = s.calcKey(obj.currPos);
                 if ~(k == k_old)
@@ -304,7 +292,7 @@ classdef D_star_lite_v1 < handle
         function final_path = run(obj)
             final_path = ones(obj.maxIter, 6);
             dimension_path = 1;
-            final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y] * obj.resolution; 
+            final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y]; 
             
             while(obj.currPos ~= obj.goal && dimension_path < obj.maxIter)
                 if obj.currPos.g == inf
@@ -328,7 +316,7 @@ classdef D_star_lite_v1 < handle
                 obj.currPos = minPos;
                 
                 dimension_path = dimension_path + 1;
-                final_path(dimension_path,1:2) = [obj.currPos.x, obj.currPos.y] * obj.resolution; 
+                final_path(dimension_path,1:2) = [obj.currPos.x, obj.currPos.y]; 
 
                 % scan graph
                 isChanged = obj.updateMap();

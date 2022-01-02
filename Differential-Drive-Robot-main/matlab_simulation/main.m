@@ -46,7 +46,8 @@ disp("Whitc search algorithm?"+newline+...
      "    3) Dijkstra"+newline+...
      "    4) D*"+newline+...
      "    5) D*Lite v1"+newline+...
-     "    6) D*Lite v2"+newline)
+     "    6) D*Lite v2"+newline+...
+     "    7) Field D*"+newline)
 algorithm = input('search algorithm: ');
 
 switch algorithm
@@ -66,6 +67,9 @@ switch algorithm
     case 6
         path = planning_fun_D_star_lite_v2(state_robot,dt,limit,goal,image,resolution,max_iteration);
         
+    case 7
+        path = planning_fun_Field_D_star(state_robot,dt,limit,goal,image,resolution,max_iteration);
+
     otherwise
         error("Wrong!");
 end

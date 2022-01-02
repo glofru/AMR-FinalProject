@@ -6,7 +6,8 @@ clc
 disp("Whitc search algorithm?"+newline+...
      "    1) D*"+newline+...
      "    2) D*Lite v1"+newline+...
-     "    3) D*Lite v2"+newline)
+     "    3) D*Lite v2"+newline+...
+     "    4) Field D*"+newline)
 algorithmType = input('search algorithm: ');
 
 D1 = 25;
@@ -87,6 +88,27 @@ while execute
 
             obstacles = [];
             algorithm = D_star_lite_v2(map, obstacles, Sstart, Sgoal, moves);
+            disp("Initial Map!")
+            algorithm.localMap.plotMap();
+            disp('Inizialization terminated in: '+string(toc)+' s'+newline);
+            pause()
+
+            tic
+            algorithm.run();
+            disp('run terminated in: '+string(toc)+' s'+newline);
+            
+        case 4
+            tic
+            addpath('./FieldDStar')
+            map = Map(dim(1), dim(2), globalObstacles, Map.TYPE_KNOWN);
+            map.map(Sstart(1), Sstart(2)).state = Map.MAP_START;
+            map.map(Sgoal(1), Sgoal(2)).state = Map.MAP_GOAL;
+
+            disp("Global Map!")
+            map.plotMap();
+
+            obstacles = [];
+            algorithm = Field_D_star(map, obstacles, Sstart, Sgoal, moves);
             disp("Initial Map!")
             algorithm.localMap.plotMap();
             disp('Inizialization terminated in: '+string(toc)+' s'+newline);

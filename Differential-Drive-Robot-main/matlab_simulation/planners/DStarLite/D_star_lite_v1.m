@@ -30,29 +30,15 @@ classdef D_star_lite_v1 < handle
             obj.start = [int16(init_state(1)/resolution) int16(init_state(2)/resolution)];
             obj.resolution = resolution;
             obj.maxIter = maxIter;
-            %obj.map = im2double(map);
-            %[x, y, g, h, open, parent id (the position in the array)]
+            
             obj.sizeX = size(map,1);
             obj.sizeY = size(map,2);
-            obj.map = zeros(obj.sizeX*obj.sizeY,6);
-            %[open, cost]
-%             obj.cells_isopen = zeros(size(map,1)*size(map,2),3);
-            %obj.cells_closed = zeros(size(map,1)*size(map,2),1);
+            obj.map = zeros(obj.sizeX * obj.sizeY,6);
             
             for i = 1:obj.sizeX
                for j = 1:obj.sizeY
                   if(map(i,j) < 250) 
-%                       obj.cells_isopen(i +(j-1)*size(map,2),:) = [-1,10000,10000];
                       obj.obstacles = [obj.obstacles, [i; j]];
-%                   else
-%                       %h = abs(obj.goal(1)-((i-1)*resolution)) + abs(obj.goal(2)-((j-1)*resolution));
-%                       h = 0;
-%                       obj.map(i +(j-1)*size(map,2),:) = [i,j,0,h,0,0];
-%                       if(i == obj.start(1) && j == obj.start(2))
-%                         obj.cells_isopen(i + (j-1)*size(map,2),:) = [1,0,0];
-%                       else
-%                         obj.cells_isopen(i + (j-1)*size(map,2),:) = [0,10000,10000];
-%                       end
                   end
                end
             end

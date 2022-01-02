@@ -38,9 +38,9 @@ classdef D_star_lite_v2 < handle
             obj.resolution = resolution;
             obj.maxIter = maxIter;
             
-            obj.map = zeros(size(map, 1)*size(map, 2), 6);
             obj.size_x = size(map, 1);
             obj.size_y = size(map, 2);
+            obj.map = zeros(obj.size_x * obj.size_y, 6);
             
             for i=1:obj.size_x
                 for j=1:obj.size_y
@@ -278,7 +278,7 @@ classdef D_star_lite_v2 < handle
             %end
 
             while ~updateCells.isEmpty()
-                [updateCells, s, k_old] = updateCells.pop();
+                [updateCells, s, k_old] = updateCells.extract(1);%pop();
                 obj.updateVertex(s);
                 k = s.calcKey(obj.currPos, obj.km);
                 if ~(k == k_old)

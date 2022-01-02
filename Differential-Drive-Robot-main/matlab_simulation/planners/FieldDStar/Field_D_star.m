@@ -334,7 +334,7 @@ classdef Field_D_star < handle
             %end
 
             while ~updateCells.isEmpty()
-                [updateCells, s, k_old] = updateCells.pop();
+                [updateCells, s, k_old] = updateCells.extract(1);%pop();
                 obj.updateVertex(s);
                 k = s.calcKey(obj.currPos);
                 if ~(k == k_old)

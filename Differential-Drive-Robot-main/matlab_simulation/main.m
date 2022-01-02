@@ -61,6 +61,8 @@ switch algorithm
         path = planning_fun_Dijkstra(state_robot,dt,limit,goal,image,resolution,max_iteration);
         
     case 4
+        
+        
     case 5
         path = planning_fun_D_star_lite_v1(state_robot,dt,limit,goal,image,resolution,max_iteration);
         

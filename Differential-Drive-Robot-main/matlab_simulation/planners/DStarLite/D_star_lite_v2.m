@@ -20,11 +20,11 @@ classdef D_star_lite_v2 < handle
         size_x;
         size_y;
         resolution;
-        maxiter;
+        maxIter;
     end
     
     methods
-        function obj = D_star_lite_v2(init_state, sampling_time, limit, goal, map, resolution, maxiter)
+        function obj = D_star_lite_v2(init_state, sampling_time, limit, goal, map, resolution, maxIter)
             % copy vals
             obj.globalMap = map;
             obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
@@ -36,7 +36,7 @@ classdef D_star_lite_v2 < handle
             obj.goal = int16(goal/resolution);
             obj.start = [int16(init_state(1)/resolution) int16(init_state(2)/resolution)];
             obj.resolution = resolution;
-            obj.maxiter = maxiter;
+            obj.maxIter = maxIter;
             
             obj.map = zeros(size(map, 1)*size(map, 2), 6);
             obj.size_x = size(map, 1);
@@ -49,6 +49,20 @@ classdef D_star_lite_v2 < handle
                     end
                 end
             end
+            
+            D1 = obj.size_x;
+            D2 = obj.size_y;
+            for i=1:round(D1*D2/4)
+                x = round(mod(rand*D1, D1))+1;
+                y = round(mod(rand*D2, D2))+1;
+
+                % obstacles overlap, ok, not an error
+                if ~(all([x, y]==obj.start) || all([x, y]==obj.goal))
+                    map(x, y) = 0;
+                end
+            end
+            
+            
             
             % inizialize map
             obj.localMap = Map(obj.size_x, obj.size_y, obj.obstacles, Map.TYPE_UNKNOWN);
@@ -280,11 +294,11 @@ classdef D_star_lite_v2 < handle
         end
         
         function final_path = run(obj)
-            final_path = ones(obj.maxiter, 6);
+            final_path = ones(obj.maxIter, 6);
             dimension_path = 1;
-            final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y];
+            final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y] * obj.resolution;
             
-            while(obj.currPos ~= obj.goal && dimension_path < obj.maxiter)
+            while(obj.currPos ~= obj.goal && dimension_path < obj.maxIter)
                 if obj.currPos.g == inf
                     disp("No possible path!");
                     return
@@ -305,7 +319,7 @@ classdef D_star_lite_v2 < handle
                 obj.currPos.state = MapState.PATH; % TODO 
                 obj.currPos = minPos;
                 dimension_path = dimension_path + 1;
-                final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y];
+                final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y] * obj.resolution;
                 
                 % scan graph
                 isChanged = obj.updateMap();
@@ -322,11 +336,11 @@ classdef D_star_lite_v2 < handle
             end 
 
             final_path = final_path(1:dimension_path, :);
-            if dimension_path >= obj.maxiter
+            if dimension_path >= obj.maxIter
                 disp("No possible path!");
             else 
                 disp("Goal reached!");
             end 
-        end
+        end 
     end
 end

@@ -1,15 +1,13 @@
 **/.DS_Store
 
 Differential-Drive-Robot-main/*
-
 !Differential-Drive-Robot-main/matlab_simulation/
+
 Differential-Drive-Robot-main/matlab_simulation/*
-
 !Differential-Drive-Robot-main/matlab_simulation/main.m
-
 !Differential-Drive-Robot-main/matlab_simulation/planners/
-Differential-Drive-Robot-main/matlab_simulation/planners/*
 
+Differential-Drive-Robot-main/matlab_simulation/planners/*
 !Differential-Drive-Robot-main/matlab_simulation/planners/DStar/
 !Differential-Drive-Robot-main/matlab_simulation/planners/DStarLite/
 !Differential-Drive-Robot-main/matlab_simulation/planners/FieldDStar/

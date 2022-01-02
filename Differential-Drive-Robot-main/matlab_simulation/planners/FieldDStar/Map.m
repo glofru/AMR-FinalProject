@@ -1,13 +1,5 @@
 classdef Map < handle
     properties (Constant)
-        MAP_OBSTACLE = "█";
-        MAP_UNKNOWN = "▓";
-        MAP_EMPTY = "░";
-        MAP_POSITION = "☺";
-        
-        MAP_START = "ⓢ";
-        MAP_GOAL = "♛";
-        
         TYPE_KNOWN = 0;
         TYPE_UNKNOWN = 1;
     end
@@ -61,7 +53,7 @@ classdef Map < handle
             for i=1:obj.row
                 tmp = State.empty(0, 1);
                 for j=1:obj.col
-                    tmp(j) = State(i, j, Map.MAP_UNKNOWN);
+                    tmp(j) = State(i, j, MapState.UNKNOWN);
                 end
                 obj.map = [obj.map; tmp];
             end
@@ -70,7 +62,7 @@ classdef Map < handle
         function setObstacles(obj, point_list)
             for point=point_list
                 if obj.isInside(point(1), point(2))
-                    obj.map(point(1), point(2)).state = Map.MAP_OBSTACLE;
+                    obj.map(point(1), point(2)).state = MapState.OBSTACLE;
                 end
             end
         end
@@ -99,28 +91,27 @@ classdef Map < handle
         
         % ### PLOT FUNCTIONS ### %
         
-        function plotMap(obj)
-            outHeader = "";
-            for i=1:(obj.col+2)
-                outHeader = outHeader + Map.MAP_OBSTACLE;
-            end
-            disp(outHeader);
+        function rgbImage = buildImageMap(obj)
+            rgbImage = zeros(obj.row, obj.col, 3)+255;
 
-            for i=1:obj.row
-                out = "";
-                for j=1:obj.col
-                    out = out + obj.map(i, j).state;
+            for i = 1:obj.row
+                for j = 1:obj.col
+                    rgbImage(i,j,:) = obj.map(i, j).state.getColor();
                 end
-                disp(Map.MAP_OBSTACLE+out+Map.MAP_OBSTACLE);
             end
-
-            disp(outHeader+newline);
+        end
+        
+        function plotMap(obj)
+            J = obj.buildImageMap();
+            %J = imrotate(rgbImage,90);
+            %J = imresize( J , 100);
+            imshow(J,'InitialMagnification',1000);
         end
         
         function plotMap_g(obj)
             outHeader = "";
             for i=1:(obj.col+2)
-                outHeader = outHeader + Map.MAP_OBSTACLE;
+                outHeader = outHeader + MapState.OBSTACLE;
             end
             disp(outHeader);
 
@@ -129,7 +120,7 @@ classdef Map < handle
                 for j=1:obj.col
                     out = out + obj.map(i, j).g;
                 end
-                disp(Map.MAP_OBSTACLE+out+Map.MAP_OBSTACLE);
+                disp(disp(MapState.OBSTACLE) + out + disp(MapState.OBSTACLE));
             end
 
             disp(outHeader+newline);
@@ -138,7 +129,7 @@ classdef Map < handle
         function plotMap_rhs(obj)
             outHeader = "";
             for i=1:(obj.col+2)
-                outHeader = outHeader + Map.MAP_OBSTACLE;
+                outHeader = outHeader + disp(MapState.OBSTACLE);
             end
             disp(outHeader);
 
@@ -147,10 +138,28 @@ classdef Map < handle
                 for j=1:obj.col
                     out = out + obj.map(i, j).rhs;
                 end
-                disp(Map.MAP_OBSTACLE+out+Map.MAP_OBSTACLE);
+                disp(disp(Map.MAP_OBSTACLE) + out + disp(MapState.OBSTACLE));
             end
 
             disp(outHeader+newline);
+        end
+        
+        function plotMap_k(obj)
+            outHeader = "";
+            for i=1:(obj.col + 2)
+                outHeader = outHeader + disp(MapState.OBSTACLE);
+            end
+            disp(outHeader);
+
+            for i=1:obj.row
+                out = "";
+                for j=1:obj.col
+                    out = out + obj.map(i, j).k+" ";
+                end
+                disp(disp(MapState.OBSTACLE) + out + disp(MapState.OBSTACLE));
+            end
+
+            disp(outHeader + newline);
         end
     end
 end

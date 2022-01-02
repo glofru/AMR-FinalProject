@@ -115,5 +115,7 @@ size_path = size(path);
 %plotting
 figure(); plot(path(:,1),path(:,2)); hold on; plot(real_robot(:,1),real_robot(:,2))
 figure();
-J = rgbImage;%J = imrotate(rgbImage,90);
-J = imresize( J , 5); imshow(J);
+J = rgbImage;
+%J = imrotate(rgbImage,90);
+J = imresize( J , 5);
+imshow(J);

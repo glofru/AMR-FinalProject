@@ -25,13 +25,6 @@ classdef D_star_lite_v2 < handle
     
     methods
         function obj = D_star_lite_v2(init_state, sampling_time, limit, goal, map, resolution, maxIter)
-            % copy vals
-            obj.globalMap = map;
-            obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
-            obj.U = PriorityQueue();
-            obj.km = 0;
-            obj.newObstacles = [];
-            
             obj.map_limit = limit;
             obj.goal = int16(goal/resolution);
             obj.start = [int16(init_state(1)/resolution) int16(init_state(2)/resolution)];
@@ -63,6 +56,12 @@ classdef D_star_lite_v2 < handle
             end
             
             
+            % copy vals
+            obj.globalMap = map;
+            obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
+            obj.U = PriorityQueue();
+            obj.km = 0;
+            obj.newObstacles = [];
             
             % inizialize map
             obj.localMap = Map(obj.size_x, obj.size_y, obj.obstacles, Map.TYPE_UNKNOWN);

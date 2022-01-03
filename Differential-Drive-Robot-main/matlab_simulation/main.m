@@ -20,8 +20,8 @@ state_robot = [1 1 0 0 0 0];
 dt = 0.1;
 limit = [3, 3];
 %goal = [2,1];
-goal = [0.5,2.5];
-map_limit = [3,3];
+goal = [0.5, 2.5];
+map_limit = [3, 3];
 max_iteration = 1000;
 v_max = 10;
 w_max = 10;
@@ -61,8 +61,7 @@ switch algorithm
         path = planning_fun_Dijkstra(state_robot,dt,limit,goal,image,resolution,max_iteration);
         
     case 4
-        
-        
+        path = planning_fun_D_star(state_robot,dt,limit,goal,image,resolution,max_iteration);
     case 5
         path = planning_fun_D_star_lite_v1(state_robot,dt,limit,goal,image,resolution,max_iteration);
         
@@ -73,7 +72,7 @@ switch algorithm
         path = planning_fun_Field_D_star(state_robot,dt,limit,goal,image,resolution,max_iteration);
 
     otherwise
-        error("Wrong!");
+        error("Invalid algorithm choice");
 end
 
 
@@ -115,7 +114,12 @@ size_path = size(path);
 %[rgbImage,real_robot] = nonlinear_lyapunov(image,state_robot,path,scale,goal,dt)
 
 %plotting
-figure(); plot(path(:,1),path(:,2)); hold on; plot(real_robot(:,1),real_robot(:,2))
 figure();
+plot(path(:,1), path(:,2));
+hold on;
+plot(real_robot(:,1), real_robot(:,2))
+figure();
+
 J = rgbImage;%J = imrotate(rgbImage,90);
-J = imresize( J , 5); imshow(J);
+J = imresize( J , 5);
+imshow(J);

@@ -30,7 +30,7 @@ classdef Map < handle
                 case Map.TYPE_UNKNOWN
                     obj.init_map_unknown();
                 otherwise
-                    error("Wrong!") % TODO
+                    error("Wrong map type")
             end
             
             obj.obstacles = obstacles;
@@ -92,7 +92,7 @@ classdef Map < handle
         % ### PLOT FUNCTIONS ### %
         
         function rgbImage = buildImageMap(obj)
-            rgbImage = zeros(obj.row, obj.col, 3)+255;
+            rgbImage = zeros(obj.row, obj.col, 3) + 255;
 
             for i = 1:obj.row
                 for j = 1:obj.col
@@ -100,9 +100,33 @@ classdef Map < handle
                 end
             end
         end
+
+        function rgbImage = buildImageMapDStar(obj)
+            rgbImage = zeros(obj.row, obj.col, 3) + 255;
+
+            for i = 1:obj.row
+                for j = 1:obj.col
+                    state = obj.map(i, j).state;
+                    tag = obj.map(i, j).tag;
+
+                    if state == MapState.VISITED || (state == MapState.UNKNOWN && tag == StateTag.OPEN)
+                        rgbImage(i,j,:) = tag.getColor();
+                    else
+                        rgbImage(i,j,:) = state.getColor();
+                    end
+                end
+            end
+        end
         
         function plotMap(obj)
             J = obj.buildImageMap();
+            %J = imrotate(rgbImage,90);
+            %J = imresize( J , 100);
+            imshow(J,'InitialMagnification',1000);
+        end
+
+        function plotMapDStar(obj)
+            J = obj.buildImageMapDStar();
             %J = imrotate(rgbImage,90);
             %J = imresize( J , 100);
             imshow(J,'InitialMagnification',1000);

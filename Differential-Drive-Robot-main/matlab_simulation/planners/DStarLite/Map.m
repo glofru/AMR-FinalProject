@@ -30,7 +30,7 @@ classdef Map < handle
                 case Map.TYPE_UNKNOWN
                     obj.init_map_unknown();
                 otherwise
-                    error("Wrong!") % TODO
+                    error("Wrong map type")
             end
             
             obj.obstacles = obstacles;

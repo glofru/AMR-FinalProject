@@ -71,10 +71,10 @@ classdef D_Star < handle
         function res = process_state(obj)
             [obj.open_list, X, Kold] = obj.open_list.pop();
             X.tag = StateTag.CLOSED;
-            if X.state ~= MapState.GOAL
-                X.state = MapState.POSITION;
+            if X.state ~= MapState.GOAL && X.state ~= MapState.START
+                X.state = MapState.VISITED;
             end
-            obj.localMap.plotMap();
+            obj.localMap.plotMapDStar();
 
             if isempty(X)
                 error("Path not found")
@@ -127,10 +127,6 @@ classdef D_Star < handle
                 end
             end
 
-            if X.state ~= MapState.GOAL
-                X.state = MapState.VISITED;
-            end
-            obj.localMap.plotMap();
             [~, res] = obj.open_list.top();
         end
 
@@ -157,7 +153,7 @@ classdef D_Star < handle
             final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y]; 
 
             PSret = 0;
-            obj.localMap.plotMap();
+            obj.localMap.plotMapDStar();
             while obj.currPos.tag ~= StateTag.CLOSED && PSret ~= -1
                 PSret = obj.process_state();
             end
@@ -174,7 +170,7 @@ classdef D_Star < handle
                 dimension_path = dimension_path + 1;
                 final_path(dimension_path,1:2) = [obj.currPos.x, obj.currPos.y]; 
 
-                obj.localMap.plotMap();
+                obj.localMap.plotMapDStar();
 
                 % scan graph
                 % is_changed = updateMap();

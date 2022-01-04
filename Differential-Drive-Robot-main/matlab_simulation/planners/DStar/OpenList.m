@@ -1,21 +1,14 @@
 classdef OpenList < handle
-    properties (Access = public) %private)
-        %
+    properties (Access = private)
         queueS;
-    end
-    
-    methods (Access = private)
-        
     end
     
     methods (Access = public)
         function obj = OpenList()
-            % constructor
-            
+            obj.queueS = [];
         end
         
-        function obj = insert(obj, s)
-            % insert in the queue vertex s with valur k
+        function insert(obj, s)
             if isempty(obj.queueS)
                 obj.queueS = s;
             else
@@ -39,78 +32,54 @@ classdef OpenList < handle
             res = isempty(obj.queueS);
         end
         
-        function is_inside = has(obj, s)
-            % check if the queue has vertex s
-            
-            is_inside = true;
+        function h = has(obj, s)
             if obj.find(s) == -1
-                is_inside = false;
+                h = false;
+            else
+                h = true;
             end
         end
         
-        function obj = remove(obj, s)
+        function remove(obj, s)
             % remove from the queue vertex s
             pos = obj.find(s);
             obj.queueS(pos) = [];
         end
-        
-        function [minS, minV] = top(obj)
-            % return a vertex with the smallest priority k
-            % optional minV
-            
-            minV = -1;
-            minS = [];
-            for i=1:size(obj.queueS, 2)
-                appMinV = obj.queueS(i).h;
-                if isempty(minS) || appMinV < minV
-                    minV = appMinV;
-                    minS = obj.queueS(i);
-                end
-            end
-        end
-        
-        function minV = top_key(obj)
-            % return the smallest priority k of all vertices
-            % if empty return [+inf, +inf]
-            minV = [];
-            for i=1:size(obj.queueS, 2)
-                if isempty(minV) || min2(obj.queueK(:, i), minV)
-                    minV = obj.queueK(:, i);
-                end
-            end
-            
-            if isempty(minV)
-                error("the priority queue is empty");
-            end
-        end
-        
-        function [obj, s, k] = pop(obj)
-            % delete from the queue the vertex with the smallest priority k
-            % and return it
-            % optional k
-            [s, k] = obj.top();
-            obj = obj.remove(s);
-        end
-        
-        function obj = update(obj, s, k)
-            % change priority of s from k (old) to k
-            pos = obj.find(s);
-            if pos == -1
-                obj = obj.insert(s, k);
+
+        function k = get_kmin(obj)
+            if isempty(obj.queueS)
+                k = -1;
             else
-                obj.queueK(:, pos) = k; 
+                k = Inf;
+                for e=obj.queueS
+                    if e.k < k
+                        k = e.k;
+                    end
+                end
             end
         end
-    end
-    
-    % plot functions
-    methods (Access = public)
-        function plot_priority_queue(obj)
-            disp("Priority Queue:")
-            data = [obj.queueS; obj.queueK];
-            for col=data
-                disp(strjoin(["    [", col(1:2)', "] --> [", col(3:4)', "]"]))
+
+        function [k, s] = min_state(obj)
+            if isempty(obj.queueS)
+                k = -1;
+                s = State.empty;
+            else
+                k = Inf;
+                for e=obj.queueS
+                    if e.k < k
+                        k = e.k;
+                        s = e;
+                    end
+                end
             end
+        end
+
+        function p = print(obj)
+            disp("OL")
+            for i=obj.queueS
+                disp(i.k)
+            end
+            disp("END")
         end
     end
 end

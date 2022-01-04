@@ -35,99 +35,104 @@ classdef D_Star < handle
                 end
             end
 
-            % inizialize map
+            % initialize map
             obj.localMap = Map(size_x, size_y, obj.obstacles, Map.TYPE_UNKNOWN);
             
             obj.currPos = obj.localMap.map(start(1), start(2));
             obj.currPos.state = MapState.START;
             obj.goal = obj.localMap.map(obj.goal(1), obj.goal(2));
             obj.goal.state = MapState.GOAL;
-            obj.goal.h = 0;
             
             obj.open_list = OpenList();
-            obj.open_list = obj.open_list.insert(obj.goal);
+            obj.open_list.insert(obj.goal);
         end
         
-        function Ls = successor(obj, X)
-            Ls = OpenList();
+        function s = neighbors(obj, X)
+            s = [State.empty];
             pos = [X.x; X.y];
             
             for m=obj.moves
-                
                 succ_pos = pos + m;
                 x = succ_pos(1);
                 y = succ_pos(2);
 
-                if ~obj.localMap.isInside(x, y) || obj.localMap.isObstacle(x, y)
-                    continue
-                end
-
-                if ~Ls.has(obj.localMap.map(x, y))
-                    Ls = Ls.insert(obj.localMap.map(x, y));
+                if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
+                    s(end+1) = obj.localMap.map(x, y);
                 end
             end
         end
 
         function res = process_state(obj)
-            [obj.open_list, X, Kold] = obj.open_list.pop();
-            X.tag = StateTag.CLOSED;
-            if X.state ~= MapState.GOAL && X.state ~= MapState.START
-                X.state = MapState.VISITED;
-            end
-            obj.localMap.plotMapDStar();
-
+            [Kold, X] = obj.open_list.min_state();
+            obj.open_list.print();
             if isempty(X)
                 error("Path not found")
             end
+            obj.remove(X);
             
-            succ = obj.successor(X);
+
+            if X.state ~= MapState.GOAL && X.state ~= MapState.START
+                X.state = MapState.VISITED;
+            end
+            
+            obj.localMap.plotMapDStar();
+            
+            succ = obj.neighbors(X);
             if Kold < X.h
                 for Y=succ
-                    if Y.h < Kold && X.h > Y.h + X.cost(Y)
+                    if Y.h <= Kold && X.h > Y.h + X.cost(Y)
                         X.parent = Y;
                         X.h = Y.h + X.cost(Y);
                     end
                 end
-            end
-            
-            if Kold == X.h
-                for i=1:size(succ.queueS, 2)
-                    Y = succ.queueS(i);
+            elseif Kold == X.h
+                for Y=succ
                     if Y.tag == StateTag.NEW || ...
                             (~isempty(Y.parent) && Y.parent == X && Y.h ~= X.h + X.cost(Y)) || ...
-                            (~isempty(Y.parent) && ~(Y.parent == X) && Y.h > X.h + X.cost(Y))
+                            (~isempty(Y.parent) && Y.parent ~= X && Y.h > X.h + X.cost(Y))
                         Y.parent = X;
-                        Y.h = X.h + X.cost(Y);
-                        Y.tag = StateTag.OPEN;
-                        obj.open_list = obj.open_list.insert(Y);
+                        obj.insert(Y, X.h + X.cost(Y));
                     end
                 end
             else
-                for i=1:size(succ.queueS, 2)
-                    Y = succ.queueS(i);
+                for Y=succ
                     if Y.tag == StateTag.NEW ||...
                             (Y.parent == X && Y.h ~= X.h + X.cost(Y))
                         Y.parent = X;
-                        Y.h = X.h + X.cost(Y);
-                        Y.tag = StateTag.OPEN;
-                        obj.open_list = obj.open_list.insert(Y);
+                        obj.insert(Y, X.h + X.cost(Y));
                     else
-                        if ~(Y.parent == X) && Y.h > X.h + X.cost(Y)
-                            X.tag = StateTag.OPEN;
-                            obj.open_list = obj.open_list.insert(X);
+                        if Y.parent ~= X && Y.h > X.h + X.cost(Y)
+                            obj.insert(Y, X.h);
                         else
-                            if ~(Y.parent == X) && X.h > Y.h + Y.cost(X) && ...
+                            if Y.parent ~= X && X.h > Y.h + X.cost(Y) && ...
                                     Y.tag == StateTag.CLOSED && ...
                                     Y.h > Kold
-                                Y.tag = StateTag.OPEN;
-                                obj.open_list = obj.open_list.insert(Y);
+                                obj.insert(Y, Y.h);
                             end
                         end
                     end
                 end
             end
 
-            [~, res] = obj.open_list.top();
+            res = obj.open_list.get_kmin();
+        end
+
+        function insert(obj, state, h_new)
+            if state.tag == StateTag.NEW
+                state.k = h_new;
+            elseif state.tag == StateTag.OPEN
+                state.k = min(state.k, h_new);
+            elseif state.tag == StateTag.CLOSED
+                state.k = min(state.h, h_new);
+            end
+            state.h = h_new;
+            state.tag = StateTag.OPEN;
+            obj.open_list.insert(state);
+        end
+
+        function remove(obj, state)
+            state.tag = StateTag.CLOSED;
+            obj.open_list.remove(state);
         end
 
 
@@ -152,14 +157,9 @@ classdef D_Star < handle
             dimension_path = 1;
             final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y]; 
 
-            PSret = 0;
             obj.localMap.plotMapDStar();
-            while obj.currPos.tag ~= StateTag.CLOSED && PSret ~= -1
-                PSret = obj.process_state();
-            end
-            
-            if obj.currPos.tag ~= StateTag.CLOSED && PSret == -1
-                error("No possible path")
+            while obj.currPos.tag ~= StateTag.CLOSED
+                obj.process_state();
             end
 
             while ~obj.currPos.parent.eq(obj.goal)

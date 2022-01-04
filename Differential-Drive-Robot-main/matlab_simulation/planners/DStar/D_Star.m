@@ -64,7 +64,6 @@ classdef D_Star < handle
 
         function res = process_state(obj)
             [Kold, X] = obj.open_list.min_state();
-            obj.open_list.print();
             if isempty(X)
                 error("Path not found")
             end
@@ -131,7 +130,9 @@ classdef D_Star < handle
         end
 
         function remove(obj, state)
-            state.tag = StateTag.CLOSED;
+            if state.tag == StateTag.OPEN
+                state.tag = StateTag.CLOSED;
+            end
             obj.open_list.remove(state);
         end
 

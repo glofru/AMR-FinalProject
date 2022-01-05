@@ -12,7 +12,8 @@ Final project for the course of Autonomous and Mobile Robotics 2020/2021.
 
 1.  Implement D* and the 2 versions of D*Lite
 2.  Implement Field D*
-3.  👷 WIP 👷
+3.  Re-Implement these 4 algorithms as an add-on for this repository [Link 🔗](https://github.com/giulioturrisi/Differential-Drive-Robot)
+4.  👷 WIP 👷
 
 ## 📜 Report
 

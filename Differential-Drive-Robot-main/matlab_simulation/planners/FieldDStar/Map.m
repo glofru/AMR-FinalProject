@@ -1,42 +1,28 @@
 classdef Map < handle
+    % Class to keep and work with the map
+    %
+    
     properties (Constant)
         TYPE_KNOWN = 0;
         TYPE_UNKNOWN = 1;
     end
     
     properties
-        %
-        row
-        %
-        col
+        % num of map's rows
+        row %double {mustBePositive, mustBeInteger}
+        % num of map's cols
+        col %double {mustBePositive, mustBeInteger}
         
-        %
-        map
+        % row x col matrix of State
+        map %(:, :) {}
         
-        %
+        % matrix 2 x N list of obstacles
         % | x1, x2, x3, ...
         % | y1, y2, y3, ...
-        obstacles
+        obstacles %(2, :) {mustBePositive, mustBeInteger}
     end
-
-    methods
-        function obj = Map(row, col, obstacles, type)
-            obj.row = row;
-            obj.col = col;
-            
-            switch type
-                case Map.TYPE_KNOWN
-                    obj.init_map_known();
-                case Map.TYPE_UNKNOWN
-                    obj.init_map_unknown();
-                otherwise
-                    error("Wrong!") % TODO
-            end
-            
-            obj.obstacles = obstacles;
-            obj.setObstacles(obstacles);
-        end
-
+    
+    methods (Access = private)
         function init_map_known(obj)
             obj.map = State.empty(1, 0);
             for i=1:obj.row
@@ -58,8 +44,53 @@ classdef Map < handle
                 obj.map = [obj.map; tmp];
             end
         end
-        
+    end
+
+    methods
+        % map constructor
+        function obj = Map(row, col, obstacles, type)
+            arguments
+                % num of map's rows
+                row %double {mustBePositive, mustBeInteger}
+                % num of map's cols
+                col %double {mustBePositive, mustBeInteger}
+                
+                % matrix 2 x N list of obstacles
+                % | x1, x2, x3, ...
+                % | y1, y2, y3, ...
+                obstacles %(2, :) {mustBePositive, mustBeInteger} = []
+                
+                % type of the non obstacles tiles
+                type %double {} = Map.TYPE_UNKNOWN
+            end
+            
+            obj.row = row;
+            obj.col = col;
+            
+            switch type
+                case Map.TYPE_KNOWN
+                    obj.init_map_known();
+                case Map.TYPE_UNKNOWN
+                    obj.init_map_unknown();
+                otherwise
+                    error("Wrong!")
+            end
+            
+            obj.obstacles = obstacles;
+            obj.setObstacles(obstacles);
+        end
+
+        % set a list of obstacles inside the map
         function setObstacles(obj, point_list)
+            arguments
+                obj
+                
+                % matrix 2 x N list of obstacles
+                % | x1, x2, x3, ...
+                % | y1, y2, y3, ...
+                point_list %(2, :) {mustBePositive, mustBeInteger}
+            end
+            
             for point=point_list
                 if obj.isInside(point(1), point(2))
                     obj.map(point(1), point(2)).state = MapState.OBSTACLE;
@@ -67,7 +98,16 @@ classdef Map < handle
             end
         end
         
+        % check if (x, y) is inside the map
         function res = isInside(obj, x, y)
+            arguments
+                obj
+                
+                % x and y position of the position to check
+                x %double {mustBeNumeric}
+                y %double {mustBeNumeric}
+            end
+            
             if x < 1 || x > obj.row
                 res = false;
                 return;
@@ -79,7 +119,16 @@ classdef Map < handle
             res = true;
         end
         
+        % check if (x, y) is an obstacle
         function res = isObstacle(obj, x, y)
+            arguments
+                obj
+                
+                % x and y position of the position to check
+                x %double {mustBeNumeric}
+                y %double {mustBeNumeric}
+            end
+            
             res = false;
             for o = obj.obstacles
                 if all(o==[x; y])
@@ -91,6 +140,7 @@ classdef Map < handle
         
         % ### PLOT FUNCTIONS ### %
         
+        % generate the map image
         function rgbImage = buildImageMap(obj)
             rgbImage = zeros(obj.row, obj.col, 3)+255;
 
@@ -101,65 +151,12 @@ classdef Map < handle
             end
         end
         
+        % plot the map image
         function plotMap(obj)
             J = obj.buildImageMap();
-            %J = imrotate(rgbImage,90);
-            %J = imresize( J , 100);
+            %J = imrotate(rgbImage,90); % TODO decide if to keep
+            %J = imresize( J , 100); % TODO decide if to keep
             imshow(J,'InitialMagnification',1000);
-        end
-        
-        function plotMap_g(obj)
-            outHeader = "";
-            for i=1:(obj.col+2)
-                outHeader = outHeader + disp(MapState.OBSTACLE);
-            end
-            disp(outHeader);
-
-            for i=1:obj.row
-                out = "";
-                for j=1:obj.col
-                    out = out + obj.map(i, j).g + " ";
-                end
-                disp(disp(MapState.OBSTACLE) + out + disp(MapState.OBSTACLE));
-            end
-
-            disp(outHeader + newline);
-        end
-        
-        function plotMap_rhs(obj)
-            outHeader = "";
-            for i=1:(obj.col+2)
-                outHeader = outHeader + disp(MapState.OBSTACLE);
-            end
-            disp(outHeader);
-
-            for i=1:obj.row
-                out = "";
-                for j=1:obj.col
-                    out = out + obj.map(i, j).rhs+" ";
-                end
-                disp(disp(Map.MAP_OBSTACLE) + out + disp(MapState.OBSTACLE));
-            end
-
-            disp(outHeader + newline);
-        end
-        
-        function plotMap_k(obj)
-            outHeader = "";
-            for i=1:(obj.col + 2)
-                outHeader = outHeader + disp(MapState.OBSTACLE);
-            end
-            disp(outHeader);
-
-            for i=1:obj.row
-                out = "";
-                for j=1:obj.col
-                    out = out + obj.map(i, j).k+" ";
-                end
-                disp(disp(MapState.OBSTACLE) + out + disp(MapState.OBSTACLE));
-            end
-
-            disp(outHeader + newline);
         end
     end
 end

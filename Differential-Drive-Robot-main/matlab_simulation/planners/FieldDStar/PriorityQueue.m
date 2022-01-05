@@ -1,11 +1,11 @@
 classdef PriorityQueue
-    properties %(Access = private)
-        %
-        queue;
-    end
+    % Class to keep a list of element
+    % with methods to work with it
+    %
     
-    methods (Access = private)
-        
+    properties %(Access = private)
+        % list of the states
+        queue;
     end
     
     methods (Access = public)
@@ -18,19 +18,18 @@ classdef PriorityQueue
             % insert in the queue vertex s with value k
             % if already exists change priority of s from k (old) to k
             
+            s.k = k; % ==> s.Kold = k
+            
             pos = obj.find(s);
             if pos == -1
-                s.k = k;
+                
                 obj.queue(end+1) = s;
                 
                 % TODO
                 if s.state == MapState.UNKNOWN || s.state == MapState.EMPTY
                     s.state = MapState.VISITED;
                 end
-            else
-                s.k = k;
             end
-            
         end
         
         function pos = find(obj, s)
@@ -99,6 +98,12 @@ classdef PriorityQueue
             % and return it
             % optional k
             [s, k] = top(obj);
+            obj = obj.remove(s);
+        end
+        
+        function [obj, s, k] = extract(obj, pos)
+            s = obj.queue(pos);
+            k = s.k;
             obj = obj.remove(s);
         end
     end

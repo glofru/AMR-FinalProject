@@ -1,12 +1,11 @@
 classdef State < handle
-    properties (Constant)
-        
-    end
-    
+    % Class to keep and work with a state
+    %
+
     properties
         x
         y
-        % parent
+        
         state
         
         g
@@ -19,9 +18,9 @@ classdef State < handle
         function obj = State(x, y, state)
             arguments
                 %
-                x {}
+                x %{}
                 %
-                y {}
+                y %{}
                 %
                 state {} = MapState.UNKNOWN
             end
@@ -35,7 +34,7 @@ classdef State < handle
             obj.k = 0;
         end
 
-        function K = calcKey(obj, Sstart, km)
+        function K = calcKey(obj, Sstart, km) % TODO
             arguments
                 obj
                 
@@ -53,8 +52,8 @@ classdef State < handle
             res = norm([obj.x - s.x, obj.y - s.y]);
         end
 
-        function res = c(obj, state)
-            res = 1;
+        function res = c(obj, state) % TODO
+            res = 0.1;% 1; improvement with 0.1 instead 1
         end
 
         function e = eq(obj, s)

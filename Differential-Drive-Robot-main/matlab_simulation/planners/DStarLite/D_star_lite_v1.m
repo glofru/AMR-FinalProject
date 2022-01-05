@@ -65,12 +65,12 @@ classdef D_star_lite_v1 < handle
             obj.newObstacles = [];
             
             % inizialize map
-            obj.localMap = Map(obj.sizeX, obj.sizeY, obj.obstacles, Map.TYPE_UNKNOWN);
+            obj.localMap = DLMap(obj.sizeX, obj.sizeY, obj.obstacles, DLMap.TYPE_UNKNOWN);
             
             obj.currPos = obj.localMap.map(obj.start(1), obj.start(2));
-            obj.currPos.state = MapState.POSITION;
+            obj.currPos.state = DLMapState.POSITION;
             obj.goal = obj.localMap.map(obj.goal(1), obj.goal(2));
-            obj.goal.state = MapState.GOAL;
+            obj.goal.state = DLMapState.GOAL;
             
             % inizialize state vals
             for i=1:obj.localMap.row
@@ -118,7 +118,7 @@ classdef D_star_lite_v1 < handle
                             
                         if chr < 250% == Map.MAP_OBSTACLE
                             new_obs = [is+i, js+j];
-                            obj.localMap.map(is+i, js+j).state = MapState.OBSTACLE;
+                            obj.localMap.map(is+i, js+j).state = DLMapState.OBSTACLE;
                             if ~obj.isAlredyIn(obj.obstacles, new_obs')
                                 obj.obstacles(:, end+1) = new_obs';
                                 obj.newObstacles(:, end+1) = new_obs';
@@ -128,11 +128,11 @@ classdef D_star_lite_v1 < handle
                     end
                 end
             end
-            obj.currPos.state = MapState.POSITION;
+            obj.currPos.state = DLMapState.POSITION;
         end
         
         function Lp = predecessor(obj, u)
-            Lp = State.empty(1, 0);
+            Lp = DLState.empty(1, 0);
             for m=obj.moves
                 pred_pos = [u.x; u.y]+m;
 
@@ -160,7 +160,7 @@ classdef D_star_lite_v1 < handle
         end
         
         function Ls = sucessor(obj, u)
-            Ls = State.empty(1, 0);
+            Ls = DLState.empty(1, 0);
             for m=obj.moves
                 pred_pos = [u.x; u.y]+m;
 
@@ -220,9 +220,9 @@ classdef D_star_lite_v1 < handle
                 [obj.U, u] = obj.U.pop();
                 
                 % TODO
-                if u.state == MapState.UNKNOWN || u.state == MapState.EMPTY || ...
-                        u.state == MapState.VISITED
-                    u.state = MapState.START;
+                if u.state == DLMapState.UNKNOWN || u.state == DLMapState.EMPTY || ...
+                        u.state == DLMapState.VISITED
+                    u.state = DLMapState.START;
                 end
 
                 if (u.g > u.rhs)
@@ -299,7 +299,7 @@ classdef D_star_lite_v1 < handle
                 end
 
                 minV = inf;
-                minPos = State.empty(1, 0);
+                minPos = DLState.empty(1, 0);
                 succ = obj.sucessor(obj.currPos);
                 for s=succ
                     curr = obj.currPos.c(s) + s.g;
@@ -310,7 +310,7 @@ classdef D_star_lite_v1 < handle
                 end
 
                 %move to minPos
-                obj.currPos.state = MapState.PATH; % TODO
+                obj.currPos.state = DLMapState.PATH; % TODO
                 obj.currPos = minPos;
                 
                 dimension_path = dimension_path + 1;

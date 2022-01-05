@@ -1,4 +1,4 @@
-classdef StateTag
+classdef DStateTag
     enumeration
         NEW
         OPEN
@@ -8,11 +8,11 @@ classdef StateTag
     methods
         function c = getColor(obj)
             switch obj
-                case StateTag.NEW
+                case DStateTag.NEW
                     c = [0, 0, 0];
-                case StateTag.OPEN
+                case DStateTag.OPEN
                     c = [0, 255, 0];
-                case StateTag.CLOSED
+                case DStateTag.CLOSED
                     c = [0, 0, 255];
             end
         end

@@ -11,7 +11,7 @@ classdef PriorityQueue
     methods (Access = public)
         function obj = PriorityQueue()
             % constructor
-            obj.queue = State.empty(1, 0);
+            obj.queue = DLState.empty(1, 0);
         end
         
         function obj = insert(obj, s, k)
@@ -26,8 +26,8 @@ classdef PriorityQueue
                 obj.queue(end+1) = s;
                 
                 % TODO
-                if s.state == MapState.UNKNOWN || s.state == MapState.EMPTY
-                    s.state = MapState.VISITED;
+                if s.state == DLMapState.UNKNOWN || s.state == DLMapState.EMPTY
+                    s.state = DLMapState.VISITED;
                 end
             end
         end

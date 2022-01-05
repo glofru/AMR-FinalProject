@@ -36,29 +36,14 @@ classdef D_Star < handle
             end
 
             % initialize map
-            obj.localMap = Map(size_x, size_y, obj.obstacles, Map.TYPE_UNKNOWN);
+            obj.localMap = DMap(size_x, size_y, obj.obstacles);
             
             obj.currPos = obj.localMap.map(start(1), start(2));
-            obj.currPos.state = MapState.START;
+            obj.currPos.state = DMapState.START;
             obj.goal = obj.localMap.map(obj.goal(1), obj.goal(2));
-            obj.goal.state = MapState.GOAL;
+            obj.goal.state = DMapState.GOAL;
             
             obj.open_list = OpenList(obj.goal);
-        end
-        
-        function s = neighbors(obj, X)
-            s = [State.empty];
-            pos = [X.x; X.y];
-            
-            for m=obj.moves
-                succ_pos = pos + m;
-                x = succ_pos(1);
-                y = succ_pos(2);
-
-                if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
-                    s(end+1) = obj.localMap.map(x, y);
-                end
-            end
         end
 
         function res = process_state(obj)
@@ -68,14 +53,9 @@ classdef D_Star < handle
             end
             obj.open_list.remove(X);
             
-
-            if X.state ~= MapState.GOAL && X.state ~= MapState.START
-                X.state = MapState.VISITED;
-            end
+            obj.localMap.plot(X);
             
-            obj.localMap.plotMapWithTag(X);
-            
-            succ = obj.neighbors(X);
+            succ = obj.localMap.neighbors(X, obj.moves);
             if Kold < X.h
                 for Y=succ
                     if Y.h <= Kold && X.h > Y.h + X.cost(Y)
@@ -85,7 +65,7 @@ classdef D_Star < handle
                 end
             elseif Kold == X.h
                 for Y=succ
-                    if Y.tag == StateTag.NEW || ...
+                    if Y.tag == DStateTag.NEW || ...
                             (~isempty(Y.parent) && Y.parent == X && Y.h ~= X.h + X.cost(Y)) || ...
                             (~isempty(Y.parent) && Y.parent ~= X && Y.h > X.h + X.cost(Y))
                         Y.parent = X;
@@ -94,7 +74,7 @@ classdef D_Star < handle
                 end
             else
                 for Y=succ
-                    if Y.tag == StateTag.NEW ||...
+                    if Y.tag == DStateTag.NEW ||...
                             (Y.parent == X && Y.h ~= X.h + X.cost(Y))
                         Y.parent = X;
                         obj.open_list.insert(Y, X.h + X.cost(Y));
@@ -103,7 +83,7 @@ classdef D_Star < handle
                             obj.open_list.insert(Y, X.h);
                         else
                             if Y.parent ~= X && X.h > Y.h + X.cost(Y) && ...
-                                    Y.tag == StateTag.CLOSED && ...
+                                    Y.tag == DStateTag.CLOSED && ...
                                     Y.h > Kold
                                 obj.open_list.insert(Y, Y.h);
                             end
@@ -126,7 +106,7 @@ classdef D_Star < handle
         end
 
         function modify_cost(obj, state)
-            if state.tag == StateTag.CLOSED
+            if state.tag == DStateTag.CLOSED
                 obj.open_list.insert(state, state.parent.h + state.cost(state.parent))
             end
         end
@@ -136,20 +116,20 @@ classdef D_Star < handle
             dimension_path = 1;
             final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y]; 
 
-            obj.localMap.plotMapWithTag();
-            while obj.currPos.tag ~= StateTag.CLOSED
+            obj.localMap.plot();
+            while obj.currPos.tag ~= DStateTag.CLOSED
                 obj.process_state();
             end
 
             while ~obj.currPos.parent.eq(obj.goal)
                 %move to minPos
                 obj.currPos = obj.currPos.parent;
-                obj.currPos.state = MapState.PATH;
+                obj.currPos.state = DMapState.PATH;
 
                 dimension_path = dimension_path + 1;
                 final_path(dimension_path,1:2) = [obj.currPos.x, obj.currPos.y]; 
 
-                obj.localMap.plotMapWithTag();
+                obj.localMap.plot();
 
                 % scan graph
                 % is_changed = updateMap();

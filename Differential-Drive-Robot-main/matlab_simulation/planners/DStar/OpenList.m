@@ -15,15 +15,15 @@ classdef OpenList < handle
         end
 
         function insert(obj, state, h_new)
-            if state.tag == StateTag.NEW
+            if state.tag == DStateTag.NEW
                 state.k = h_new;
-            elseif state.tag == StateTag.OPEN
+            elseif state.tag == DStateTag.OPEN
                 state.k = min(state.k, h_new);
-            elseif state.tag == StateTag.CLOSED
+            elseif state.tag == DStateTag.CLOSED
                 state.k = min(state.h, h_new);
             end
             state.h = h_new;
-            state.tag = StateTag.OPEN;
+            state.tag = DStateTag.OPEN;
 
             if isempty(obj.actualList)
                 obj.actualList = state;
@@ -33,8 +33,8 @@ classdef OpenList < handle
         end
 
         function remove(obj, state)
-            if state.tag == StateTag.OPEN
-                state.tag = StateTag.CLOSED;
+            if state.tag == DStateTag.OPEN
+                state.tag = DStateTag.CLOSED;
             end
             pos = obj.find(state);
             obj.actualList(pos) = [];

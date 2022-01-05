@@ -1,4 +1,4 @@
-classdef MapState
+classdef DLMapState
     % enumeration map states
     
     enumeration
@@ -18,23 +18,23 @@ classdef MapState
         % return the value of the state obj
         function chr = str(obj)
             switch obj
-                case MapState.OBSTACLE
+                case DLMapState.OBSTACLE
                     chr = "█";
-                case MapState.UNKNOWN
+                case DLMapState.UNKNOWN
                     chr = "▓";
-                case MapState.EMPTY
+                case DLMapState.EMPTY
                     chr = "░";
                     
-                case MapState.START
+                case DLMapState.START
                     chr = "ⓢ";
-                case MapState.GOAL
+                case DLMapState.GOAL
                     chr = "♛";
-                case MapState.POSITION
+                case DLMapState.POSITION
                     chr = "☺";
                     
-                case MapState.VISITED
+                case DLMapState.VISITED
                     chr = "╬";
-                case MapState.PATH
+                case DLMapState.PATH
                     chr = "≡";
                     
                 otherwise
@@ -45,23 +45,23 @@ classdef MapState
         % return the color associated to the state obj
         function color = getColor(obj)
             switch obj
-                case MapState.OBSTACLE % "█"
+                case DLMapState.OBSTACLE % "█"
                     color = [0, 0, 0];
-                case MapState.UNKNOWN % "▓"
+                case DLMapState.UNKNOWN % "▓"
                     color = [255, 120, 120];
-                case MapState.EMPTY % "░"
+                case DLMapState.EMPTY % "░"
                     color= [255, 255, 255];
                     
-                case MapState.START % "ⓢ"
+                case DLMapState.START % "ⓢ"
                     color = [120, 0, 120];
-                case MapState.GOAL % "♛"
+                case DLMapState.GOAL % "♛"
                     color = [255, 0, 0];
-                case MapState.POSITION % "☺"
+                case DLMapState.POSITION % "☺"
                     color = [0, 0, 255];
                     
-                case MapState.VISITED % "╬"
+                case DLMapState.VISITED % "╬"
                     color = [0, 255, 0];
-                case MapState.PATH % "≡"
+                case DLMapState.PATH % "≡"
                     color = [255, 0, 0];
                     
                 otherwise

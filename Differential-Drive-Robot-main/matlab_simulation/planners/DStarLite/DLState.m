@@ -1,4 +1,4 @@
-classdef State < handle
+classdef DLState < handle
     % Class to keep and work with a state
     %
 
@@ -15,14 +15,14 @@ classdef State < handle
     end
 
     methods
-        function obj = State(x, y, state)
+        function obj = DLState(x, y, state)
             arguments
                 %
                 x %{}
                 %
                 y %{}
                 %
-                state {} = MapState.UNKNOWN
+                state {} = DLMapState.UNKNOWN
             end
             obj.x = x;
             obj.y = y;

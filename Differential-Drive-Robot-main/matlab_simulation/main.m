@@ -2,9 +2,7 @@ clear all;
 clc;
 close all;
 
-addpath(genpath('./planners'))
 addpath(genpath('./controllers'))
-addpath(genpath('./controllers/nonlinear_mpc'))
 addpath(genpath('./maps'))
 
 image = imread('simple_walls_map.pgm');
@@ -61,14 +59,19 @@ switch algorithm
         path = planning_fun_Dijkstra(state_robot,dt,limit,goal,image,resolution,max_iteration);
         
     case 4
+        addpath(genpath('./planners/DStar'))
         path = planning_fun_D_star(state_robot,dt,limit,goal,image,resolution,max_iteration);
+        
     case 5
+        addpath(genpath('./planners/DStarLite'))
         path = planning_fun_D_star_lite_v1(state_robot,dt,limit,goal,image,resolution,max_iteration);
         
     case 6
+        addpath(genpath('./planners/DStarLite'))
         path = planning_fun_D_star_lite_v2(state_robot,dt,limit,goal,image,resolution,max_iteration);
         
     case 7
+        addpath(genpath('./planners/FieldDStar'))
         path = planning_fun_Field_D_star(state_robot,dt,limit,goal,image,resolution,max_iteration);
 
     otherwise
@@ -91,7 +94,7 @@ path_v = fliplr(path(:,5)');
 path_w = fliplr(path(:,6)');
 old_path = [path_x' path_y' path_theta' path_theta' path_v' path_w'];
 %old_path = path;
-size_path = size(old_path);
+%size_path = size(old_path);
 
 %interpolation (linear, makima, spline, etc)
 size_path = size(path);

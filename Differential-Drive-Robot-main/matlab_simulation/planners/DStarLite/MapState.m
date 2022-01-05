@@ -1,63 +1,71 @@
 classdef MapState
+    % enumeration map states
+    
     enumeration
         OBSTACLE
         UNKNOWN
         EMPTY
-        POSITION
         
         START
         GOAL
+        POSITION
         
         VISITED
         PATH
     end
+    
     methods
-        function d = disp(obj)
+        % return the value of the state obj
+        function chr = str(obj)
             switch obj
                 case MapState.OBSTACLE
-                    d = "█";
-                case MapState.GOAL
-                    d = "♛";
-                case MapState.PATH
-                    d = "≡";
-                case MapState.VISITED
-                    d = "╬";
-                case MapState.EMPTY
-                    d = "░";
+                    chr = "█";
                 case MapState.UNKNOWN
-                    d = "▓";
-                case MapState.POSITION
-                    d = "☺";
+                    chr = "▓";
+                case MapState.EMPTY
+                    chr = "░";
+                    
                 case MapState.START
-                    d = "ⓢ";
+                    chr = "ⓢ";
+                case MapState.GOAL
+                    chr = "♛";
+                case MapState.POSITION
+                    chr = "☺";
+                    
+                case MapState.VISITED
+                    chr = "╬";
+                case MapState.PATH
+                    chr = "≡";
+                    
+                otherwise
+                    error("Wrong value!");
             end
         end
 
+        % return the color associated to the state obj
         function color = getColor(obj)
             switch obj
                 case MapState.OBSTACLE % "█"
                     color = [0, 0, 0];
-                    
-                case MapState.GOAL % "♛"
-                    color = [255, 0, 0];
-                    
-                case MapState.PATH % "≡"
-                    color = [255, 0, 0];
-                    
-                case MapState.VISITED % "╬"
-                    color = [0, 255, 0];
-                    
+                case MapState.UNKNOWN % "▓"
+                    color = [255, 120, 120];
                 case MapState.EMPTY % "░"
                     color= [255, 255, 255];
                     
-                case MapState.UNKNOWN % "▓"
-                    color = [255, 120, 120];
-                    
+                case MapState.START % "ⓢ"
+                    color = [120, 0, 120];
+                case MapState.GOAL % "♛"
+                    color = [255, 0, 0];
                 case MapState.POSITION % "☺"
                     color = [0, 0, 255];
                     
-                case MapState.START % "ⓢ"
-                    color = [120, 0, 120];
+                case MapState.VISITED % "╬"
+                    color = [0, 255, 0];
+                case MapState.PATH % "≡"
+                    color = [255, 0, 0];
+                    
+                otherwise
+                    error("Wrong value!");
             end
         end
     end

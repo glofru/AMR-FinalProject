@@ -156,7 +156,44 @@ classdef Map < handle
             J = obj.buildImageMap();
             %J = imrotate(rgbImage,90); % TODO decide if to keep
             %J = imresize( J , 100); % TODO decide if to keep
-            imshow(J,'InitialMagnification',1000);
+            imshow(J, 'InitialMagnification', 1000);
+        end
+
+        % generate the map image with tags
+        function rgbImage = buildImageMapWithTag(obj, highlightedState)
+            rgbImage = zeros(obj.row, obj.col, 3) + 255;
+
+            for i = 1:obj.row
+                for j = 1:obj.col
+                    state = obj.map(i, j).state;
+                    tag = obj.map(i, j).tag;
+
+                    if state == MapState.VISITED || (state == MapState.UNKNOWN && tag == StateTag.OPEN)
+                        rgbImage(i, j, :) = tag.getColor();
+                    else
+                        rgbImage(i, j, :) = state.getColor();
+                    end
+                end
+            end
+
+            tmp = highlightedState;
+            while size(tmp, 1) ~= 0 && tmp.state ~= MapState.GOAL
+                rgbImage(tmp.x, tmp.y, :) = MapState.PATH.getColor();
+                tmp = tmp.parent;
+            end
+        end
+
+
+        % plot the map image considering tags
+        function plotMapWithTag(obj, highlightedState)
+            arguments
+                obj {}
+                highlightedState {} = State.empty
+            end
+            J = obj.buildImageMapWithTag(highlightedState);
+            %J = imrotate(rgbImage,90);
+            %J = imresize( J , 100);
+            imshow(J, 'InitialMagnification', 1000);
         end
     end
 end

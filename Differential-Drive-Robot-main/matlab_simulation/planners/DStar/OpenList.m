@@ -1,35 +1,55 @@
 classdef OpenList < handle
     properties (Access = private)
-        queueS;
+        actualList;
+    end
+
+    methods (Access = private)
+        function res = is_empty(obj)
+            res = isempty(obj.actualList);
+        end
     end
     
     methods (Access = public)
-        function obj = OpenList()
-            obj.queueS = [];
+        function obj = OpenList(initialState)
+            obj.actualList = initialState;
         end
-        
-        function insert(obj, s)
-            if isempty(obj.queueS)
-                obj.queueS = s;
-            else
-                obj.queueS(end+1) = s;
+
+        function insert(obj, state, h_new)
+            if state.tag == StateTag.NEW
+                state.k = h_new;
+            elseif state.tag == StateTag.OPEN
+                state.k = min(state.k, h_new);
+            elseif state.tag == StateTag.CLOSED
+                state.k = min(state.h, h_new);
             end
+            state.h = h_new;
+            state.tag = StateTag.OPEN;
+
+            if isempty(obj.actualList)
+                obj.actualList = state;
+            else
+                obj.actualList(end+1) = state;
+            end
+        end
+
+        function remove(obj, state)
+            if state.tag == StateTag.OPEN
+                state.tag = StateTag.CLOSED;
+            end
+            pos = obj.find(state);
+            obj.actualList(pos) = [];
         end
         
         function pos = find(obj, s)
             % find in the queue vertex s
             % if not exists return -1
             pos = -1;
-            for i=1:size(obj.queueS, 2)
-                if s.eq(obj.queueS(i))
+            for i=1:size(obj.actualList, 2)
+                if s.eq(obj.actualList(i))
                     pos=i;
                     return;
                 end
             end
-        end
-        
-        function res = is_empty(obj)
-            res = isempty(obj.queueS);
         end
         
         function h = has(obj, s)
@@ -39,19 +59,13 @@ classdef OpenList < handle
                 h = true;
             end
         end
-        
-        function remove(obj, s)
-            % remove from the queue vertex s
-            pos = obj.find(s);
-            obj.queueS(pos) = [];
-        end
 
         function k = get_kmin(obj)
-            if isempty(obj.queueS)
+            if isempty(obj.actualList)
                 k = -1;
             else
                 k = Inf;
-                for e=obj.queueS
+                for e=obj.actualList
                     if e.k < k
                         k = e.k;
                     end
@@ -60,26 +74,18 @@ classdef OpenList < handle
         end
 
         function [k, s] = min_state(obj)
-            if isempty(obj.queueS)
+            if isempty(obj.actualList)
                 k = -1;
                 s = State.empty;
             else
                 k = Inf;
-                for e=obj.queueS
+                for e=obj.actualList
                     if e.k < k
                         k = e.k;
                         s = e;
                     end
                 end
             end
-        end
-
-        function p = print(obj)
-            disp("OL")
-            for i=obj.queueS
-                disp(i.k)
-            end
-            disp("END")
         end
     end
 end

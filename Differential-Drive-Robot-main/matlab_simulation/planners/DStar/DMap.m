@@ -98,6 +98,11 @@ classdef DMap < handle
         end
 
         function s = neighbors(obj, X, moves)
+            arguments
+                obj {}
+                X {}
+                moves {} = [[1, 0], [1, 1], [0, 1], [-1, 0], [-1, -1], [0, -1], [-1, 1], [1, -1]];
+            end
             s = [DState.empty];
             pos = [X.x; X.y];
             
@@ -112,6 +117,16 @@ classdef DMap < handle
             end
         end
 
+        function addRandomObstaclesNear(~, state)
+            p = randi([0, 3], 1, 1);
+            if p == 0 % random obstacle is added with 25% probability
+                s = state.parent;
+                if s.state ~= DMapState.GOAL
+                    s.state = DMapState.OBSTACLE;
+                end
+            end
+        end
+
         % generate the map image
         function rgbImage = buildImage(obj, highlightedState)
             rgbImage = zeros(obj.row, obj.col, 3) + 255;
@@ -121,9 +136,10 @@ classdef DMap < handle
                     state = obj.map(i, j).state;
                     tag = obj.map(i, j).tag;
 
-                    if (state ~= DMapState.START && state ~= DMapState.GOAL...
-                            && state ~= DMapState.PATH) && (tag == DStateTag.OPEN...
-                            || tag == DStateTag.CLOSED)
+                    if state == DMapState.START || state == DMapState.GOAL...
+                            || state == DMapState.PATH || state == DMapState.OBSTACLE
+                        rgbImage(i, j, :) = state.getColor();
+                    elseif tag == DStateTag.OPEN || tag == DStateTag.CLOSED
                         rgbImage(i, j, :) = tag.getColor();
                     else
                         rgbImage(i, j, :) = state.getColor();

@@ -1,25 +1,19 @@
 classdef D_Star < handle
     properties
-        globalMap;
-
         localMap;
         currPos;
         goal;
         moves;
 
-        map_limit;
         open_list;
         maxIter;
-        obstacles;
     end
 
     methods
-        function obj = D_Star(init_state, ~, limit, goal,...
+        function obj = D_Star(init_state, ~, ~, goal,...
                 map, resolution, maxIter)
-            obj.globalMap = map;
             obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
-            obj.map_limit = limit;
             obj.goal = int16(goal/resolution);
             obj.maxIter = maxIter; % TODO
             start = [int16(init_state(1)/resolution) int16(init_state(2)/resolution)];
@@ -27,16 +21,17 @@ classdef D_Star < handle
             size_x = size(map, 1);
             size_y = size(map, 2);
             
+            obstacles = [];
             for i=1:size_x
                 for j=1:size_y
-                    if (map(i, j) < 250)
-                        obj.obstacles = [obj.obstacles, [i;j]];
+                    if map(i, j) < 250
+                        obstacles = [obstacles, [i;j]];
                     end
                 end
             end
 
             % initialize map
-            obj.localMap = DMap(size_x, size_y, obj.obstacles);
+            obj.localMap = DMap(size_x, size_y, obstacles);
             
             obj.currPos = obj.localMap.map(start(1), start(2));
             obj.currPos.state = DMapState.START;
@@ -95,19 +90,17 @@ classdef D_Star < handle
             res = obj.open_list.get_kmin();
         end
 
-        function modify(obj, state)
-            obj.modify_cost(state);
+        function modify(obj)
+            state = obj.currPos;
+%             if state.tag == DStateTag.CLOSED
+                obj.open_list.insert(state, state.h + state.cost(state.parent))
+%             end
+
             while true
                 k_min = obj.process_state();
                 if k_min >= state.h
                     break
                 end
-            end
-        end
-
-        function modify_cost(obj, state)
-            if state.tag == DStateTag.CLOSED
-                obj.open_list.insert(state, state.parent.h + state.cost(state.parent))
             end
         end
 
@@ -121,9 +114,7 @@ classdef D_Star < handle
                 obj.process_state();
             end
 
-            while ~obj.currPos.parent.eq(obj.goal)
-                %move to minPos
-                obj.currPos = obj.currPos.parent;
+            while obj.currPos ~= obj.goal
                 obj.currPos.state = DMapState.PATH;
 
                 dimension_path = dimension_path + 1;
@@ -131,15 +122,21 @@ classdef D_Star < handle
 
                 obj.localMap.plot();
 
-                % scan graph
-                % is_changed = updateMap();
+                % add random obstacles
+                if obj.currPos.parent.state ~= DMapState.OBSTACLE
+                    obj.localMap.addRandomObstaclesNear(obj.currPos);
+                end
+
+                obj.localMap.plot();
 
                 % update graph
-                % if is_changed
-                %    update_edges_cost();
-                %    compute_shortest_path();
-                % end
-                
+                if obj.currPos.parent.state == DMapState.OBSTACLE
+                    obj.modify()
+                    continue
+                end
+
+                % goes forward
+                obj.currPos = obj.currPos.parent;
             end
 
             final_path = final_path(1:dimension_path, :);

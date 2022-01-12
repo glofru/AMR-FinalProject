@@ -48,7 +48,7 @@ while execute
 
             algorithm = D_Star(moves, map, SgoalMap);
             disp('Inizialization terminated in: '+string(toc)+' s'+newline);
-            pause()
+            disp("PAUSE: press enter to continue");pause()
 
             tic
             algorithm.run(SstartMap, SgoalMap);
@@ -63,14 +63,14 @@ while execute
 
             disp("Global Map!")
             map.plotMap();
-            pause()
+            disp("PAUSE: press enter to continue");pause()
 
             obstacles = [];
             algorithm = D_star_lite_v1(map, obstacles, Sstart, Sgoal, moves);
             disp("Initial Map!")
             algorithm.localMap.plotMap();
             disp('Inizialization terminated in: '+string(toc)+' s'+newline);
-            pause()
+            disp("PAUSE: press enter to continue");pause()
 
             tic
             algorithm.run();

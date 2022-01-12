@@ -2,6 +2,8 @@ classdef PriorityQueue
     properties %(Access = private)
         %
         queue;
+        
+        expCells;
     end
     
     methods (Access = private)
@@ -12,9 +14,12 @@ classdef PriorityQueue
         function obj = PriorityQueue()
             % constructor
             obj.queue = State.empty(1, 0);
+            
+            obj.expCells = 0;
         end
         
         function obj = insert(obj, s, k)
+            obj.expCells = obj.expCells+1;
             % insert in the queue vertex s with value k
             % if already exists change priority of s from k (old) to k
             

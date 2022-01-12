@@ -10,10 +10,22 @@ classdef D_star_lite_v1 < handle
         U;
         obstacles;
         newObstacles;
+        
+        totSteps;
+        pathLenght;
     end
     
     methods
-        function obj = D_star_lite_v1(globalMap, obstacles, Sstart, Sgoal, moves)
+        function obj = D_star_lite_v1(globalMap, obstacles, Sstart, Sgoal, moves, cost)
+            arguments
+                globalMap
+                obstacles
+                Sstart
+                Sgoal
+                moves
+                
+                cost = 1;
+            end
             % copy vals
             obj.globalMap = globalMap;
             obj.moves = moves;
@@ -21,8 +33,11 @@ classdef D_star_lite_v1 < handle
             obj.obstacles = obstacles;
             obj.newObstacles = [];
             
+            obj.totSteps = 0;
+            obj.pathLenght = 0;
+            
             % inizialize map
-            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, [], Map.TYPE_UNKNOWN);
+            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, [], Map.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
             obj.currPos.state = Map.MAP_POSITION;
@@ -43,11 +58,9 @@ classdef D_star_lite_v1 < handle
             % first scan
             obj.updateMap();
             
-            %tic
             % TODO optimize
             % compute first path
             obj.computeShortestPath();
-            %disp('computeShortestPath: '+string(toc)+' s'+newline);
         end
         
         function isIn = isAlredyIn(obj, L, val) % TODO
@@ -61,7 +74,10 @@ classdef D_star_lite_v1 < handle
                 end
             end
         end
-
+        
+        function isFin = isFinish(obj)
+            isFin = (obj.currPos == obj.goal);
+        end
         function isChanged = updateMap(obj)
             isChanged = false;
             
@@ -178,8 +194,10 @@ classdef D_star_lite_v1 < handle
                 
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
-%                 obj.U.plotPriorityQueue();
-                obj.localMap.plotMap();
+                
+                obj.totSteps = obj.totSteps+1;
+                
+%                 obj.localMap.plotMap();
                 [obj.U, u] = obj.U.pop();
                 
                 % TODO
@@ -248,42 +266,51 @@ classdef D_star_lite_v1 < handle
                     end
                 end
             end
+            
+            for s=obj.U.queue
+                obj.U = obj.U.insert(s, s.calcKey(obj.currPos));
+            end
+        end
+        
+        function step(obj)
+            if obj.currPos.g == inf
+                disp("No possible path!");
+                return
+            end
+            obj.totSteps = obj.totSteps+1;
+            obj.pathLenght = obj.pathLenght+1;
+
+            minV = inf;
+            minPos = State.empty(1, 0);
+            succ = obj.sucessor(obj.currPos);
+            for s=succ
+                curr = obj.currPos.c(s) + s.g;
+                if curr < minV
+                    minV = curr;
+                    minPos = s;
+                end
+            end
+
+            %move to minPos
+            obj.currPos.state = Map.MAP_PATH; % TODO
+            obj.currPos = minPos;
+
+            % scan graph
+            isChanged = obj.updateMap();
+
+            obj.localMap.plotMap();
+
+            % update graph
+            if isChanged
+                % TODO optimize
+                obj.updateEdgesCost();
+                obj.computeShortestPath();
+            end
         end
         
         function run(obj)
             while(obj.currPos ~= obj.goal)
-                if obj.currPos.g == inf
-                    disp("No possible path!");
-                    return
-                end
-
-                minV = inf;
-                minPos = State.empty(1, 0);
-                succ = obj.sucessor(obj.currPos);
-                for s=succ
-                    curr = obj.currPos.c(s) + s.g;
-                    if curr < minV
-                        minV = curr;
-                        minPos = s;
-                    end
-                end
-
-                %move to minPos
-                obj.currPos.state = Map.MAP_PATH; % TODO
-                obj.currPos = minPos;
-
-                % scan graph
-                isChanged = obj.updateMap();
-                
-                obj.localMap.plotMap();
-
-                % update graph
-                if isChanged
-                    % TODO optimize
-                    obj.updateEdgesCost();
-                    obj.computeShortestPath();
-                end
-
+                obj.step()
             end
             disp("Goal reached!");
         end

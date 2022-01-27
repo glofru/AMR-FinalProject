@@ -6,6 +6,8 @@ classdef D_star_lite_v1 < handle
         currPos;
         goal;
         moves;
+        range;
+        cost;
         
         U;
         obstacles;
@@ -20,7 +22,8 @@ classdef D_star_lite_v1 < handle
     end
     
     methods
-        function obj = D_star_lite_v1(globalMap, obstacles, Sstart, Sgoal, moves, cost)
+        function obj = D_star_lite_v1(globalMap, obstacles, Sstart, Sgoal,...
+                moves, range, cost)
             arguments
                 globalMap
                 obstacles
@@ -28,6 +31,7 @@ classdef D_star_lite_v1 < handle
                 Sgoal
                 moves
                 
+                range = 1;
                 cost = 1;
             end
             % copy vals
@@ -36,6 +40,8 @@ classdef D_star_lite_v1 < handle
             obj.U = PriorityQueue();
             obj.obstacles = obstacles;
             obj.newObstacles = [];
+            obj.range = range;
+            obj.cost = cost;
             
             obj.expCells = 0;
             obj.expCellsList = [];
@@ -44,7 +50,8 @@ classdef D_star_lite_v1 < handle
             obj.pathLenght = 0;
             
             % inizialize map
-            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, [], Map.TYPE_UNKNOWN, cost);
+            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, [],...
+                Map.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
             obj.currPos.state = Map.MAP_POSITION;
@@ -87,34 +94,22 @@ classdef D_star_lite_v1 < handle
             end
         end
         
-        function isFin = isFinish(obj)
-            if obj.currPos == obj.goal
-                isFin = true;
-            elseif obj.currPos.g == inf
-                %disp("No possible path!");
-                isFin = true;
-            else
-                isFin = false;
-            end
-        end
-        
         function isChanged = updateMap(obj)
             isChanged = false;
             
             is = obj.currPos.x;
             js = obj.currPos.y;
+            
+            r = obj.range;
 
-            for i=-1:1
-                for j=-1:1
+            for i=-r:r
+                for j=-r:r
                     if obj.localMap.isInside(is+i, js+j)
                         chr = obj.globalMap.map(is+i, js+j).state;
-                        
-                        % TODO
-                        if obj.localMap.map(is+i, js+j).state ~= Map.MAP_PATH
-                            obj.localMap.map(is+i, js+j).state = chr;
-                        end
                             
                         if chr == Map.MAP_OBSTACLE
+                            obj.localMap.map(is+i, js+j).state = chr;
+                            
                             new_obs = [is+i, js+j];
                             if ~obj.isAlredyIn(obj.obstacles, new_obs')
                                 obj.obstacles(:, end+1) = new_obs';
@@ -126,6 +121,17 @@ classdef D_star_lite_v1 < handle
                 end
             end
             obj.currPos.state = Map.MAP_POSITION;
+        end
+        
+        function isFin = isFinish(obj)
+            if obj.currPos == obj.goal
+                isFin = true;
+            elseif obj.currPos.g == inf
+                %disp("No possible path!");
+                isFin = true;
+            else
+                isFin = false;
+            end
         end
         
         
@@ -143,7 +149,8 @@ classdef D_star_lite_v1 < handle
         
         
         function Lp = predecessor(obj, u)
-            Lp = State.empty(1, 0);
+            Lp = State.empty(length(obj.moves), 0);
+            currI = 1;
             for m=obj.moves
                 pred_pos = [u.x; u.y]+m;
 
@@ -152,26 +159,20 @@ classdef D_star_lite_v1 < handle
                     continue
                 end
 
-                isNotObs = true;
-                for o=obj.obstacles
-                    if all(o==pred_pos)
-                        isNotObs = false;
-                        break
-                    end
-                end
-
-                if isNotObs
+                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
+                if  obj_pos.state ~= Map.MAP_OBSTACLE
                     % TODO ottimizzare
-                    pred_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                    if ~obj.isAlredyIn(Lp, pred_pos)
-                        Lp(end+1) = pred_pos;
+                    if ~obj.isAlredyIn(Lp, obj_pos)
+                        Lp(currI) = obj_pos;
+                        currI = currI+1;
                     end
                 end
             end
         end
         
         function Ls = sucessor(obj, u)
-            Ls = State.empty(1, 0);
+            Ls = State.empty(length(obj.moves), 0);
+            currI = 1;
             for m=obj.moves
                 pred_pos = [u.x; u.y]+m;
 
@@ -180,19 +181,12 @@ classdef D_star_lite_v1 < handle
                     continue
                 end
 
-                isNotObs = true;
-                for o=obj.obstacles
-                    if all(o==pred_pos)
-                        isNotObs = false;
-                        break
-                    end
-                end
-
-                if isNotObs
+                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
+                if obj_pos.state ~= Map.MAP_OBSTACLE
                     % TODO ottimizzare
-                    pred_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                    if ~obj.isAlredyIn(Ls, pred_pos)
-                        Ls(end+1) = pred_pos;
+                    if ~obj.isAlredyIn(Ls, obj_pos)
+                        Ls(currI) = obj_pos;
+                        currI = currI+1;
                     end
                 end
             end
@@ -306,7 +300,7 @@ classdef D_star_lite_v1 < handle
             
             for s=obj.U.queue
                 obj.U = obj.U.insert(s, s.calcKey(obj.currPos));
-                obj.expCells = obj.expCells+1;
+                %obj.expCells = obj.expCells+1;
             end
         end
         

@@ -5,8 +5,8 @@ classdef D_star_lite_v1 < handle
         localMap;
         currPos;
         goal;
-        range;
         moves;
+        range;
         cost;
         
         U;
@@ -120,7 +120,8 @@ classdef D_star_lite_v1 < handle
         
         
         function Lp = predecessor(obj, u)
-            Lp = State.empty(1, 0);
+            Lp = State.empty(length(obj.moves), 0);
+            currI = 1;
             for m=obj.moves
                 pred_pos = [u.x; u.y]+m;
 
@@ -129,26 +130,20 @@ classdef D_star_lite_v1 < handle
                     continue
                 end
 
-                isNotObs = true;
-                for o=obj.obstacles
-                    if all(o==pred_pos)
-                        isNotObs = false;
-                        break
-                    end
-                end
-
-                if isNotObs
+                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
+                if  obj_pos.state ~= Map.MAP_OBSTACLE
                     % TODO ottimizzare
-                    pred_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                    if ~obj.isAlredyIn(Lp, pred_pos)
-                        Lp(end+1) = pred_pos;
+                    if ~obj.isAlredyIn(Lp, obj_pos)
+                        Lp(currI) = obj_pos;
+                        currI = currI+1;
                     end
                 end
             end
         end
         
         function Ls = sucessor(obj, u)
-            Ls = State.empty(1, 0);
+            Ls = State.empty(length(obj.moves), 0);
+            currI = 1;
             for m=obj.moves
                 pred_pos = [u.x; u.y]+m;
 
@@ -157,19 +152,12 @@ classdef D_star_lite_v1 < handle
                     continue
                 end
 
-                isNotObs = true;
-                for o=obj.obstacles
-                    if all(o==pred_pos)
-                        isNotObs = false;
-                        break
-                    end
-                end
-
-                if isNotObs
+                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
+                if obj_pos.state ~= Map.MAP_OBSTACLE
                     % TODO ottimizzare
-                    pred_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                    if ~obj.isAlredyIn(Ls, pred_pos)
-                        Ls(end+1) = pred_pos;
+                    if ~obj.isAlredyIn(Ls, obj_pos)
+                        Ls(currI) = obj_pos;
+                        currI = currI+1;
                     end
                 end
             end

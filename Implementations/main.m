@@ -19,6 +19,8 @@ Sgoal = [D1; D2];
 range = 2;
 cost = 1;
 
+moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
+
 execute = true;
 while execute
 
@@ -32,8 +34,6 @@ while execute
             globalObstacles(:, i) = [x; y];
         end
     end
-
-    moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
     
     switch algorithmType
         case 1

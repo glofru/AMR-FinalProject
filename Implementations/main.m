@@ -15,6 +15,8 @@ D2 = 50;
 dim = [D1; D2];
 Sstart = [1; 1];
 Sgoal = [D1; D2];
+
+range = 2;
 cost = 1;
 
 execute = true;
@@ -79,13 +81,17 @@ while execute
     
     switch algorithmType
         case 1
-            algorithm = D_Star(map, obstacles, Sstart, Sgoal, moves, cost);
+            algorithm = D_Star(map, obstacles, Sstart, Sgoal, moves,...
+                range, cost);
         case 2
-            algorithm = D_star_lite_v1(map, obstacles, Sstart, Sgoal, moves, cost);
+            algorithm = D_star_lite_v1(map, obstacles, Sstart, Sgoal, moves,...
+                range, cost);
         case 3
-            algorithm = D_star_lite_v2(map, obstacles, Sstart, Sgoal, moves, cost);
+            algorithm = D_star_lite_v2(map, obstacles, Sstart, Sgoal, moves,...
+                range, cost);
         case 4
-            algorithm = Field_D_star(map, obstacles, Sstart, Sgoal, moves, cost);
+            algorithm = Field_D_star(map, obstacles, Sstart, Sgoal, moves,...
+                range, cost);
     end
     
     disp('Inizialization terminated in: '+string(toc)+' s'+newline);

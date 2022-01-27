@@ -5,6 +5,7 @@ classdef Field_D_star < handle
         localMap;
         currPos;
         goal;
+        range;
         moves;
         cost;
         
@@ -14,7 +15,8 @@ classdef Field_D_star < handle
     end
     
     methods
-        function obj = Field_D_star(globalMap, obstacles, Sstart, Sgoal, moves, cost)
+        function obj = Field_D_star(globalMap, obstacles, Sstart, Sgoal,...
+                moves, range, cost)
             arguments
                 globalMap
                 obstacles
@@ -22,6 +24,7 @@ classdef Field_D_star < handle
                 Sgoal
                 moves
                 
+                range = 1;
                 cost = 1;
             end
             % copy vals
@@ -30,6 +33,7 @@ classdef Field_D_star < handle
             obj.U = PriorityQueue();
             obj.obstacles = obstacles;
             obj.newObstacles = [];
+            obj.range = range;
             obj.cost = cost;
             
             % inizialize map
@@ -77,18 +81,17 @@ classdef Field_D_star < handle
             
             is = obj.currPos.x;
             js = obj.currPos.y;
+            
+            r = obj.range;
 
-            for i=-1:1
-                for j=-1:1
+            for i=-r:r
+                for j=-r:r
                     if obj.localMap.isInside(is+i, js+j)
                         chr = obj.globalMap.map(is+i, js+j).state;
                         
-                        % TODO
-                        if obj.localMap.map(is+i, js+j).state ~= Map.MAP_PATH
-                            obj.localMap.map(is+i, js+j).state = chr;
-                        end
-                        
                         if chr == Map.MAP_OBSTACLE
+                            obj.localMap.map(is+i, js+j).state = chr;
+                            
                             new_obs = [is+i, js+j];
                             if ~obj.isAlredyIn(obj.obstacles, new_obs')
                                 obj.obstacles(:, end+1) = new_obs';
@@ -235,7 +238,7 @@ classdef Field_D_star < handle
             end
 
             if u.g ~= u.rhs
-                obj.U = obj.U.update(u, u.calcKey(obj.currPos));
+                obj.U = obj.U.insert(u, u.calcKey(obj.currPos));
             end
         end
         

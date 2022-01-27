@@ -5,6 +5,7 @@ classdef D_star_lite_v2 < handle
         localMap;
         currPos;
         goal;
+        range;
         moves;
         cost;
         
@@ -17,7 +18,8 @@ classdef D_star_lite_v2 < handle
     end
     
     methods
-        function obj = D_star_lite_v2(globalMap, obstacles, Sstart, Sgoal, moves, cost)
+        function obj = D_star_lite_v2(globalMap, obstacles, Sstart, Sgoal,...
+                moves, range, cost)
             arguments
                 globalMap
                 obstacles
@@ -25,6 +27,7 @@ classdef D_star_lite_v2 < handle
                 Sgoal
                 moves
                 
+                range = 1;
                 cost = 1;
             end
             % copy vals
@@ -34,6 +37,7 @@ classdef D_star_lite_v2 < handle
             obj.km = 0;
             obj.obstacles = obstacles;
             obj.newObstacles = [];
+            obj.range = range;
             obj.cost = cost;
             
             % inizialize map
@@ -82,18 +86,17 @@ classdef D_star_lite_v2 < handle
             
             is = obj.currPos.x;
             js = obj.currPos.y;
+            
+            r = obj.range;
 
-            for i=-1:1
-                for j=-1:1
+            for i=-r:r
+                for j=-r:r
                     if obj.localMap.isInside(is+i, js+j)
                         chr = obj.globalMap.map(is+i, js+j).state;
-                        
-                        % TODO
-                        if obj.localMap.map(is+i, js+j).state ~= Map.MAP_PATH
-                            obj.localMap.map(is+i, js+j).state = chr;
-                        end
                             
                         if chr == Map.MAP_OBSTACLE
+                            obj.localMap.map(is+i, js+j).state = chr;
+
                             new_obs = [is+i, js+j];
                             if ~obj.isAlredyIn(obj.obstacles, new_obs')
                                 obj.obstacles(:, end+1) = new_obs';

@@ -6,17 +6,11 @@ classdef D_star_lite_v1 < handle
         currPos;
         goal;
         moves;
+        cost;
         
         U;
         obstacles;
         newObstacles;
-        
-        % comp data
-        expCells; % for each insert +1
-        expCellsList;
-        totSteps; % for each cell popped from computeShortestPath +1
-        totStepsList;
-        pathLenght; % for each step +1
     end
     
     methods
@@ -36,15 +30,11 @@ classdef D_star_lite_v1 < handle
             obj.U = PriorityQueue();
             obj.obstacles = obstacles;
             obj.newObstacles = [];
-            
-            obj.expCells = 0;
-            obj.expCellsList = [];
-            obj.totSteps = 0;
-            obj.totStepsList = [];
-            obj.pathLenght = 0;
+            obj.cost = cost;
             
             % inizialize map
-            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, [], Map.TYPE_UNKNOWN, cost);
+            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, [],...
+                Map.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
             obj.currPos.state = Map.MAP_POSITION;
@@ -61,7 +51,6 @@ classdef D_star_lite_v1 < handle
             
             obj.goal.rhs = 0;
             obj.U = obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos));
-            obj.expCells = obj.expCells+1;
 
             % first scan
             obj.updateMap();
@@ -69,9 +58,6 @@ classdef D_star_lite_v1 < handle
             % TODO optimize
             % compute first path
             obj.computeShortestPath();
-            
-            obj.expCellsList = [obj.expCellsList, obj.expCells];
-            obj.totStepsList = [obj.totStepsList, obj.totSteps];
         end
         
         
@@ -84,17 +70,6 @@ classdef D_star_lite_v1 < handle
                     isIn = true;
                     break
                 end
-            end
-        end
-        
-        function isFin = isFinish(obj)
-            if obj.currPos == obj.goal
-                isFin = true;
-            elseif obj.currPos.g == inf
-                %disp("No possible path!");
-                isFin = true;
-            else
-                isFin = false;
             end
         end
         
@@ -128,17 +103,16 @@ classdef D_star_lite_v1 < handle
             obj.currPos.state = Map.MAP_POSITION;
         end
         
-        
-        function ret = getExpCells(obj)
-            ret = obj.expCells;
-        end
-        
-        function ret = getTotSteps(obj)
-            ret = obj.totSteps;
-        end
-        
-        function ret = getPathLenght(obj)
-            ret = obj.pathLenght;
+        function isFin = isFinish(obj)
+            if obj.currPos == obj.goal
+                disp("Goal reached!");
+                isFin = true;
+            elseif obj.currPos.g == inf
+                disp("No possible path!");
+                isFin = true;
+            else
+                isFin = false;
+            end
         end
         
         
@@ -213,12 +187,10 @@ classdef D_star_lite_v1 < handle
 
             if obj.U.has(u)
                 obj.U = obj.U.remove(u);
-                obj.expCells = obj.expCells-1;
             end
 
             if u.g ~= u.rhs
                 obj.U = obj.U.insert(u, u.calcKey(obj.currPos));
-                obj.expCells = obj.expCells+1;
             end
         end
         
@@ -230,9 +202,7 @@ classdef D_star_lite_v1 < handle
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                 
-                obj.totSteps = obj.totSteps+1;
-                
-                % obj.localMap.plotMap(); % commented for fast plot
+                %obj.localMap.plotMap(); % comment for fast plot
                 [obj.U, u] = obj.U.pop();
                 
                 % TODO
@@ -276,7 +246,6 @@ classdef D_star_lite_v1 < handle
                 for p=pred
                     if ~updateCells.has(p)
                         updateCells = updateCells.insert(p, p.calcKey(obj.currPos));
-                        %obj.expCells = obj.expCells+1;
                     end
                 end
             end
@@ -298,7 +267,6 @@ classdef D_star_lite_v1 < handle
                     for p=pred
                         if ~updateCells.has(p)
                             updateCells = updateCells.insert(p, p.calcKey(obj.currPos));
-                            %obj.expCells = obj.expCells+1;
                         end
                     end
                 end
@@ -306,14 +274,10 @@ classdef D_star_lite_v1 < handle
             
             for s=obj.U.queue
                 obj.U = obj.U.insert(s, s.calcKey(obj.currPos));
-                obj.expCells = obj.expCells+1;
             end
         end
         
         function step(obj)
-            % obj.totSteps = obj.totSteps+1;
-            obj.pathLenght = obj.pathLenght+1;
-
             minV = inf;
             minPos = State.empty(1, 0);
             succ = obj.sucessor(obj.currPos);
@@ -332,7 +296,8 @@ classdef D_star_lite_v1 < handle
             % scan graph
             isChanged = obj.updateMap();
 
-            % obj.localMap.plotMap();
+            obj.localMap.plotMap();
+            pause(0.25); % because otherwise matlab doesn't update the plot
 
             % update graph
             if isChanged
@@ -340,16 +305,12 @@ classdef D_star_lite_v1 < handle
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
             end
-            
-            obj.expCellsList = [obj.expCellsList, obj.expCells];
-            obj.totStepsList = [obj.totStepsList, obj.totSteps];
         end
         
         function run(obj)
             while(~isFinish(obj))
                 obj.step()
             end
-            disp("Goal reached!");
         end
     end
 end

@@ -157,12 +157,10 @@ classdef Map < handle
         
         function plotMap(obj)
             J = obj.buildImageMap();
-            %J = imrotate(rgbImage,90);
-            %J = imresize( J , 100);
             imshow(J,'InitialMagnification',1000);
         end
         
-        function plotMap_g(obj)
+        function plotMap_g(obj) % TODO
             outHeader = "";
             for i=1:(obj.col+2)
                 outHeader = outHeader + Map.MAP_OBSTACLE;
@@ -180,7 +178,7 @@ classdef Map < handle
             disp(outHeader+newline);
         end
         
-        function plotMap_rhs(obj)
+        function plotMap_rhs(obj) % TODO
             outHeader = "";
             for i=1:(obj.col+2)
                 outHeader = outHeader + Map.MAP_OBSTACLE;
@@ -198,7 +196,7 @@ classdef Map < handle
             disp(outHeader+newline);
         end
         
-        function plotMap_k(obj)
+        function plotMap_k(obj) % TODO
             outHeader = "";
             for i=1:(obj.col+2)
                 outHeader = outHeader + Map.MAP_OBSTACLE;

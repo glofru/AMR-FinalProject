@@ -6,6 +6,7 @@ classdef D_star_lite_v2 < handle
         currPos;
         goal;
         moves;
+        cost;
         
         U;
         obstacles;
@@ -16,7 +17,16 @@ classdef D_star_lite_v2 < handle
     end
     
     methods
-        function obj = D_star_lite_v2(globalMap, obstacles, Sstart, Sgoal, moves)
+        function obj = D_star_lite_v2(globalMap, obstacles, Sstart, Sgoal, moves, cost)
+            arguments
+                globalMap
+                obstacles
+                Sstart
+                Sgoal
+                moves
+                
+                cost = 1;
+            end
             % copy vals
             obj.globalMap = globalMap;
             obj.moves = moves;
@@ -24,9 +34,11 @@ classdef D_star_lite_v2 < handle
             obj.km = 0;
             obj.obstacles = obstacles;
             obj.newObstacles = [];
+            obj.cost = cost;
             
             % inizialize map
-            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, [], Map.TYPE_UNKNOWN);
+            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, [],...
+                Map.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
             obj.currPos.state = Map.MAP_POSITION;
@@ -48,11 +60,9 @@ classdef D_star_lite_v2 < handle
             % first scan
             obj.updateMap();
             
-            %tic
             % TODO optimize
             % compute first path
             obj.computeShortestPath();
-            %disp('computeShortestPath: '+string(toc)+' s'+newline);
         end
         
         function isIn = isAlredyIn(obj, L, val) % TODO
@@ -77,7 +87,11 @@ classdef D_star_lite_v2 < handle
                 for j=-1:1
                     if obj.localMap.isInside(is+i, js+j)
                         chr = obj.globalMap.map(is+i, js+j).state;
-                        obj.localMap.map(is+i, js+j).state = chr;
+                        
+                        % TODO
+                        if obj.localMap.map(is+i, js+j).state ~= Map.MAP_PATH
+                            obj.localMap.map(is+i, js+j).state = chr;
+                        end
                             
                         if chr == Map.MAP_OBSTACLE
                             new_obs = [is+i, js+j];
@@ -91,6 +105,18 @@ classdef D_star_lite_v2 < handle
                 end
             end
             obj.currPos.state = Map.MAP_POSITION;
+        end
+        
+        function isFin = isFinish(obj)
+            if obj.currPos == obj.goal
+                disp("Goal reached!");
+                isFin = true;
+            elseif obj.currPos.g == inf
+                disp("No possible path!");
+                isFin = true;
+            else
+                isFin = false;
+            end
         end
         
         
@@ -179,8 +205,16 @@ classdef D_star_lite_v2 < handle
                 
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos, obj.km)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
+                
+                %obj.localMap.plotMap(); % comment for fast plot
                 Kold = obj.U.topKey();
                 [obj.U, u] = obj.U.pop();
+                
+                % TODO
+                if u.state == Map.MAP_UNKNOWN || u.state == Map.MAP_EMPTY || ...
+                        u.state == Map.MAP_VISITED
+                    u.state = Map.MAP_START;
+                end
 
                 if (Kold < u.calcKey(obj.currPos, obj.km))
                     obj.U = obj.U.insert(u, u.calcKey(obj.currPos, obj.km));
@@ -244,44 +278,47 @@ classdef D_star_lite_v2 < handle
                     end
                 end
             end
+            
+            for s=obj.U.queue
+                obj.U = obj.U.insert(s, s.calcKey(obj.currPos));
+            end
+        end
+        
+        function step(obj)
+            minV = inf;
+            minPos = State.empty(1, 0);
+            succ = obj.sucessor(obj.currPos);
+            for s=succ
+                curr = obj.currPos.c(s) + s.g;
+                if curr < minV
+                    minV = curr;
+                    minPos = s;
+                end
+            end
+
+            %move to minPos
+            obj.currPos.state = Map.MAP_PATH; % TODO
+            obj.currPos = minPos;
+
+            % scan graph
+            isChanged = obj.updateMap();
+
+            obj.localMap.plotMap();
+            pause(0.25); % because otherwise matlab doesn't update the plot
+
+            % update graph
+            if isChanged
+               obj.km = obj.km + h(obj.Slast, obj.currPos);
+               obj.Slast = obj.currPos;
+               obj.updateEdgesCost();
+               obj.computeShortestPath();
+            end
         end
         
         function run(obj)
-            while(obj.currPos ~= obj.goal)
-                if obj.currPos.g == inf
-                    disp("No possible path!");
-                    return
-                end
-
-                minV = inf;
-                minPos = State.empty(1, 0);
-                succ = obj.sucessor(obj.currPos);
-                for s=succ
-                    curr = obj.currPos.c(s) + s.g;
-                    if curr < minV
-                        minV = curr;
-                        minPos = s;
-                    end
-                end
-
-                %move to minPos
-                obj.currPos = minPos;
-
-                % scan graph
-                isChanged = obj.updateMap();
-                
-                obj.localMap.plotMap();
-
-                % update graph
-                if isChanged
-                   obj.km = obj.km + h(obj.Slast, obj.currPos);
-                   obj.Slast = obj.currPos;
-                   obj.updateEdgesCost();
-                   obj.computeShortestPath();
-                end
-
+            while(~isFinish(obj))
+                obj.step()
             end
-            disp("Goal reached!");
         end
     end
 end

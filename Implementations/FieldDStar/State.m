@@ -8,6 +8,7 @@ classdef State < handle
         y
         % parent
         state
+        cost
         
         g
         rhs
@@ -16,7 +17,7 @@ classdef State < handle
     end
 
     methods
-        function obj = State(x, y, state)
+        function obj = State(x, y, state, cost)
             arguments
                 %
                 x {}
@@ -24,10 +25,13 @@ classdef State < handle
                 y {}
                 %
                 state {} = Map.MAP_UNKNOWN
+                %
+                cost = 1
             end
             obj.x = x;
             obj.y = y;
             obj.state = state;
+            obj.cost = cost;
             
             obj.g = 0;
             obj.rhs = 0;
@@ -54,7 +58,7 @@ classdef State < handle
         end
 
         function res = c(obj, state)
-            res = 1;
+            res = obj.cost;
         end
 
         function e = eq(obj, s)

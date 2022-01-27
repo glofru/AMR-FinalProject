@@ -28,18 +28,30 @@ classdef Map < handle
         % | x1, x2, x3, ...
         % | y1, y2, y3, ...
         obstacles
+        
+        %
+        cost
     end
 
     methods
-        function obj = Map(row, col, obstacles, type)
+        function obj = Map(row, col, obstacles, type, cost)
+            arguments
+                row
+                col
+                obstacles
+                type
+                
+                cost = 1;
+            end
             obj.row = row;
             obj.col = col;
+            obj.cost = cost;
             
             switch type
                 case Map.TYPE_KNOWN
-                    obj.init_map_known();
+                    obj.init_map(Map.MAP_EMPTY);
                 case Map.TYPE_UNKNOWN
-                    obj.init_map_unknown();
+                    obj.init_map(Map.MAP_UNKNOWN);
                 otherwise
                     error("Wrong!") % TODO
             end
@@ -48,23 +60,12 @@ classdef Map < handle
             obj.setObstacles(obstacles);
         end
 
-        function init_map_known(obj)
+        function init_map(obj, chr)
             obj.map = State.empty(1, 0);
             for i=1:obj.row
                 tmp = State.empty(0, 1);
                 for j=1:obj.col
-                    tmp(j) = State(i, j, Map.MAP_EMPTY);
-                end
-                obj.map = [obj.map; tmp];
-            end
-        end
-        
-        function init_map_unknown(obj)
-            obj.map = State.empty(1, 0);
-            for i=1:obj.row
-                tmp = State.empty(0, 1);
-                for j=1:obj.col
-                    tmp(j) = State(i, j, Map.MAP_UNKNOWN);
+                    tmp(j) = State(i, j, chr, obj.cost);
                 end
                 obj.map = [obj.map; tmp];
             end
@@ -156,12 +157,10 @@ classdef Map < handle
         
         function plotMap(obj)
             J = obj.buildImageMap();
-            %J = imrotate(rgbImage,90);
-            %J = imresize( J , 100);
             imshow(J,'InitialMagnification',1000);
         end
         
-        function plotMap_g(obj)
+        function plotMap_g(obj) % TODO
             outHeader = "";
             for i=1:(obj.col+2)
                 outHeader = outHeader + Map.MAP_OBSTACLE;
@@ -179,7 +178,7 @@ classdef Map < handle
             disp(outHeader+newline);
         end
         
-        function plotMap_rhs(obj)
+        function plotMap_rhs(obj) % TODO
             outHeader = "";
             for i=1:(obj.col+2)
                 outHeader = outHeader + Map.MAP_OBSTACLE;
@@ -197,7 +196,7 @@ classdef Map < handle
             disp(outHeader+newline);
         end
         
-        function plotMap_k(obj)
+        function plotMap_k(obj) % TODO
             outHeader = "";
             for i=1:(obj.col+2)
                 outHeader = outHeader + Map.MAP_OBSTACLE;

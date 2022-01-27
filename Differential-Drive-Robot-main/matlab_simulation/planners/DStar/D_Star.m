@@ -4,6 +4,7 @@ classdef D_Star < handle
         currPos;
         goal;
         moves;
+        resolution;
 
         open_list;
         maxIter;
@@ -17,7 +18,8 @@ classdef D_Star < handle
             obj.goal = int16(goal/resolution);
             obj.maxIter = maxIter; % TODO
             start = [int16(init_state(1)/resolution) int16(init_state(2)/resolution)];
-            
+            obj.resolution = resolution;
+
             size_x = size(map, 1);
             size_y = size(map, 2);
             
@@ -107,7 +109,7 @@ classdef D_Star < handle
         function final_path = run(obj)
             final_path = ones(obj.maxIter, 6);
             dimension_path = 1;
-            final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y]; 
+            final_path(dimension_path, 1:2) = [obj.currPos.x, obj.currPos.y] * obj.resolution;
 
             obj.localMap.plot();
             while obj.currPos.tag ~= DStateTag.CLOSED
@@ -118,7 +120,7 @@ classdef D_Star < handle
                 obj.currPos.state = DMapState.PATH;
 
                 dimension_path = dimension_path + 1;
-                final_path(dimension_path,1:2) = [obj.currPos.x, obj.currPos.y]; 
+                final_path(dimension_path,1:2) = [obj.currPos.x, obj.currPos.y] * obj.resolution; 
 
                 obj.localMap.plot();
 

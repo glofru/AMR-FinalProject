@@ -204,7 +204,7 @@ classdef Field_D_star < handle
             end
         end
         
-         % s1, s2 are neighbourds
+        % s1, s2 are neighbors
         % c is the traversal cost of the center cell
         % b is the traversal cost of the bottom cell
         function vs = computeCost(obj, s, sa, sb)
@@ -371,7 +371,7 @@ classdef Field_D_star < handle
                     end
                 end
 
-                %move to minPos
+                % move to minPos
                 obj.currPos.state = MapState.PATH; % TODO
                 obj.currPos = minPos;
                 

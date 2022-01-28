@@ -57,8 +57,8 @@ classdef State < handle
             res = norm([obj.x - s.x, obj.y - s.y]);
         end
 
-        function res = c(obj, state)
-            res = obj.cost;
+        function res = c(obj, s)
+            res = obj.cost * norm([obj.x - s.x, obj.y - s.y]);
         end
 
         function e = eq(obj, s)

@@ -27,7 +27,7 @@ execute = true;
 while execute
 
     globalObstacles = zeros(2, round(D1*D2/2));
-    for i=1:round(D1*D2/2)
+    for i=1:round(D1*D2/4) % 2)
         x = round(mod(rand*D1, D1))+1;
         y = round(mod(rand*D2, D2))+1;
 
@@ -64,8 +64,10 @@ while execute
             % INIT ALGORITHM
             knownObstacles = [];
             for i=1:Na
+                tic
                 algos(i) = D_star_lite_v1(map, knownObstacles, Sstart, Sgoal,...
-                moves, ranges(i), costs(i));
+                    moves, ranges(i), costs(i));
+                disp("algorithm["+num2str(i)+"] terminated in: "+string(toc)+" s"+newline);
             end
         case 3
         case 4

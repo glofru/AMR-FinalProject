@@ -193,7 +193,7 @@ classdef D_star_lite_v1 < handle
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                 
-                %obj.localMap.plotMap(); % comment for fast plot
+                %obj.localMap.plot(); % comment for fast plot
                 [obj.U, u] = obj.U.pop();
                 
                 % TODO
@@ -287,7 +287,7 @@ classdef D_star_lite_v1 < handle
             % scan graph
             isChanged = obj.updateMap();
 
-            obj.localMap.plotMap();
+            obj.localMap.plot();
             pause(0.25); % because otherwise matlab doesn't update the plot
 
             % update graph

@@ -44,7 +44,7 @@ classdef D_Star < handle
             end
             obj.open_list.remove(X);
             
-            obj.localMap.plot(X);
+            % obj.localMap.plot(X); % comment for fast plot
             
             succ = obj.localMap.neighbors(X, obj.moves);
             if Kold < X.h

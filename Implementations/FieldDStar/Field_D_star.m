@@ -37,8 +37,8 @@ classdef Field_D_star < handle
             obj.cost = cost;
             
             % inizialize map
-            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, [],...
-                Map.TYPE_UNKNOWN, cost);
+            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col,...
+                obj.obstacles, Map.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
             obj.currPos.state = Map.MAP_POSITION;

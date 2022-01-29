@@ -1,5 +1,7 @@
-clear all;
+clear all
+close all
 clc
+restoredefaultpath
 
 %% Main
 
@@ -17,7 +19,7 @@ Sstart = [1; 1];
 Sgoal = [D1; D2];
 
 range = 2;
-cost = 1;
+cost = 0.1;
 
 moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
@@ -52,9 +54,10 @@ while execute
 
     if algorithmType == 1
         map = Map(dim(1), dim(2), globalObstacles);
+        map.map(Sstart(1), Sstart(2)).state = MapState.START;
+        map.map(Sgoal(1), Sgoal(2)).state = MapState.GOAL;
     else
         map = Map(dim(1), dim(2), globalObstacles, Map.TYPE_KNOWN, cost);
-        % TODO: the following two lines aren't inside the algorithm??
         map.map(Sstart(1), Sstart(2)).state = Map.MAP_START;
         map.map(Sgoal(1), Sgoal(2)).state = Map.MAP_GOAL;
     end

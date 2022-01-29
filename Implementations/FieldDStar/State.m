@@ -6,7 +6,7 @@ classdef State < handle
     properties
         x
         y
-        % parent
+        
         state
         cost
         
@@ -39,15 +39,8 @@ classdef State < handle
             obj.k = 0;
         end
 
-        function K = calcKey(obj, Sstart, km)
-            arguments
-                obj
-                
-                Sstart
-                
-                km = 0
-            end
-            k1 = min(obj.g, obj.rhs + obj.h(Sstart) + km);
+        function K = calcKey(obj, Sstart)
+            k1 = min(obj.g, obj.rhs + obj.h(Sstart));
             k2 = min(obj.g, obj.rhs);
 
             K = [k1, k2];
@@ -57,8 +50,8 @@ classdef State < handle
             res = norm([obj.x - s.x, obj.y - s.y]);
         end
 
-        function res = c(obj, state)
-            res = obj.cost;
+        function res = c(obj, s)
+            res = obj.cost * norm([obj.x - s.x, obj.y - s.y]);
         end
 
         function e = eq(obj, s)

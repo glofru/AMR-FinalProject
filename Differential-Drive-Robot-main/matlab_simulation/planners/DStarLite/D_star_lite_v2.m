@@ -6,6 +6,8 @@ classdef D_star_lite_v2 < handle
         currPos;
         goal;
         moves;
+        range;
+        cost;
         
         U;
         obstacles;
@@ -17,34 +19,51 @@ classdef D_star_lite_v2 < handle
         map_limit;
         map;
         start;
-        size_x;
-        size_y;
+        sizeX;
+        sizeY;
         resolution;
         maxIter;
     end
     
     methods
-        function obj = D_star_lite_v2(init_state, sampling_time, limit, goal, map, resolution, maxIter)
+        function obj = D_star_lite_v2(init_state, sampling_time, limit, goal,...
+                map, resolution, maxIter,  moves, range, cost)
+            arguments
+                init_state
+                sampling_time
+                limit
+                goal
+                map
+                resolution
+                maxIter
+                
+                moves
+                range = 1;
+                cost = 1;
+            end
             obj.map_limit = limit;
             obj.goal = int16(goal/resolution);
             obj.start = [int16(init_state(1)/resolution) int16(init_state(2)/resolution)];
             obj.resolution = resolution;
             obj.maxIter = maxIter;
+            obj.moves = moves;
+            obj.range = range;
+            obj.cost = cost;
             
-            obj.size_x = size(map, 1);
-            obj.size_y = size(map, 2);
-            obj.map = zeros(obj.size_x * obj.size_y, 6);
+            obj.sizeX = size(map, 1);
+            obj.sizeY = size(map, 2);
+            obj.map = zeros(obj.sizeX * obj.sizeY, 6);
             
-            for i=1:obj.size_x
-                for j=1:obj.size_y
+            for i=1:obj.sizeX
+                for j=1:obj.sizeY
                     if (map(i, j) < 250)
                         obj.obstacles = [obj.obstacles, [i;j]];
                     end
                 end
             end
             
-            D1 = obj.size_x;
-            D2 = obj.size_y;
+            D1 = obj.sizeX;
+            D2 = obj.sizeY;
             for i=1:round(D1*D2/4)
                 x = round(mod(rand*D1, D1))+1;
                 y = round(mod(rand*D2, D2))+1;
@@ -58,13 +77,13 @@ classdef D_star_lite_v2 < handle
             
             % copy vals
             obj.globalMap = map;
-            obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
             obj.U = PriorityQueue();
             obj.km = 0;
             obj.newObstacles = [];
             
             % inizialize map
-            obj.localMap = DLMap(obj.size_x, obj.size_y, obj.obstacles, DLMap.TYPE_UNKNOWN);
+            obj.localMap = DLMap(obj.sizeX, obj.sizeY, obj.obstacles,...
+                DLMap.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(obj.start(1), obj.start(2));
             obj.currPos.state = DLMapState.POSITION;
@@ -110,13 +129,15 @@ classdef D_star_lite_v2 < handle
             
             is = obj.currPos.x;
             js = obj.currPos.y;
+            
+            r = obj.range;
 
-            for i=-1:1
-                for j=-1:1
+            for i=-r:r
+                for j=-r:r
                     if obj.localMap.isInside(is+i, js+j)
                         chr = obj.globalMap(is+i, js+j);
                             
-                        if chr < 250
+                        if chr < 250 % == Map.MAP_OBSTACLE
                             new_obs = [is+i, js+j];
                             obj.localMap.map(is+i, js+j).state = DLMapState.OBSTACLE;
                             if ~obj.isAlredyIn(obj.obstacles, new_obs')
@@ -133,7 +154,8 @@ classdef D_star_lite_v2 < handle
         
         
         function Lp = predecessor(obj, u)
-            Lp = DLState.empty(1, 0);
+            Lp = DLState.empty(length(obj.moves), 0);
+            currI = 1;
             for m=obj.moves
                 pred_pos = [u.x; u.y]+m;
 
@@ -142,47 +164,34 @@ classdef D_star_lite_v2 < handle
                     continue
                 end
 
-                isNotObs = true;
-                for o=obj.obstacles
-                    if all(o==pred_pos)
-                        isNotObs = false;
-                        break
-                    end
-                end
-
-                if isNotObs
+                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
+                if  obj_pos.state ~= DLMapState.OBSTACLE
                     % TODO ottimizzare
-                    pred_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                    if ~obj.isAlredyIn(Lp, pred_pos)
-                        Lp(end+1) = pred_pos;
+                    if ~obj.isAlredyIn(Lp, obj_pos)
+                        Lp(currI) = obj_pos;
+                        currI = currI+1;
                     end
                 end
             end
         end
         
         function Ls = sucessor(obj, u)
-            Ls = DLState.empty(1, 0);
+            Ls = DLState.empty(length(obj.moves), 0);
+            currI = 1;
             for m=obj.moves
                 pred_pos = [u.x; u.y]+m;
 
-                % if inside boundaries
+                %se dentro i bordi
                 if ~obj.localMap.isInside(pred_pos(1), pred_pos(2))
                     continue
                 end
 
-                isNotObs = true;
-                for o=obj.obstacles
-                    if all(o==pred_pos)
-                        isNotObs = false;
-                        break
-                    end
-                end
-
-                if isNotObs
+                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
+                if obj_pos.state ~= DLMapState.OBSTACLE
                     % TODO ottimizzare
-                    pred_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                    if ~obj.isAlredyIn(Ls, pred_pos)
-                        Ls(end+1) = pred_pos;
+                    if ~obj.isAlredyIn(Ls, obj_pos)
+                        Ls(currI) = obj_pos;
+                        currI = currI+1;
                     end
                 end
             end
@@ -290,6 +299,10 @@ classdef D_star_lite_v2 < handle
                     end
                 end
             end
+            
+%             for s=obj.U.queue
+%                 obj.U = obj.U.insert(s, s.calcKey(obj.currPos));
+%             end
         end
         
         function final_path = run(obj)

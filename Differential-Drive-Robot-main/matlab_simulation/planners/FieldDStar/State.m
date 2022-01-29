@@ -7,6 +7,7 @@ classdef State < handle
         y
         
         state
+        cost
         
         g
         rhs
@@ -15,7 +16,7 @@ classdef State < handle
     end
 
     methods
-        function obj = State(x, y, state)
+        function obj = State(x, y, state, cost)
             arguments
                 %
                 x %{}
@@ -23,10 +24,13 @@ classdef State < handle
                 y %{}
                 %
                 state {} = MapState.UNKNOWN
+                %
+                cost = 1
             end
             obj.x = x;
             obj.y = y;
             obj.state = state;
+            obj.cost = cost;
             
             obj.g = 0;
             obj.rhs = 0;
@@ -34,15 +38,8 @@ classdef State < handle
             obj.k = 0;
         end
 
-        function K = calcKey(obj, Sstart, km) % TODO
-            arguments
-                obj
-                
-                Sstart
-                
-                km = 0
-            end
-            k1 = min(obj.g, obj.rhs + obj.h(Sstart) + km);
+        function K = calcKey(obj, Sstart)
+            k1 = min(obj.g, obj.rhs + obj.h(Sstart));
             k2 = min(obj.g, obj.rhs);
 
             K = [k1, k2];
@@ -52,8 +49,8 @@ classdef State < handle
             res = norm([obj.x - s.x, obj.y - s.y]);
         end
 
-        function res = c(obj, state) % TODO
-            res = 0.1;% 1; improvement with 0.1 instead 1
+        function res = c(obj, s)
+            res = obj.cost * norm([obj.x - s.x, obj.y - s.y]);
         end
 
         function e = eq(obj, s)

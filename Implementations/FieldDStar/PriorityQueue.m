@@ -18,19 +18,18 @@ classdef PriorityQueue
             % insert in the queue vertex s with value k
             % if already exists change priority of s from k (old) to k
             
+            s.k = k; % ==> s.Kold = k
+            
             pos = obj.find(s);
             if pos == -1
-                s.k = k;
+                
                 obj.queue(end+1) = s;
                 
                 % TODO
                 if s.state == Map.MAP_UNKNOWN || s.state == Map.MAP_EMPTY
                     s.state = Map.MAP_VISITED;
                 end
-            else
-                s.k = k;
             end
-            
         end
         
         function pos = find(obj, s)

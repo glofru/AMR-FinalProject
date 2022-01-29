@@ -1,4 +1,7 @@
 classdef Map < handle
+    % Class to keep and work with the map
+    %
+    
     properties (Constant)
         MAP_OBSTACLE = "█";
         MAP_UNKNOWN = "▓";
@@ -16,18 +19,18 @@ classdef Map < handle
     end
     
     properties
-        %
-        row
-        %
-        col
+        % num of map's rows
+        row %double {mustBePositive, mustBeInteger}
+        % num of map's cols
+        col %double {mustBePositive, mustBeInteger}
         
-        %
-        map
+        % row x col matrix of State
+        map %(:, :) {}
         
-        %
+        % matrix 2 x N list of obstacles
         % | x1, x2, x3, ...
         % | y1, y2, y3, ...
-        obstacles
+        obstacles %(2, :) {mustBePositive, mustBeInteger}
         
         %
         cost
@@ -36,10 +39,18 @@ classdef Map < handle
     methods
         function obj = Map(row, col, obstacles, type, cost)
             arguments
-                row
-                col
-                obstacles
-                type
+                % num of map's rows
+                row %double {mustBePositive, mustBeInteger}
+                % num of map's cols
+                col %double {mustBePositive, mustBeInteger}
+                
+                % matrix 2 x N list of obstacles
+                % | x1, x2, x3, ...
+                % | y1, y2, y3, ...
+                obstacles %(2, :) {mustBePositive, mustBeInteger} = []
+                
+                % type of the non obstacles tiles
+                type %double {} = Map.TYPE_UNKNOWN
                 
                 cost = 1;
             end

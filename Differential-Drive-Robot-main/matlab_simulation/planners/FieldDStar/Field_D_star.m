@@ -6,6 +6,8 @@ classdef Field_D_star < handle
         currPos;
         goal;
         moves;
+        range;
+        cost;
         
         U;
         obstacles;
@@ -17,48 +19,51 @@ classdef Field_D_star < handle
         map;
         start;
         cells_isopen;
-        size_x;
-        size_y;
+        sizeX;
+        sizeY;
         resolution;
         maxIter;
     end
     
     methods
-        function obj = Field_D_star(initial_state,sampling_time,limit,goal,map,resolution,maxIter)
-            obj.map_limit = limit; %limit/resolution
+        function obj = Field_D_star(init_state, sampling_time, limit, goal,...
+                map, resolution, maxIter,  moves, range, cost)
+            arguments
+                init_state
+                sampling_time
+                limit
+                goal
+                map
+                resolution
+                maxIter
+                
+                moves
+                range = 1;
+                cost = 1;
+            end
+            obj.map_limit = limit;
             obj.goal = int16(goal/resolution);
-            obj.start = [int16(initial_state(1)/resolution) int16(initial_state(2)/resolution)];
+            obj.start = [int16(init_state(1)/resolution) int16(init_state(2)/resolution)];
             obj.resolution = resolution;
             obj.maxIter = maxIter;
-            %obj.map = im2double(map);
-            %[x, y, g, h, open, parent id (the position in the array)]
+            obj.moves = moves;
+            obj.range = range;
+            obj.cost = cost;
+            
             obj.map = zeros(size(map,1)*size(map,2),6);
-            obj.size_x = size(map,1);
-            obj.size_y = size(map,2);
-            %[open, cost]
-%             obj.cells_isopen = zeros(size(map,1)*size(map,2),3);
-            %obj.cells_closed = zeros(size(map,1)*size(map,2),1);
+            obj.sizeX = size(map,1);
+            obj.sizeY = size(map,2);
             
             for i = 1:size(map,1)
                for j = 1:size(map,2) 
                   if(map(i,j) < 250) 
-%                       obj.cells_isopen(i +(j-1)*size(map,2),:) = [-1,10000,10000];
                       obj.obstacles = [obj.obstacles, [i; j]];
-%                   else
-%                       %h = abs(obj.goal(1)-((i-1)*resolution)) + abs(obj.goal(2)-((j-1)*resolution));
-%                       h = 0;
-%                       obj.map(i +(j-1)*size(map,2),:) = [i,j,0,h,0,0];
-%                       if(i == obj.start(1) && j == obj.start(2))
-%                         obj.cells_isopen(i + (j-1)*size(map,2),:) = [1,0,0];
-%                       else
-%                         obj.cells_isopen(i + (j-1)*size(map,2),:) = [0,10000,10000];
-%                       end
                   end
                end
             end
             
-            D1 = obj.size_x;
-            D2 = obj.size_y;
+            D1 = obj.sizeX;
+            D2 = obj.sizeY;
             for i=1:round(D1*D2/4)
                 x = round(mod(rand*D1, D1))+1;
                 y = round(mod(rand*D2, D2))+1;
@@ -73,13 +78,13 @@ classdef Field_D_star < handle
             
             % copy vals
             obj.globalMap = map;
-            obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
             obj.U = PriorityQueue();
             %obj.obstacles = obstacles;
             obj.newObstacles = [];
             
             % inizialize map
-            obj.localMap = Map(obj.size_x, obj.size_y, obj.obstacles, Map.TYPE_UNKNOWN);
+            obj.localMap = Map(obj.sizeX, obj.sizeY, obj.obstacles,...
+                Map.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(obj.start(1), obj.start(2));
             obj.currPos.state = MapState.POSITION;
@@ -124,16 +129,15 @@ classdef Field_D_star < handle
             
             is = obj.currPos.x;
             js = obj.currPos.y;
+            
+            r = obj.range;
 
-            for i=-1:1
-                for j=-1:1
+            for i=-r:r
+                for j=-r:r
                     if obj.localMap.isInside(is+i, js+j)
                         chr = obj.globalMap(is+i, js+j);
                         
-                        % TODO
-                        %obj.localMap.map(is+i, js+j).state = chr;
-                            
-                        if chr < 250% == MapState.OBSTACLE
+                        if chr < 250 % == Map.MAP_OBSTACLE
                             new_obs = [is+i, js+j];
                             obj.localMap.map(is+i, js+j).state = MapState.OBSTACLE;
                             if ~obj.isAlredyIn(obj.obstacles, new_obs')
@@ -149,7 +153,8 @@ classdef Field_D_star < handle
         end
         
         function Lp = predecessor(obj, u)
-            Lp = State.empty(1, 0);
+            Lp = State.empty(length(obj.moves), 0);
+            currI = 1;
             for m=obj.moves
                 pred_pos = [u.x; u.y]+m;
 
@@ -158,26 +163,20 @@ classdef Field_D_star < handle
                     continue
                 end
 
-                isNotObs = true;
-                for o=obj.obstacles
-                    if all(o==pred_pos)
-                        isNotObs = false;
-                        break
-                    end
-                end
-
-                if isNotObs
+                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
+                if  obj_pos.state ~= MapState.OBSTACLE
                     % TODO ottimizzare
-                    pred_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                    if ~obj.isAlredyIn(Lp, pred_pos)
-                        Lp(end+1) = pred_pos;
+                    if ~obj.isAlredyIn(Lp, obj_pos)
+                        Lp(currI) = obj_pos;
+                        currI = currI+1;
                     end
                 end
             end
         end
         
         function Ls = sucessor(obj, u)
-            Ls = State.empty(1, 0);
+            Ls = State.empty(length(obj.moves), 0);
+            currI = 1;
             for m=obj.moves
                 pred_pos = [u.x; u.y]+m;
 
@@ -186,19 +185,12 @@ classdef Field_D_star < handle
                     continue
                 end
 
-                isNotObs = true;
-                for o=obj.obstacles
-                    if all(o==pred_pos)
-                        isNotObs = false;
-                        break
-                    end
-                end
-
-                if isNotObs
+                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
+                if obj_pos.state ~= MapState.OBSTACLE
                     % TODO ottimizzare
-                    pred_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                    if ~obj.isAlredyIn(Ls, pred_pos)
-                        Ls(end+1) = pred_pos;
+                    if ~obj.isAlredyIn(Ls, obj_pos)
+                        Ls(currI) = obj_pos;
+                        currI = currI+1;
                     end
                 end
             end
@@ -346,6 +338,10 @@ classdef Field_D_star < handle
                         end
                     end
                 end
+            end
+            
+            for s=obj.U.queue
+                obj.U = obj.U.insert(s, s.calcKey(obj.currPos));
             end
         end
         

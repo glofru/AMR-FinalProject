@@ -20,35 +20,14 @@ classdef DLMap < handle
         % | x1, x2, x3, ...
         % | y1, y2, y3, ...
         obstacles %(2, :) {mustBePositive, mustBeInteger}
-    end
-    
-    methods (Access = private)
-        function init_map_known(obj)
-            obj.map = DLState.empty(1, 0);
-            for i=1:obj.row
-                tmp = DLState.empty(0, 1);
-                for j=1:obj.col
-                    tmp(j) = DLState(i, j, DLMapState.EMPTY);
-                end
-                obj.map = [obj.map; tmp];
-            end
-        end
         
-        function init_map_unknown(obj)
-            obj.map = DLState.empty(1, 0);
-            for i=1:obj.row
-                tmp = DLState.empty(0, 1);
-                for j=1:obj.col
-                    tmp(j) = DLState(i, j, DLMapState.UNKNOWN);
-                end
-                obj.map = [obj.map; tmp];
-            end
-        end
+        %
+        cost
     end
 
     methods
         % map constructor
-        function obj = DLMap(row, col, obstacles, type)
+        function obj = DLMap(row, col, obstacles, type, cost)
             arguments
                 % num of map's rows
                 row %double {mustBePositive, mustBeInteger}
@@ -62,22 +41,36 @@ classdef DLMap < handle
                 
                 % type of the non obstacles tiles
                 type %double {} = Map.TYPE_UNKNOWN
+                
+                cost = 1;
             end
             
             obj.row = row;
             obj.col = col;
+            obj.cost = cost;
             
             switch type
                 case DLMap.TYPE_KNOWN
-                    obj.init_map_known();
+                    obj.init_map(DLMapState.EMPTY);
                 case DLMap.TYPE_UNKNOWN
-                    obj.init_map_unknown();
+                    obj.init_map(DLMapState.UNKNOWN);
                 otherwise
-                    error("Wrong!")
+                    error("Wrong!") % TODO
             end
             
             obj.obstacles = obstacles;
             obj.setObstacles(obstacles);
+        end
+        
+        function init_map(obj, chr)
+            obj.map = DLState.empty(1, 0);
+            for i=1:obj.row
+                tmp = DLState.empty(0, 1);
+                for j=1:obj.col
+                    tmp(j) = DLState(i, j, chr, obj.cost);
+                end
+                obj.map = [obj.map; tmp];
+            end
         end
 
         % set a list of obstacles inside the map

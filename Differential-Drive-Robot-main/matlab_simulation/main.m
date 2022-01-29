@@ -1,6 +1,9 @@
-clear all;
-clc;
-close all;
+clear all
+close all
+clc
+restoredefaultpath
+
+%% Main
 
 addpath(genpath('./controllers'))
 addpath(genpath('./maps'))
@@ -48,31 +51,46 @@ disp("Which search algorithm?"+newline+...
      "    7) Field D*"+newline)
 algorithm = input('search algorithm: ');
 
+range = 2;
+cost = 0.1;
+
+moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
+
 switch algorithm
     case 1
-        path = planning_fun_A_star(state_robot,dt,limit,goal,image,resolution,max_iteration);
+        addpath(genpath('./planners/A_star'))
+        path = planning_fun_A_star(state_robot, dt, limit, goal, image,...
+            resolution, max_iteration);
         
     case 2
-        path = planning_fun_Greedy_best_first(state_robot,dt,limit,goal,image,resolution,max_iteration);
+        addpath(genpath('./planners/Greedy_best_first'))
+        path = planning_fun_Greedy_best_first(state_robot, dt, limit, goal, image,...
+            resolution, max_iteration);
         
     case 3
-        path = planning_fun_Dijkstra(state_robot,dt,limit,goal,image,resolution,max_iteration);
+        addpath(genpath('./planners/Dijkstra'))
+        path = planning_fun_Dijkstra(state_robot, dt, limit, goal, image,...
+            resolution, max_iteration);
         
     case 4
         addpath(genpath('./planners/DStar'))
-        path = planning_fun_D_star(state_robot,dt,limit,goal,image,resolution,max_iteration);
+        path = planning_fun_D_star(state_robot, dt, limit, goal, image,...
+            resolution, max_iteration);
         
     case 5
         addpath(genpath('./planners/DStarLite'))
-        path = planning_fun_D_star_lite_v1(state_robot,dt,limit,goal,image,resolution,max_iteration);
+        path = planning_fun_D_star_lite_v1(state_robot, dt, limit, goal, image,...
+            resolution,max_iteration, moves, range, cost);
         
     case 6
         addpath(genpath('./planners/DStarLite'))
-        path = planning_fun_D_star_lite_v2(state_robot,dt,limit,goal,image,resolution,max_iteration);
+        path = planning_fun_D_star_lite_v2(state_robot, dt, limit, goal, image,...
+            resolution,max_iteration, moves, range, cost);
         
     case 7
         addpath(genpath('./planners/FieldDStar'))
-        path = planning_fun_Field_D_star(state_robot,dt,limit,goal,image,resolution,max_iteration);
+        path = planning_fun_Field_D_star(state_robot, dt, limit, goal, image,...
+            resolution,max_iteration, moves, range, cost);
 
     otherwise
         error("Invalid algorithm choice");

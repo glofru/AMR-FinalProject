@@ -1,5 +1,7 @@
-function [final_path] = planning_fun_D_star_lite_v2(state_robot,dt,limit,goal,image,resolution,maxIter)
-    grid_search = D_star_lite_v2(state_robot,dt,limit,goal,image,resolution,maxIter);
+function [final_path] = planning_fun_D_star_lite_v2(state_robot, dt, limit,...
+    goal, image, resolution, maxIter,  moves, cost, range)
+    grid_search = D_star_lite_v2(state_robot, dt, limit, goal, image,...
+        resolution, maxIter,  moves, cost, range);
     
     grid_search.computeShortestPath();
     

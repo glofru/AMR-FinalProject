@@ -1,108 +1,98 @@
 classdef D_Star < handle
     properties
-        map;
-        open_list;
+        globalMap;
+
+        localMap;
+        currPos;
+        goal;
         moves;
+
+        range;
+        cost;
+
+        open_list;
     end
 
     methods
-        function obj = D_Star(moves, map, goal)
+        function obj = D_Star(globalMap, obstacles, Sstart, Sgoal,...
+                moves, range, cost)
+            obj.globalMap = globalMap;
             obj.moves = moves;
-            
-            obj.map = map;
-            
-            for stateC = map.map
-                for state = stateC'
-                    state.tag = State.TAG_NEW;
-                end
-            end
-            
-            obj.open_list = OpenList();
-            goal.h = 0;
-            obj.open_list = obj.open_list.insert(goal);
-        end
-        
-        function Ls = successor(obj, X)
-            Ls = OpenList();
-            pos = [X.x; X.y];
-            
-            for m=obj.moves
-                
-                succ_pos = pos + m;
-                x = succ_pos(1);
-                y = succ_pos(2);
+            obj.range = range;
+            obj.cost = cost;
 
-                if ~obj.map.is_inside(x, y) || obj.map.is_obstacle(x, y)
-                    continue
-                end
 
-                if ~Ls.has(obj.map.map(x, y))
-                    Ls = Ls.insert(obj.map.map(x, y));
-                end
-            end
+            % initialize map
+            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, obstacles);
+            
+            obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
+            obj.currPos.state = MapState.START;
+            obj.goal = obj.localMap.map(Sgoal(1), Sgoal(2));
+            obj.goal.state = MapState.GOAL;
+            
+            obj.open_list = OpenList(obj.goal);
+
+            % first scan and path computation
+            obj.updateMap();
+            obj.computeShortestPath();
         end
 
         function res = process_state(obj)
-            [obj.open_list, X, Kold] = obj.open_list.pop();
-            X.tag = State.TAG_CLOSED;
+            [Kold, X] = obj.open_list.min_state();
             if isempty(X)
                 error("Path not found")
             end
+            obj.open_list.remove(X);
             
-            succ = obj.successor(X);
+            obj.localMap.plot(X);
+            
+            succ = obj.localMap.neighbors(X, obj.moves);
             if Kold < X.h
                 for Y=succ
-                    if Y.h < Kold && X.h > Y.h + X.cost(Y)
+                    if Y.h <= Kold && X.h > Y.h + X.cost(Y)
                         X.parent = Y;
                         X.h = Y.h + X.cost(Y);
                     end
                 end
-            end
-            
-            if Kold == X.h
-                for i=1:size(succ.queueS, 2)
-                    Y = succ.queueS(i);
-                    if Y.tag == State.TAG_NEW || ...
-                            (Y.parent == X && Y.h ~= X.h + X.cost(Y)) || ...
-                            (~(Y.parent == X) && Y.h > X.h + X.cost(Y))
+            elseif Kold == X.h
+                for Y=succ
+                    if Y.tag == StateTag.NEW || ...
+                            (~isempty(Y.parent) && Y.parent == X && Y.h ~= X.h + X.cost(Y)) || ...
+                            (~isempty(Y.parent) && Y.parent ~= X && Y.h > X.h + X.cost(Y))
                         Y.parent = X;
-                        Y.h = X.h + X.cost(Y);
-                        Y.tag = State.TAG_OPEN;
-                        obj.open_list = obj.open_list.insert(Y);
+                        obj.open_list.insert(Y, X.h + X.cost(Y));
                     end
                 end
             else
-                for i=1:size(succ.queueS, 2)
-                    Y = succ.queueS(i);
-                    if Y.tag == State.TAG_NEW ||...
+                for Y=succ
+                    if Y.tag == StateTag.NEW ||...
                             (Y.parent == X && Y.h ~= X.h + X.cost(Y))
                         Y.parent = X;
-                        Y.h = X.h + X.cost(Y);
-                        Y.tag = State.TAG_OPEN;
-                        obj.open_list = obj.open_list.insert(Y);
+                        obj.open_list.insert(Y, X.h + X.cost(Y));
                     else
-                        if ~(Y.parent == X) && Y.h > X.h + X.cost(Y)
-                            X.tag = State.TAG_OPEN;
-                            obj.open_list = obj.open_list.insert(X);
+                        if Y.parent ~= X && Y.h > X.h + X.cost(Y)
+                            obj.open_list.insert(Y, X.h);
                         else
-                            if ~(Y.parent == X) && X.h > Y.h + Y.cost(X) && ...
-                                    Y.tag == State.TAG_CLOSED && ...
+                            if Y.parent ~= X && X.h > Y.h + X.cost(Y) && ...
+                                    Y.tag == StateTag.CLOSED && ...
                                     Y.h > Kold
-                                Y.tag = State.TAG_OPEN;
-                                obj.open_list = obj.open_list.insert(Y);
+                                obj.open_list.insert(Y, Y.h);
                             end
                         end
                     end
                 end
             end
-            
-            [~, res] = obj.open_list.top();
+
+            res = obj.open_list.get_kmin();
         end
 
+        function modify(obj)
+            state = obj.currPos;
+%             if state.tag == StateTag.CLOSED
+                obj.open_list.insert(state, state.h + state.cost(state.parent))
+%             end
 
-        function modify(obj, state)
-            obj.modify_cost(state);
-            while true
+            while ~obj.open_list.isEmpty()
                 k_min = obj.process_state();
                 if k_min >= state.h
                     break
@@ -110,39 +100,58 @@ classdef D_Star < handle
             end
         end
 
-        function modify_cost(obj, state)
-            if state.tag == "close"
-                obj.insert(state, state.parent.h + state.cost(state.parent))
+        function f = isFinish(obj)
+            f = obj.currPos == obj.goal && ~obj.open_list.isEmpty();
+        end
+
+        function step(obj)
+            obj.currPos.state = MapState.PATH;
+
+            obj.updateMap()
+
+            obj.localMap.plot();
+            pause(0.25); % because otherwise matlab doesn't update the plot
+
+            % update graph
+            if obj.currPos.parent.state == MapState.OBSTACLE
+                obj.modify()
+                return
+            end
+
+            % goes forward
+            obj.currPos = obj.currPos.parent;
+        end
+
+        function run(obj)
+            while(~isFinish(obj))
+                obj.step()
             end
         end
 
-        function run(obj, start, goal)
-            PSret = 0;
-            while start.tag ~= State.TAG_CLOSED && PSret ~= -1
-                PSret = obj.process_state();
-%                 obj.map.print_map_tag();
+        function computeShortestPath(obj)
+            while obj.currPos.tag ~= StateTag.CLOSED && ~obj.open_list.isEmpty()
+                obj.process_state();
             end
+        end
+
+        function updateMap(obj)
+            is = obj.currPos.x;
+            js = obj.currPos.y;
             
-            if start.tag ~= State.TAG_CLOSED && PSret == -1
-                error("No possible path")
-            end
-    
-            currPos = start;
-            while ~currPos.parent.eq(goal)
-                %move to minPos
-                currPos = currPos.parent;
-                currPos.state = Map.MAP_PATH;
+            r = obj.range;
 
-                % scan graph
-                % is_changed = updateMap();
-                obj.map.print_map();
-
-                % update graph
-                % if is_changed
-                %    update_edges_cost();
-                %    compute_shortest_path();
-                % end
-                
+            for i=-r:r
+                for j=-r:r
+                    newX = is+i;
+                    newY = js+j;
+                    
+                    if obj.localMap.isInside(newX, newY)
+                        s = obj.globalMap.map(newX, newY).state;
+                        if s == MapState.OBSTACLE
+                            obj.localMap.map(newX, newY).state = s;
+                        end
+                    end
+                end
             end
         end
         

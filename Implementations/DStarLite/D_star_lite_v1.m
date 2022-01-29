@@ -288,7 +288,7 @@ classdef D_star_lite_v1 < handle
             % scan graph
             isChanged = obj.updateMap();
 
-            obj.localMap.plotMap();
+            obj.localMap.plot();
             pause(0.25); % because otherwise matlab doesn't update the plot
 
             % update graph

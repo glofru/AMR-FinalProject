@@ -38,31 +38,6 @@ while execute
     switch algorithmType
         case 1
             addpath('./DStar')
-            
-%             switch algorithmType
-%                 case 1
-%                     tic
-%                     addpath('./DStar')
-%                     map = Map(dim(1), dim(2), globalObstacles);
-% 
-%                     SstartMap = map.map(Sstart(1), Sstart(2));
-%                     SstartMap.state = Map.MAP_START;
-%                     SgoalMap = map.map(Sgoal(1), Sgoal(2));
-%                     SgoalMap.state = Map.MAP_GOAL;
-% 
-%                     disp("Initial Map!")
-%                     map.print_map();
-%                     waitInput();
-% 
-%                     algorithm = D_Star(moves, map, SgoalMap);
-%                     disp('Inizialization terminated in: '+string(toc)+' s'+newline);
-%                     waitInput();
-% 
-%                     tic
-%                     algorithm.run(SstartMap, SgoalMap);
-%                     disp('run terminated in: '+string(toc)+' s'+newline);
-%             end
-    
         case 2
             addpath('./DStarLite')
         case 3
@@ -74,9 +49,15 @@ while execute
     end
     
     tic
-    map = Map(dim(1), dim(2), globalObstacles, Map.TYPE_KNOWN, cost);
-    map.map(Sstart(1), Sstart(2)).state = Map.MAP_START;
-    map.map(Sgoal(1), Sgoal(2)).state = Map.MAP_GOAL;
+
+    if algorithmType == 1
+        map = Map(dim(1), dim(2), globalObstacles);
+    else
+        map = Map(dim(1), dim(2), globalObstacles, Map.TYPE_KNOWN, cost);
+        % TODO: the following two lines aren't inside the algorithm??
+        map.map(Sstart(1), Sstart(2)).state = Map.MAP_START;
+        map.map(Sgoal(1), Sgoal(2)).state = Map.MAP_GOAL;
+    end
     obstacles = [];
     
     switch algorithmType
@@ -98,10 +79,10 @@ while execute
     disp("Global Map and Algorithm Initial Map!");
     
     ax1 = subplot(1, 2, 1);
-    map.plotMap();
+    map.plot();
     title(ax1, "Global Map")
     ax2 = subplot(1, 2, 2);
-    algorithm.localMap.plotMap();
+    algorithm.localMap.plot();
     title(ax2, "Algorithm Initial Map")
     xlabel(['',newline,'\bf Press Enter to continue!'])
     waitInput();

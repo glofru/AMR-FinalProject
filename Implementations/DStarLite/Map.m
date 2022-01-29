@@ -155,7 +155,7 @@ classdef Map < handle
             end
         end
         
-        function plotMap(obj)
+        function plot(obj)
             J = obj.buildImageMap();
             imshow(J,'InitialMagnification',1000);
         end

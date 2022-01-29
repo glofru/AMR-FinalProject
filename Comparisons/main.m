@@ -16,15 +16,27 @@ dim = [D1; D2];
 Sstart = [1; 1];
 Sgoal = [D1; D2];
 
-ranges = [  2	2	2	2	2	2	2];
-costs = [	0.1	0.5	0.9	1	1.1	1.5	2];
+ranges = [  2       2	2	2	2	2];
+costs = [	0.01    0.1 0.3 0.5 0.7 0.9];%0.1	0.5	0.9	1	1.1 1.5	2];
 assert(length(ranges) == length(costs), "ranges and costs have different lenght")
+
 Na = length(ranges);
+epoch = 10;
+
+infos = AlgoInfo.empty(1, 0);
+for i=1:epoch
+    tmp = AlgoInfo.empty(0, 1);
+     for j=1:Na
+        tmp(j) = AlgoInfo(0, 0, 0, 0, 0);
+    end
+    infos = [infos; tmp];
+end
 
 moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
 execute = true;
-while execute
+for currEpoch=1:epoch
+    disp("Epoch: "+num2str(currEpoch));
 
     globalObstacles = zeros(2, round(D1*D2/2));
     for i=1:round(D1*D2/4) % 2)
@@ -57,7 +69,7 @@ while execute
     map.map(Sstart(1), Sstart(2)).state = Map.MAP_START;
     map.map(Sgoal(1), Sgoal(2)).state = Map.MAP_GOAL;
     obstacles = [];
-    
+    disp('Inizialization');
     switch algorithmType
         case 1
         case 2
@@ -67,7 +79,7 @@ while execute
                 tic
                 algos(i) = D_star_lite_v1(map, knownObstacles, Sstart, Sgoal,...
                     moves, ranges(i), costs(i));
-                disp("algorithm["+num2str(i)+"] terminated in: "+string(toc)+" s"+newline);
+                disp("algorithm["+num2str(i)+"] terminated in: "+string(toc)+" s");
             end
         case 3
         case 4
@@ -75,10 +87,10 @@ while execute
     
     disp('Inizialization terminated in: '+string(toc)+' s'+newline);
     disp("Global Map and Algorithm Initial Map!");
-    img_g = map.buildImageMap();
+    % img_g = map.buildImageMap();
     
-    plotAlgs(img_g, algos, Na);
-    waitInput();
+    % plotAlgs(img_g, algos, Na);
+    % waitInput();
 
     % RUN ALGORITHM
     tic
@@ -92,21 +104,43 @@ while execute
             end
         end
         
-        plotAlgs(img_g, algos, Na);
+        % plotAlgs(img_g, algos, Na);
     end
 
     disp('run terminated in: '+string(toc)+' s'+newline);
     
-    execute = input("Another map? [0=No/1=Yes] ");
-    try
-        if execute ~= 0 && execute ~= 1
-            execute = 0;
-        end
-    catch
-        execute = 0;
+    
+    for i=1:Na
+        infos(currEpoch, i) = AlgoInfo(algos(i).expCells, algos(i).expCellsList,...
+            algos(i).totSteps, algos(i).totStepsList, algos(i).pathLenght);
     end
+    clear algos;
 end
 disp("Terminated!")
+
+%%
+
+expCells4Epoch = zeros(epoch, Na);
+totSteps4Epoch = zeros(epoch, Na);
+pathLenght4Epoch = zeros(epoch, Na);
+
+for i=1:epoch
+    for j=1:Na
+        expCells4Epoch(i, j) = infos(i, j).expCells;
+        totSteps4Epoch(i, j) = infos(i, j).totSteps;
+        pathLenght4Epoch(i, j) = infos(i, j).pathLenght;
+    end
+end
+
+figure
+bar(expCells4Epoch)
+title("expCells4Epoch")
+figure
+bar(totSteps4Epoch)
+title("totSteps4Epoch")
+figure
+bar(pathLenght4Epoch)
+title("pathLenght4Epoch")
 
 %% FUNCTIONS %%
 

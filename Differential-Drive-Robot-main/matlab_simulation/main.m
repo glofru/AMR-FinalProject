@@ -52,7 +52,7 @@ disp("Which search algorithm?"+newline+...
 algorithm = input('search algorithm: ');
 
 range = 2;
-cost = 0.1;
+cost = 1;
 
 moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 

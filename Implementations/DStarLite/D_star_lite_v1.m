@@ -194,6 +194,7 @@ classdef D_star_lite_v1 < handle
                     obj.currPos.rhs ~= obj.currPos.g)
                 
                 %obj.localMap.plotMap(); % comment for fast plot
+                %pause(0.1)
                 [obj.U, u] = obj.U.pop();
                 
                 % TODO

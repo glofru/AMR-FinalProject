@@ -70,7 +70,7 @@ while execute
         case 4
             addpath('./FieldDStar')
         otherwise
-            error("Wrong!");
+            error("Wrong input!");
     end
     
     tic

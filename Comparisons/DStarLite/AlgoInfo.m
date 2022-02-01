@@ -3,6 +3,8 @@ classdef AlgoInfo < handle
         initTime;
         computationTime;
         
+        % add heatmap
+        
         expCells;
         expCellsList;
         totSteps;

@@ -12,6 +12,57 @@ classdef FileADAT < handle
         epochDone;
     end
     
+    methods(Static)
+        function obj = constByUser()
+            obj = FileADAT();
+            
+            D1 = double(input("Input D1: "));
+            D2 = double(input("Input D2: "));
+            obj.dim = [D1; D2];
+            
+            obj.Sstart = [1; 1]; % TODO
+            obj.Sgoal = [D1; D2]; % TODO
+            obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
+
+            obj.Na = double(input("Input Na: "));
+
+            obj.ranges = zeros(1, obj.Na);
+            for i=1:obj.Na
+                obj.ranges(i) = double(input("Input range i: "));
+            end
+            
+            obj.costs = zeros(1, obj.Na);
+            for i=1:obj.Na
+                obj.costs(i) = double(input("Input costs i: "));
+            end
+        end
+        
+        function obj = getFromFile(fid)
+            obj = FileADAT();
+            
+            fgetl(fid); % jump
+            
+            nums = str2double(regexp(fgetl(fid),'\d*','match')');
+            obj.dim = nums(1:2);
+            obj.Sstart = nums(3:4);
+            obj.Sgoal = nums(5:6);
+    
+            nums = str2double(regexp(fgetl(fid),'[-]?\d*','match'));
+            obj.moves = reshape(nums(3:end)', nums(1:2));
+            
+            obj.ranges = str2double(regexp(fgetl(fid),'\d+\.?\d*','match'));
+            
+            obj.costs = str2double(regexp(fgetl(fid),'\d+\.?\d*','match'));
+            
+            obj.Na = str2double(regexp(fgetl(fid),'\d*','match'));
+            % TODO check lenght ranges costs and Na
+            
+            obj.epochDone = str2double(regexp(fgetl(fid),'\d*','match'));
+            
+            fgetl(fid); % jump
+        end
+    end
+    
     methods
         function obj = FileADAT()
             obj.dim = [];
@@ -24,32 +75,6 @@ classdef FileADAT < handle
 
             obj.Na = 0;
             obj.epochDone = 0;
-        end
-        
-        function getFromLine(obj, pos, line)
-            switch(pos)
-                case 1
-                    return; % jump
-                case 2
-                    nums = str2double(regexp(line,'\d*','match')');
-                    obj.dim = nums(1:2);
-                    obj.Sstart = nums(3:4);
-                    obj.Sgoal = nums(5:6);
-                case 3
-                    nums = str2double(regexp(line,'[-]?\d*','match'));
-                    obj.moves = reshape(nums(3:end)', nums(1:2));
-                case 4
-                    obj.ranges = str2double(regexp(line,'\d+\.?\d*','match'));
-                case 5
-                    obj.costs = str2double(regexp(line,'\d+\.?\d*','match'));
-                case 6
-                    obj.Na = str2double(regexp(line,'\d*','match'));
-                    % TODO check lenght ranges costs and Na
-                case 7
-                    obj.epochDone = str2double(regexp(line,'\d*','match'));
-                case 8
-                    return; % jump
-            end
         end
         
         function putOnFile(obj, fid)
@@ -66,6 +91,16 @@ classdef FileADAT < handle
             fprintf(fid, "Na %d\n", obj.Na);
             fprintf(fid, "epochDone %d\n", obj.epochDone);
             fprintf(fid, "epoch Nalgo jsonencode\n");
+        end
+        
+        function e = eq(obj, f)
+            e = (all(obj.dim == f.dim) &&...
+                all(obj.Sstart == f.Sstart) &&...
+                all(obj.Sgoal == f.Sgoal) &&...
+                all(all(obj.moves == f.moves)) &&...
+                all(obj.ranges == f.ranges) &&...
+                all(obj.costs == f.costs) &&...
+                obj.Na == f.Na);
         end
     end
 end

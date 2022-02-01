@@ -1,5 +1,7 @@
-clear all;
+clear all
+close all
 clc
+restoredefaultpath
 
 addpath('./DStarLite')
 
@@ -7,35 +9,49 @@ addpath('./DStarLite')
 warning('error', 'MATLAB:deblank:NonStringInput');
 inputPath = strcat(uigetdir('', 'Select Input Directory'), '\');
 
+disp("Which option?"+newline+...
+     "    1) Create a new file for testing"+newline+...
+     "    2) Open an old test to be continued"+newline)
+oldOrNewFile = input('search option: ');
+disp(" ");
 
+% COLLECTING FILES
+switch(oldOrNewFile)
+    case 1
+        inputFile = input("File Name: ", 's')+".adat";
+        
+        pathAndFile = inputPath+inputFile+".adat";
+        if isfile(pathAndFile)
+            error("Warning: wrong name, file already exist!");
+        end
+        
+        initParams = FileADAT.constByUser();
+        
+    case 2
+        [inputFile, inputPath] = uigetfile(strcat(inputPath, "\*.adat"), 'MultiSelect', 'off');
+        [initParams, ~] = loadDataFromADAT(inputPath, inputFile);
+    otherwise
+        error("Warning: wrong input!");
+end
 
-D1 = 50; % 25
-D2 = 50; % 50
-dim = [D1; D2];
-Sstart = [1; 1];
-Sgoal = [D1; D2];
-moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
+%% MAIN
+D1 = initParams.dim(1);
+D2 = initParams.dim(2);
+epoch = double(input("How much epochs: "));
 
-ranges = [  2       2	2	2	2	2];
-costs = [	0.01    0.1 0.3 0.5 0.7 0.9];%0.1	0.5	0.9	1	1.1 1.5	2];
-assert(length(ranges) == length(costs), "ranges and costs have different lenght")
-
-Na = 2; %length(ranges);
-epoch = 10;
-
-infos = AlgoInfo.empty(1, 0);
+infosAlgo = AlgoInfo.empty(1, 0);
 for i=1:epoch
     tmp = AlgoInfo.empty(0, 1);
-     for j=1:Na
+     for j=1:initParams.Na
         tmp(j) = AlgoInfo();
     end
-    infos = [infos; tmp];
+    infosAlgo = [infosAlgo; tmp];
 end
 
 
 for currEpoch=1:epoch
-    disp(newline+"<---- Epoch: <strong>"+num2str(currEpoch)+"/"+num2str(epoch)...
-        +"</strong> ---->");
+    disp(newline+"<──- Epoch: <strong>"+num2str(currEpoch)+"/"+num2str(epoch)...
+        +"</strong> ──->");
 
     globalObstacles = zeros(2, round(D1*D2/2));
     for i=1:round(D1*D2/4) % 2)
@@ -43,26 +59,26 @@ for currEpoch=1:epoch
         y = round(mod(rand*D2, D2))+1;
 
         % obstacles overlap, ok, not an error
-        if ~(all([x; y]==Sstart) || all([x; y]==Sgoal))
+        if ~(all([x; y]==initParams.Sstart) || all([x; y]==initParams.Sgoal))
             globalObstacles(:, i) = [x; y];
         end
     end
     
-    map = Map(dim(1), dim(2), globalObstacles, Map.TYPE_KNOWN, 1); % TODO cost
-    map.map(Sstart(1), Sstart(2)).state = Map.MAP_START;
-    map.map(Sgoal(1), Sgoal(2)).state = Map.MAP_GOAL;
+    map = Map(D1, D2, globalObstacles, Map.TYPE_KNOWN, 1); % TODO cost
+    map.map(initParams.Sstart(1), initParams.Sstart(2)).state = Map.MAP_START;
+    map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = Map.MAP_GOAL;
     obstacles = [];
     knownObstacles = [];
     
-    for i=1:Na
+    for i=1:initParams.Na
         disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
         disp("Inizialization");
         tic
-        currAlgo = D_star_lite_v1(map, knownObstacles, Sstart, Sgoal,...
-            moves, ranges(i), costs(i));
+        currAlgo = D_star_lite_v1(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+            initParams.moves, initParams.ranges(i), initParams.costs(i));
         tocTime = toc;
-        infos(currEpoch, i).initTime = tocTime;
-        disp("    Inizialization terminated in: <strong>"+string(tocTime)+...
+        infosAlgo(currEpoch, i).initTime = tocTime;
+        disp("└──-Inizialization terminated in: <strong>"+string(tocTime)+...
             "</strong> s");
         
         disp("Execution");
@@ -71,39 +87,56 @@ for currEpoch=1:epoch
             currAlgo.step();
         end
         tocTime = toc;
-        infos(currEpoch, i).computationTime = tocTime;
-        disp("    Execution terminated in: <strong>"+string(tocTime)+...
+        infosAlgo(currEpoch, i).computationTime = tocTime;
+        disp("└──-Execution terminated in: <strong>"+string(tocTime)+...
             "</strong> s");
         
-        infos(currEpoch, i).expCells = currAlgo.expCells;
-        infos(currEpoch, i).expCellsList = currAlgo.expCellsList;
-        infos(currEpoch, i).totSteps = currAlgo.totSteps;
-        infos(currEpoch, i).totStepsList = currAlgo.totStepsList;
-        infos(currEpoch, i).pathLenght = currAlgo.pathLenght;
+        infosAlgo(currEpoch, i).expCells = currAlgo.expCells;
+        infosAlgo(currEpoch, i).expCellsList = currAlgo.expCellsList;
+        infosAlgo(currEpoch, i).totSteps = currAlgo.totSteps;
+        infosAlgo(currEpoch, i).totStepsList = currAlgo.totStepsList;
+        infosAlgo(currEpoch, i).pathLenght = currAlgo.pathLenght;
     end
 end
 disp("Terminated!")
 
+initParams.epochDone = epoch;
+saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
+
 %% Comparisons
 
-expCells4Epoch = zeros(epoch, Na);
-totSteps4Epoch = zeros(epoch, Na);
-pathLenght4Epoch = zeros(epoch, Na);
+initTimes4Epoch = zeros(epoch, initParams.Na);
+computationTimes4Epoch = zeros(epoch, initParams.Na);
+expCells4Epoch = zeros(epoch, initParams.Na);
+totSteps4Epoch = zeros(epoch, initParams.Na);
+pathLenght4Epoch = zeros(epoch, initParams.Na);
 
 for i=1:epoch
-    for j=1:Na
-        expCells4Epoch(i, j) = infos(i, j).expCells;
-        totSteps4Epoch(i, j) = infos(i, j).totSteps;
-        pathLenght4Epoch(i, j) = infos(i, j).pathLenght;
+    for j=1:initParams.Na
+        initTimes4Epoch(i, j) = infosAlgo(i, j).initTime;
+        computationTimes4Epoch(i, j) = infosAlgo(i, j).computationTime;
+        expCells4Epoch(i, j) = infosAlgo(i, j).expCells;
+        totSteps4Epoch(i, j) = infosAlgo(i, j).totSteps;
+        pathLenght4Epoch(i, j) = infosAlgo(i, j).pathLenght;
     end
 end
 
 figure
+bar(initTimes4Epoch)
+title("initTimes4Epoch")
+
+figure
+bar(computationTimes4Epoch)
+title("computationTimes4Epoch")
+
+figure
 bar(expCells4Epoch)
 title("expCells4Epoch")
+
 figure
 bar(totSteps4Epoch)
 title("totSteps4Epoch")
+
 figure
 bar(pathLenght4Epoch)
 title("pathLenght4Epoch")

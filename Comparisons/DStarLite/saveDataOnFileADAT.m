@@ -15,7 +15,7 @@ function saveDataOnFileADAT(outputPath, initParams, infosAlgo, outputFile)
     switch nargin
         case 3
             % if we haven't the file's name, we ask to the user to insert it
-            outputFile = input("File Name: ", 's');
+            outputFile = input("File Name: ", 's')+".adat";
         case 4
             % we have all the parameters, fine
         otherwise
@@ -23,25 +23,62 @@ function saveDataOnFileADAT(outputPath, initParams, infosAlgo, outputFile)
             error('Wrong number of parameters!');
     end
     
-    % open the file
-    fid = fopen(outputPath+outputFile+'.adat', 'wt');
-    % write the first k lines for the heater
-    initParams.putOnFile(fid);
+    try
+        % open the file
+        pathAndFile = outputPath+outputFile;
 
-    ss = size(infosAlgo);
-    reverseStr = '';
-    for e=1:ss(1)
-        for i=1:ss(2)
-            fprintf(fid,'%d %d %s\n',e, i, jsonencode(infosAlgo(e, i)));
+        if isfile(pathAndFile)
+            [appInitParams, appInfosAlgo] = loadDataFromADAT(outputPath, outputFile);
+
+            if ~(initParams == appInitParams)
+                error("Non compatible initParams, change file name!")
+            end
+
+            old_e = appInitParams.epochDone;
+            initParams.epochDone = initParams.epochDone + old_e;
             
-            % information print on the stdOut
-            msg = sprintf('Percent done: %3.1f', 100 * (i+e*ss(2)) / numel(infosAlgo));
-            fprintf([reverseStr, msg]);
-            reverseStr = repmat(sprintf('\b'), 1, length(msg));
+            fid = fopen(pathAndFile, 'wt');
+        else
+            fid = fopen(pathAndFile, 'wt');
+            old_e = 0;
+            appInfosAlgo = [];
         end
-    end
 
-    % close the file
-    fclose(fid);
-    disp(" ");
+        % write the first k lines for the heater
+        initParams.putOnFile(fid);
+
+        totWork = numel(appInfosAlgo)+numel(infosAlgo);
+
+        ss = size(appInfosAlgo);
+        reverseStr = '';
+        for e=1:ss(1)
+            for i=1:ss(2)
+                fprintf(fid,'%d %d %s\n',e, i, jsonencode(appInfosAlgo(e, i)));
+
+                % information print on the stdOut
+                msg = sprintf('Percent done: %3.1f', 100 * (i+(e-1)*ss(2)) / totWork);
+                fprintf([reverseStr, msg]);
+                reverseStr = repmat(sprintf('\b'), 1, length(msg));
+            end
+        end
+
+        ss = size(infosAlgo);
+        for e=1:ss(1)
+            for i=1:ss(2)
+                fprintf(fid,'%d %d %s\n',e+old_e, i, jsonencode(infosAlgo(e, i)));
+
+                % information print on the stdOut
+                msg = sprintf('Percent done: %3.1f', 100 * (i+(e-1)*ss(2)+numel(appInfosAlgo)) / totWork);
+                fprintf([reverseStr, msg]);
+                reverseStr = repmat(sprintf('\b'), 1, length(msg));
+            end
+        end
+
+        % close the file
+        fclose(fid);
+        disp(" ");
+    catch ME
+        fclose(fid);
+        rethrow(ME);
+    end
 end

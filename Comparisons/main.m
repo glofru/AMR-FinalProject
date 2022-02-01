@@ -1,42 +1,41 @@
 clear all;
 clc
 
-%% Main
+addpath('./DStarLite')
 
-disp("Which search algorithm?"+newline+...
-     "    1) D*"+newline+...
-     "    2) D*Lite v1"+newline+...
-     "    3) D*Lite v2"+newline+...
-     "    4) Field D*"+newline)
-algorithmType = 2; % input('search algorithm: ');
+%% LOAD DATA
+warning('error', 'MATLAB:deblank:NonStringInput');
+inputPath = strcat(uigetdir('', 'Select Input Directory'), '\');
 
-D1 = 25; % 25
+
+
+D1 = 50; % 25
 D2 = 50; % 50
 dim = [D1; D2];
 Sstart = [1; 1];
 Sgoal = [D1; D2];
+moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
 ranges = [  2       2	2	2	2	2];
 costs = [	0.01    0.1 0.3 0.5 0.7 0.9];%0.1	0.5	0.9	1	1.1 1.5	2];
 assert(length(ranges) == length(costs), "ranges and costs have different lenght")
 
-Na = length(ranges);
+Na = 2; %length(ranges);
 epoch = 10;
 
 infos = AlgoInfo.empty(1, 0);
 for i=1:epoch
     tmp = AlgoInfo.empty(0, 1);
      for j=1:Na
-        tmp(j) = AlgoInfo(0, 0, 0, 0, 0);
+        tmp(j) = AlgoInfo();
     end
     infos = [infos; tmp];
 end
 
-moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
-execute = true;
 for currEpoch=1:epoch
-    disp("Epoch: "+num2str(currEpoch));
+    disp(newline+"<---- Epoch: <strong>"+num2str(currEpoch)+"/"+num2str(epoch)...
+        +"</strong> ---->");
 
     globalObstacles = zeros(2, round(D1*D2/2));
     for i=1:round(D1*D2/4) % 2)
@@ -49,76 +48,43 @@ for currEpoch=1:epoch
         end
     end
     
-    
-    switch algorithmType
-        case 1
-            addpath('./DStar')
-        case 2
-            addpath('./DStarLite')
-            algos = D_star_lite_v1.empty(Na, 0);
-        case 3
-            addpath('./DStarLite')
-        case 4
-            addpath('./FieldDStar')
-        otherwise
-            error("Wrong!");
-    end
-    
-    tic
     map = Map(dim(1), dim(2), globalObstacles, Map.TYPE_KNOWN, 1); % TODO cost
     map.map(Sstart(1), Sstart(2)).state = Map.MAP_START;
     map.map(Sgoal(1), Sgoal(2)).state = Map.MAP_GOAL;
     obstacles = [];
-    disp('Inizialization');
-    switch algorithmType
-        case 1
-        case 2
-            % INIT ALGORITHM
-            knownObstacles = [];
-            for i=1:Na
-                tic
-                algos(i) = D_star_lite_v1(map, knownObstacles, Sstart, Sgoal,...
-                    moves, ranges(i), costs(i));
-                disp("algorithm["+num2str(i)+"] terminated in: "+string(toc)+" s");
-            end
-        case 3
-        case 4
-    end
-    
-    disp('Inizialization terminated in: '+string(toc)+' s'+newline);
-    disp("Global Map and Algorithm Initial Map!");
-    % img_g = map.buildImageMap();
-    
-    % plotAlgs(img_g, algos, Na);
-    % waitInput();
-
-    % RUN ALGORITHM
-    tic
-    finised = zeros(Na, 1);
-    while ~all(finised)
-        for i=1:Na
-            if algos(i).isFinish()
-                finised(i) = 1;
-            else
-                algos(i).step();
-            end
-        end
-        
-        % plotAlgs(img_g, algos, Na);
-    end
-
-    disp('run terminated in: '+string(toc)+' s'+newline);
-    
+    knownObstacles = [];
     
     for i=1:Na
-        infos(currEpoch, i) = AlgoInfo(algos(i).expCells, algos(i).expCellsList,...
-            algos(i).totSteps, algos(i).totStepsList, algos(i).pathLenght);
+        disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
+        disp("Inizialization");
+        tic
+        currAlgo = D_star_lite_v1(map, knownObstacles, Sstart, Sgoal,...
+            moves, ranges(i), costs(i));
+        tocTime = toc;
+        infos(currEpoch, i).initTime = tocTime;
+        disp("    Inizialization terminated in: <strong>"+string(tocTime)+...
+            "</strong> s");
+        
+        disp("Execution");
+        tic
+        while ~currAlgo.isFinish()
+            currAlgo.step();
+        end
+        tocTime = toc;
+        infos(currEpoch, i).computationTime = tocTime;
+        disp("    Execution terminated in: <strong>"+string(tocTime)+...
+            "</strong> s");
+        
+        infos(currEpoch, i).expCells = currAlgo.expCells;
+        infos(currEpoch, i).expCellsList = currAlgo.expCellsList;
+        infos(currEpoch, i).totSteps = currAlgo.totSteps;
+        infos(currEpoch, i).totStepsList = currAlgo.totStepsList;
+        infos(currEpoch, i).pathLenght = currAlgo.pathLenght;
     end
-    clear algos;
 end
 disp("Terminated!")
 
-%%
+%% Comparisons
 
 expCells4Epoch = zeros(epoch, Na);
 totSteps4Epoch = zeros(epoch, Na);

@@ -1,5 +1,8 @@
 classdef AlgoInfo < handle
     properties
+        initTime;
+        computationTime;
+        
         expCells;
         expCellsList;
         totSteps;
@@ -7,21 +10,31 @@ classdef AlgoInfo < handle
         pathLenght;
     end
     
+    methods(Static)
+        function obj = createFromStruct(struct)
+            obj = AlgoInfo();
+            obj.initTime = struct.initTime;
+            obj.computationTime = struct.computationTime;
+            obj.expCells = struct.expCells;
+            obj.expCellsList = struct.expCellsList;
+            obj.totSteps = struct.totSteps;
+            obj.totStepsList = struct.totStepsList;
+            obj.pathLenght = struct.pathLenght;
+       end
+    end
+    
     methods
-        function obj = AlgoInfo(expCells, expCellsList, totSteps, ...
-                totStepsList, pathLenght)
-            arguments
-                expCells
-                expCellsList
-                totSteps
-                totStepsList
-                pathLenght
+        function obj = AlgoInfo()
+            if nargin > 0
+                obj.Value = v;
             end
-                obj.expCells = expCells;
-                obj.expCellsList = expCellsList;
-                obj.totSteps = totSteps;
-                obj.totStepsList = totStepsList;
-                obj.pathLenght = pathLenght;
+            obj.initTime = 0;
+            obj.computationTime = 0;
+            obj.expCells = 0;
+            obj.expCellsList = [];
+            obj.totSteps = 0;
+            obj.totStepsList = [];
+            obj.pathLenght = 0;
         end
     end
 end

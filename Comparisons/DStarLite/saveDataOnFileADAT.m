@@ -24,6 +24,8 @@ function saveDataOnFileADAT(outputPath, initParams, infosAlgo, outputFile)
     end
     
     try
+        disp("Saving in file: "+outputFile);
+        tic;
         % open the file
         pathAndFile = outputPath+outputFile;
 
@@ -76,7 +78,11 @@ function saveDataOnFileADAT(outputPath, initParams, infosAlgo, outputFile)
 
         % close the file
         fclose(fid);
+        
         disp(" ");
+        disp("Saving done in: <strong>"+string(toc)+...
+            "</strong> s");
+        
     catch ME
         fclose(fid);
         rethrow(ME);

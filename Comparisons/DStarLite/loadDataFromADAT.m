@@ -30,6 +30,8 @@ function [initParams, infosAlgo] = loadDataFromADAT(inputPath, inputFile)
     end
     
     try
+        disp("Loading from file: "+inputFile);
+        tic;
         % open the file
         fid = fopen(strcat(inputPath, inputFile), 'rt');
         % write the first k lines from the header of the file
@@ -53,7 +55,11 @@ function [initParams, infosAlgo] = loadDataFromADAT(inputPath, inputFile)
         end
         % close the file
         fclose(fid);
+        
         disp(" ");
+        disp("Loading done in: <strong>"+string(toc)+...
+            "</strong> s");
+        
     catch ME
         fclose(fid);
         rethrow(ME);

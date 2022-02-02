@@ -129,7 +129,6 @@ classdef D_star_lite_v1 < handle
             if obj.currPos == obj.goal
                 isFin = true;
             elseif obj.currPos.g == inf
-                %disp("No possible path!");
                 isFin = true;
             else
                 isFin = false;
@@ -327,8 +326,6 @@ classdef D_star_lite_v1 < handle
 
             % scan graph
             isChanged = obj.updateMap();
-
-            % obj.localMap.plotMap();
 
             % update graph
             if isChanged

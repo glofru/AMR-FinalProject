@@ -1,5 +1,15 @@
 classdef FileADAT < handle
+    
+    properties(Constant)
+        ALGO_INIT_NO_ALGO = 0;
+        
+        ALGO_DSL_V1 = 1;
+        ALGO_DSL_V2 = 2;
+    end
+    
     properties
+        typeAlgo;
+        
         dim;
         Sstart;
         Sgoal;
@@ -15,6 +25,21 @@ classdef FileADAT < handle
     methods(Static)
         function obj = constByUser()
             obj = FileADAT();
+            
+            disp("Which algorithm?"+newline+...
+                 "    1) D* Lite v1"+newline+...
+                 "    2) D* Lite v2"+newline)
+            typeOfAlgo = input('search option: ');
+            switch(typeOfAlgo)
+                case 1
+                    obj.typeAlgo = FileADAT.ALGO_DSL_V1;
+                    
+                case 2
+                    obj.typeAlgo = FileADAT.ALGO_DSL_V2;
+                    
+                otherwise
+                    error("Wrong input!");
+            end
             
             D1 = double(input("Input D1: "));
             D2 = double(input("Input D2: "));
@@ -40,6 +65,8 @@ classdef FileADAT < handle
         function obj = constSTD()
             obj = FileADAT();
             
+            obj.typeAlgo = FileADAT.ALGO_DSL_V1;
+            
             D1 = 50;
             D2 = 50;
             obj.dim = [D1; D2];
@@ -57,8 +84,10 @@ classdef FileADAT < handle
         function obj = getFromFile(fid)
             obj = FileADAT();
             
-            fgetl(fid); % jump
+            obj.typeAlgo = str2double(regexp(fgetl(fid),'\d*','match')');
+            % TODO check type
             
+            fgetl(fid); % jump
             nums = str2double(regexp(fgetl(fid),'\d*','match')');
             obj.dim = nums(1:2);
             obj.Sstart = nums(3:4);
@@ -82,6 +111,8 @@ classdef FileADAT < handle
     
     methods
         function obj = FileADAT()
+            obj.typeAlgo = FileADAT.ALGO_INIT_NO_ALGO;
+            
             obj.dim = [];
             obj.Sstart = [];
             obj.Sgoal = [];
@@ -95,6 +126,8 @@ classdef FileADAT < handle
         end
         
         function putOnFile(obj, fid)
+            fprintf(fid, "typeAlgorithm %d\n", obj.typeAlgo);
+            
             fprintf(fid, "mapSize_x mapSize_y start_x start_y goal_x goal_y\n");
             fprintf(fid, "%d %d %d %d %d %d\n", obj.dim, obj.Sstart, obj.Sgoal);
             
@@ -111,7 +144,8 @@ classdef FileADAT < handle
         end
         
         function e = eq(obj, f)
-            e = (all(obj.dim == f.dim) &&...
+            e = (obj.typeAlgo == f.typeAlgo &&...
+                all(obj.dim == f.dim) &&...
                 all(obj.Sstart == f.Sstart) &&...
                 all(obj.Sgoal == f.Sgoal) &&...
                 all(all(obj.moves == f.moves)) &&...

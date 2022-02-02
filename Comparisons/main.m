@@ -71,10 +71,20 @@ for currEpoch=1:epoch
     for i=1:initParams.Na
         disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
         disp("Inizialization");
-        tic
-        currAlgo = D_star_lite_v1(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-            initParams.moves, initParams.ranges(i), initParams.costs(i));
-        tocTime = toc;
+        switch(initParams.typeAlgo)
+            case 1
+                tic
+                currAlgo = D_star_lite_v1(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                    initParams.moves, initParams.ranges(i), initParams.costs(i));
+                tocTime = toc;
+            case 2
+                tic
+                currAlgo = D_star_lite_v2(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                    initParams.moves, initParams.ranges(i), initParams.costs(i));
+                tocTime = toc;
+            otherwise
+                error("Wrong type of algorithm!")
+        end
         infosAlgo(currEpoch, i).initTime = tocTime;
         disp("└──-Inizialization terminated in: <strong>"+string(tocTime)+...
             "</strong> s");

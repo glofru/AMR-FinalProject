@@ -3,7 +3,7 @@ classdef AlgoInfo < handle
         initTime;
         computationTime;
         
-        % add heatmap
+        finalPath;
         
         expCells;
         expCellsList;
@@ -13,25 +13,24 @@ classdef AlgoInfo < handle
     end
     
     methods(Static)
-        function obj = createFromStruct(struct)
+        function obj = createFromStruct(s)
             obj = AlgoInfo();
-            obj.initTime = struct.initTime;
-            obj.computationTime = struct.computationTime;
-            obj.expCells = struct.expCells;
-            obj.expCellsList = struct.expCellsList;
-            obj.totSteps = struct.totSteps;
-            obj.totStepsList = struct.totStepsList;
-            obj.pathLenght = struct.pathLenght;
+            obj.initTime = s.initTime;
+            obj.computationTime = s.computationTime;
+            obj.finalPath = s.finalPath;
+            obj.expCells = s.expCells;
+            obj.expCellsList = s.expCellsList;
+            obj.totSteps = s.totSteps;
+            obj.totStepsList = s.totStepsList;
+            obj.pathLenght = s.pathLenght;
        end
     end
     
     methods
         function obj = AlgoInfo()
-            if nargin > 0
-                obj.Value = v;
-            end
             obj.initTime = 0;
             obj.computationTime = 0;
+            obj.finalPath = [];
             obj.expCells = 0;
             obj.expCellsList = [];
             obj.totSteps = 0;

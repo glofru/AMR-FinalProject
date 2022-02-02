@@ -37,6 +37,23 @@ classdef FileADAT < handle
             end
         end
         
+        function obj = constSTD()
+            obj = FileADAT();
+            
+            D1 = 50;
+            D2 = 50;
+            obj.dim = [D1; D2];
+            
+            obj.Sstart = [1; 1];
+            obj.Sgoal = [D1; D2];
+            obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
+
+            obj.Na = 3;
+
+            obj.ranges = [2   2   2];
+            obj.costs  = [0.1 0.5 0.9];
+        end
+        
         function obj = getFromFile(fid)
             obj = FileADAT();
             

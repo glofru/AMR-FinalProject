@@ -7,20 +7,21 @@ addpath('./DStarLite')
 
 %% LOAD DATA
 warning('error', 'MATLAB:deblank:NonStringInput');
-inputPath = strcat(uigetdir('', 'Select Input Directory'), '\');
 
 disp("Which option?"+newline+...
      "    1) Create a new file for testing"+newline+...
-     "    2) Open an old test to be continued"+newline)
-oldOrNewFile = input('search option: ');
+     "    2) Open an old test to be continued"+newline+...
+     "    3) Fast test"+newline)
+typeOfInput = input('search option: ');
 disp(" ");
 
 % COLLECTING FILES
-switch(oldOrNewFile)
+switch(typeOfInput)
     case 1
+        inputPath = strcat(uigetdir('', 'Select Input Directory'), '\');
         inputFile = input("File Name: ", 's')+".adat";
         
-        pathAndFile = inputPath+inputFile+".adat";
+        pathAndFile = inputPath+inputFile;
         if isfile(pathAndFile)
             error("Warning: wrong name, file already exist!");
         end
@@ -28,8 +29,13 @@ switch(oldOrNewFile)
         initParams = FileADAT.constByUser();
         
     case 2
+        inputPath = strcat(uigetdir('', 'Select Input Directory'), '\');
         [inputFile, inputPath] = uigetfile(strcat(inputPath, "\*.adat"), 'MultiSelect', 'off');
         [initParams, ~] = loadDataFromADAT(inputPath, inputFile);
+        
+    case 3
+        initParams = FileADAT.constSTD();
+        
     otherwise
         error("Warning: wrong input!");
 end
@@ -39,22 +45,14 @@ D1 = initParams.dim(1);
 D2 = initParams.dim(2);
 epoch = double(input("How much epochs: "));
 
-infosAlgo = AlgoInfo.empty(1, 0);
-for i=1:epoch
-    tmp = AlgoInfo.empty(0, 1);
-     for j=1:initParams.Na
-        tmp(j) = AlgoInfo();
-    end
-    infosAlgo = [infosAlgo; tmp];
-end
-
+infosAlgo(epoch, initParams.Na) = AlgoInfo();
 
 for currEpoch=1:epoch
     disp(newline+"<──- Epoch: <strong>"+num2str(currEpoch)+"/"+num2str(epoch)...
         +"</strong> ──->");
 
     globalObstacles = zeros(2, round(D1*D2/2));
-    for i=1:round(D1*D2/4) % 2)
+    for i=1:round(D1*D2/2) % 2)
         x = round(mod(rand*D1, D1))+1;
         y = round(mod(rand*D2, D2))+1;
 
@@ -83,11 +81,10 @@ for currEpoch=1:epoch
         
         disp("Execution");
         tic
-        while ~currAlgo.isFinish()
-            currAlgo.step();
-        end
+        finalPath = currAlgo.run();
         tocTime = toc;
         infosAlgo(currEpoch, i).computationTime = tocTime;
+        infosAlgo(currEpoch, i).finalPath = finalPath;
         disp("└──-Execution terminated in: <strong>"+string(tocTime)+...
             "</strong> s");
         
@@ -101,45 +98,12 @@ end
 disp("Terminated!")
 
 initParams.epochDone = epoch;
-saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
-
-%% Comparisons
-
-initTimes4Epoch = zeros(epoch, initParams.Na);
-computationTimes4Epoch = zeros(epoch, initParams.Na);
-expCells4Epoch = zeros(epoch, initParams.Na);
-totSteps4Epoch = zeros(epoch, initParams.Na);
-pathLenght4Epoch = zeros(epoch, initParams.Na);
-
-for i=1:epoch
-    for j=1:initParams.Na
-        initTimes4Epoch(i, j) = infosAlgo(i, j).initTime;
-        computationTimes4Epoch(i, j) = infosAlgo(i, j).computationTime;
-        expCells4Epoch(i, j) = infosAlgo(i, j).expCells;
-        totSteps4Epoch(i, j) = infosAlgo(i, j).totSteps;
-        pathLenght4Epoch(i, j) = infosAlgo(i, j).pathLenght;
-    end
+switch (typeOfInput)
+    case 1
+        saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile)
+    case 2
+        saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
 end
-
-figure
-bar(initTimes4Epoch)
-title("initTimes4Epoch")
-
-figure
-bar(computationTimes4Epoch)
-title("computationTimes4Epoch")
-
-figure
-bar(expCells4Epoch)
-title("expCells4Epoch")
-
-figure
-bar(totSteps4Epoch)
-title("totSteps4Epoch")
-
-figure
-bar(pathLenght4Epoch)
-title("pathLenght4Epoch")
 
 %% FUNCTIONS %%
 

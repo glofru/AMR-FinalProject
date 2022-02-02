@@ -19,6 +19,7 @@ classdef D_star_lite_v1 < handle
         totSteps; % for each cell popped from computeShortestPath +1
         totStepsList;
         pathLenght; % for each step +1
+        maxLenghtFinalPath;
     end
     
     methods
@@ -48,6 +49,7 @@ classdef D_star_lite_v1 < handle
             obj.totSteps = 0;
             obj.totStepsList = [];
             obj.pathLenght = 0;
+            obj.maxLenghtFinalPath = (obj.globalMap.row+obj.globalMap.col)*2;
             
             % inizialize map
             obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, [],...
@@ -339,11 +341,19 @@ classdef D_star_lite_v1 < handle
             obj.totStepsList = [obj.totStepsList, obj.totSteps];
         end
         
-        function run(obj)
-            while(~isFinish(obj))
+        function finalPath = run(obj)
+            finalPath = zeros(obj.maxLenghtFinalPath, 2);
+            dimensionPath = 1;
+            finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
+            
+            while(~isFinish(obj) && dimensionPath < obj.maxLenghtFinalPath)
                 obj.step()
+                
+                dimensionPath = dimensionPath + 1;
+                finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
             end
-            disp("Goal reached!");
+            
+            finalPath = finalPath(1:dimensionPath, :);
         end
     end
 end

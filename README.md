@@ -10,14 +10,19 @@ Final project for the course of Autonomous and Mobile Robotics 2020/2021.
 
 ## 📝 Assignment
 
-1.  Implement D* and the two versions of D*Lite
-2.  Implement Field D*
-3.  Re-Implement these 4 algorithms as an add-on for this repository [Link 🔗](https://github.com/giulioturrisi/Differential-Drive-Robot)
-4.  👷 WIP 👷
+1.  Implement D* and the two versions of D*Lite;
+2.  Implement Field D*;
+3.  Re-Implement these 4 algorithms as an add-on for this repository [Link 🔗](https://github.com/giulioturrisi/Differential-Drive-Robot);
+4.  Compare the performance of the algorithms.
+5.  👷 WIP 👷
 
 ## 📜 Report
 
-👷 WIP 👷
+-   report [Link 🔗](./Report.pdf) 👷 WIP 👷
+
+-   presentation [Link 🔗](./Presentation.pdf) 👷 WIP 👷
+
+    In these files you can read more about the code and the result of the project.
 
 ## 💯 Final score:
 
@@ -27,8 +32,14 @@ Score: `--/30`
 
 for any doubt or clarification contact us on:
 
--   email at: lambertini.1938390@studenti.uniroma1.it; landini.1938388@studenti.uniroma1.it; lofrumento.1956579@studenti.uniroma1.it
--   instagram [Alessandro Lambertini 🔗](https://www.instagram.com/lambertinialessandro/); [Denise Landini 🔗](https://www.instagram.com/_officialdeni_/); [Gianluca Lofrumento 🔗](https://www.instagram.com/gianlucchio/)
+-   email at:
+    -   lambertini.1938390@studenti.uniroma1.it;
+    -   landini.1938388@studenti.uniroma1.it;
+    -   lofrumento.1956579@studenti.uniroma1.it.
+-   instagram:
+    -   [Alessandro Lambertini 🔗](https://www.instagram.com/lambertinialessandro/);
+    -   [Denise Landini 🔗](https://www.instagram.com/_officialdeni_/);
+    -   [Gianluca Lofrumento 🔗](https://www.instagram.com/gianlucchio/).
 
 ## 🎞️ Snapshots
 

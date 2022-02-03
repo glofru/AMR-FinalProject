@@ -3,7 +3,7 @@ close all
 clc
 restoredefaultpath
 
-addpath('../utils')
+addpath('./utils')
 addpath('./DStarLite')
 
 %% LOAD DATA

@@ -3,7 +3,7 @@ close all
 clc
 restoredefaultpath
 
-addpath('../utils')
+addpath('./utils')
 addpath('./DStarLite')
 
 %% LOAD DATA
@@ -40,6 +40,8 @@ switch(typeOfInput)
     otherwise
         error("Warning: wrong input!");
 end
+
+
 
 %% MAIN
 D1 = initParams.dim(1);

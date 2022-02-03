@@ -3,8 +3,10 @@ classdef FileADAT < handle
     properties(Constant)
         ALGO_INIT_NO_ALGO = 0;
         
-        ALGO_DSL_V1 = 1;
-        ALGO_DSL_V2 = 2;
+        ALGO_DS = 1;
+        ALGO_DSL_V1 = 2;
+        ALGO_DSL_V2 = 3;
+        ALGO_FDS = 4;
     end
     
     properties

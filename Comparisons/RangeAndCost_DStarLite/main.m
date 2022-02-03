@@ -3,6 +3,7 @@ close all
 clc
 restoredefaultpath
 
+addpath('../utils')
 addpath('./DStarLite')
 
 %% LOAD DATA
@@ -110,7 +111,7 @@ disp("Terminated!")
 initParams.epochDone = epoch;
 switch (typeOfInput)
     case 1
-        saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile)
+        saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
     case 2
         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
 end

@@ -3,6 +3,7 @@ close all
 clc
 restoredefaultpath
 
+addpath('../utils')
 addpath('./DStarLite')
 
 %% LOAD DATA
@@ -92,6 +93,27 @@ subplot(1, 5, 5)
 bar(mean(pathLenght4Epoch))
 title("pathLenght4Epoch")
 
+
+waitInput();
+
+%%
+
+figure
+subplot(1, 5, 1)
+boxplot(initTimes4Epoch)
+title("initTimes4Epoch")
+subplot(1, 5, 2)
+boxplot(computationTimes4Epoch)
+title("computationTimes4Epoch")
+subplot(1, 5, 3)
+boxplot(expCells4Epoch)
+title("expCells4Epoch")
+subplot(1, 5, 4)
+boxplot(totSteps4Epoch)
+title("totSteps4Epoch")
+subplot(1, 5, 5)
+boxplot(pathLenght4Epoch)
+title("pathLenght4Epoch")
 
 waitInput();
 

@@ -18,4 +18,4 @@ Differential-Drive-Robot-main/matlab_simulation/planners/*
 !Differential-Drive-Robot-main/matlab_simulation/planners/FieldDStar/
 
 ### Comparisons ###
-Comparisons/*.adat
+**.adat

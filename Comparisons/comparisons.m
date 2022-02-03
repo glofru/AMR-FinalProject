@@ -12,7 +12,6 @@ inputPath = strcat(uigetdir('', 'Select Input Directory'), '\');
 [initParams, infosAlgo] = loadDataFromADAT(inputPath);
 
 %% HEATMAP
-
 heatMap = zeros(initParams.Na, initParams.dim(1), initParams.dim(2));
 
 for e=1:initParams.epochDone
@@ -36,8 +35,9 @@ for i=1:initParams.Na
         "c="+num2str(initParams.costs(i)))
 end
 
-%% Comparisons
+waitInput();
 
+%% Comparisons
 initTimes4Epoch = zeros(initParams.epochDone, initParams.Na);
 computationTimes4Epoch = zeros(initParams.epochDone, initParams.Na);
 expCells4Epoch = zeros(initParams.epochDone, initParams.Na);
@@ -74,4 +74,32 @@ figure
 bar(pathLenght4Epoch)
 title("pathLenght4Epoch")
 
+
+figure
+subplot(1, 5, 1)
+bar(mean(initTimes4Epoch))
+title("initTimes4Epoch")
+subplot(1, 5, 2)
+bar(mean(computationTimes4Epoch))
+title("computationTimes4Epoch")
+subplot(1, 5, 3)
+bar(mean(expCells4Epoch))
+title("expCells4Epoch")
+subplot(1, 5, 4)
+bar(mean(totSteps4Epoch))
+title("totSteps4Epoch")
+subplot(1, 5, 5)
+bar(mean(pathLenght4Epoch))
+title("pathLenght4Epoch")
+
+
+waitInput();
+
+%% FUNCTIONS %%
+
+function waitInput()
+    disp("PAUSE: press enter to continue");
+    pause();
+    disp("CONTINUE!!");
+end
 

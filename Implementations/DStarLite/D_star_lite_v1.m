@@ -139,7 +139,7 @@ classdef D_star_lite_v1 < handle
         end
         
         % return the set of successor states of the state u
-        function Ls = sucecssor(obj, u)
+        function Ls = succecssor(obj, u)
             Ls = State.empty(length(obj.moves), 0);
             currI = 1;
             for m=obj.moves
@@ -163,7 +163,7 @@ classdef D_star_lite_v1 < handle
         % update vertex u
         function updateVertex(obj, u)
             if u ~= obj.goal
-                [u.rhs, ~] = minVal(u, obj.sucecssor(u));
+                [u.rhs, ~] = minVal(u, obj.succecssor(u));
             end
 
             if obj.U.has(u)
@@ -251,7 +251,7 @@ classdef D_star_lite_v1 < handle
         function step(obj)
             % move to minPos
             obj.currPos.state = State.PATH; % TODO
-            [~, obj.currPos] = minVal(obj.currPos, obj.sucecssor(obj.currPos));
+            [~, obj.currPos] = minVal(obj.currPos, obj.succecssor(obj.currPos));
 
             % scan graph
             isChanged = obj.updateMap();

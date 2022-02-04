@@ -28,6 +28,7 @@ classdef D_star_lite_v2 < handle
     end
     
     methods
+        % D_star_lite_v2 constructor
         function obj = D_star_lite_v2(globalMap, obstacles, Sstart, Sgoal,...
                 moves, range, cost)
             arguments

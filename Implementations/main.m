@@ -3,6 +3,7 @@ close all
 clc
 restoredefaultpath
 
+addpath('./utils')
 %% Main
 
 disp("Which search algorithm?"+newline+...

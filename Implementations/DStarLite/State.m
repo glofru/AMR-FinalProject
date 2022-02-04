@@ -62,10 +62,11 @@ classdef State < handle
         % return the key pair
         function K = calcKey(obj, Sstart, km)
             arguments
+                % this state
                 obj
-                
+                % current state
                 Sstart
-                
+                % km parameter
                 km = 0
             end
             k1 = min(obj.g, obj.rhs + obj.h(Sstart) + km);

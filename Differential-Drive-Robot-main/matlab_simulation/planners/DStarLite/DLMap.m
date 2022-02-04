@@ -13,7 +13,7 @@ classdef DLMap < handle
         % num of map's cols
         col %double {mustBePositive, mustBeInteger}
         
-        % row x col matrix of State
+        % row x col matrix of States
         map %(:, :) {}
         
         % matrix 2 x N list of obstacles

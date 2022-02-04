@@ -9,7 +9,8 @@ disp("Which search algorithm?"+newline+...
      "    1) D*"+newline+...
      "    2) D*Lite v1"+newline+...
      "    3) D*Lite v2"+newline+...
-     "    4) Field D*"+newline)
+     "    4) D*Lite v2 optimized"+newline+...
+     "    5) Field D*"+newline)
 algorithmType = input('search algorithm: ');
 
 D1 = 25;
@@ -19,7 +20,7 @@ Sstart = [1; 1];
 Sgoal = [D1; D2];
 
 range = 2;
-cost = 0.1;
+cost = 0.5;
 
 moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
@@ -45,6 +46,8 @@ while execute
         case 3
             addpath('./DStarLite')
         case 4
+            addpath('./DStarLite')
+        case 5
             addpath('./FieldDStar')
         otherwise
             error("Wrong input!");
@@ -58,8 +61,8 @@ while execute
         map.map(Sgoal(1), Sgoal(2)).state = MapState.GOAL;
     else
         map = Map(dim(1), dim(2), globalObstacles, Map.TYPE_KNOWN, cost);
-        map.map(Sstart(1), Sstart(2)).state = Map.MAP_START;
-        map.map(Sgoal(1), Sgoal(2)).state = Map.MAP_GOAL;
+        map.map(Sstart(1), Sstart(2)).state = State.START;
+        map.map(Sgoal(1), Sgoal(2)).state = State.GOAL;
     end
     obstacles = [];
     
@@ -74,6 +77,9 @@ while execute
             algorithm = D_star_lite_v2(map, obstacles, Sstart, Sgoal, moves,...
                 range, cost);
         case 4
+            algorithm = D_star_lite_v2_opt(map, obstacles, Sstart, Sgoal, moves,...
+                range, cost);
+        case 5
             algorithm = Field_D_star(map, obstacles, Sstart, Sgoal, moves,...
                 range, cost);
     end

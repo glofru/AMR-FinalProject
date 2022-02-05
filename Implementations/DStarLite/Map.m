@@ -1,5 +1,5 @@
 classdef Map < handle
-    % Class to keep and work with the map
+    %
     %
     
     properties(Constant) % enumeration
@@ -114,3 +114,5 @@ classdef Map < handle
         end
     end
 end
+
+

@@ -10,3 +10,5 @@ function [minV, minPos] = minVal(u, list)
         end
     end
 end
+
+

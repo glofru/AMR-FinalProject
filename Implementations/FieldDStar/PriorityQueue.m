@@ -10,7 +10,6 @@ classdef PriorityQueue < handle
     methods
         % PriorityQueue constructor
         function obj = PriorityQueue()
-            % constructor
             obj.queue = State.empty(1, 0);
         end
         

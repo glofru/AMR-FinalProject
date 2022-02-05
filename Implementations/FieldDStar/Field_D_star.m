@@ -139,7 +139,7 @@ classdef Field_D_star < handle
         end
         
         % return the set of successor states of the state u
-        function Ls = succecssor(obj, u)
+        function Ls = successor(obj, u)
             Ls = State.empty(length(obj.moves), 0);
             currI = 1;
             for m=obj.moves
@@ -204,7 +204,7 @@ classdef Field_D_star < handle
         function updateVertex(obj, u)
             if u ~= obj.goal
                 minV = inf;
-                connbrs = obj.succecssor(u);
+                connbrs = obj.successor(u);
                 for i=[1:length(connbrs); 2:length(connbrs), 1]
                     
                     s1 = connbrs(i(1));
@@ -302,7 +302,7 @@ classdef Field_D_star < handle
         function step(obj)
             %move to minPos
             obj.currPos.state = State.PATH; % TODO
-            [~, obj.currPos] = minVal(obj.currPos, obj.succecssor(obj.currPos));
+            [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
 
             % scan graph
             isChanged = obj.updateMap();
@@ -326,3 +326,5 @@ classdef Field_D_star < handle
         end
     end
 end
+
+

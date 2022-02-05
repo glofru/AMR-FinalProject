@@ -57,11 +57,19 @@ classdef State < handle
             obj.g = Inf;
             obj.rhs = Inf;
         end
-        
+
         
         % return the key pair
-        function K = calcKey(obj, Sstart)
-            k1 = min(obj.g, obj.rhs + obj.h(Sstart));
+        function K = calcKey(obj, Sstart, km)
+            arguments
+                % this state
+                obj
+                % current state
+                Sstart
+                % km parameter
+                km = 0
+            end
+            k1 = min(obj.g, obj.rhs + obj.h(Sstart) + km);
             k2 = min(obj.g, obj.rhs);
 
             K = [k1, k2];
@@ -76,7 +84,7 @@ classdef State < handle
         function res = c(obj, s)
             res = obj.cost * norm([obj.x - s.x, obj.y - s.y]);
         end
-        
+
         
         % check if 2 states are equal
         function e = eq(obj, s)

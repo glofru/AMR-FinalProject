@@ -37,9 +37,9 @@ classdef Map < handle
             end
         end
     end
-
+    
     methods
-        % Map constructor
+        % map constructor
         function obj = Map(row, col, obstacles, type, cost)
             arguments
                 % num of map's rows

@@ -251,7 +251,7 @@ classdef D_star_lite_v1 < handle
         function step(obj)
             % move to minPos
             obj.currPos.state = State.PATH; % TODO
-            [~, obj.currPos] = minVal(obj.currPos, obj.succecssor(obj.currPos));
+            [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
 
             % scan graph
             isChanged = obj.updateMap();
@@ -275,3 +275,5 @@ classdef D_star_lite_v1 < handle
         end
     end
 end
+
+

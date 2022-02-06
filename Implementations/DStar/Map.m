@@ -104,12 +104,10 @@ classdef Map < handle
                 moves {} = [[1, 0], [1, 1], [0, 1], [-1, 0], [-1, -1], [0, -1], [-1, 1], [1, -1]];
             end
             s = [State.empty];
-            pos = [X.x; X.y];
             
             for m=moves
-                succ_pos = pos + m;
-                x = succ_pos(1);
-                y = succ_pos(2);
+                x = X.x + m(1);
+                y = X.y + m(2);
 
                 if obj.isInside(x, y) && ~obj.isObstacle(x, y)
                     s(end+1) = obj.map(x, y);

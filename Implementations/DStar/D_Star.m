@@ -37,24 +37,27 @@ classdef D_Star < handle
             obj.computeShortestPath();
         end
 
-        function res = process_state(obj)
-            [Kold, X] = obj.open_list.min_state();
+        function process_state(obj)
+            X = obj.open_list.min_state();
             if isempty(X)
                 error("Path not found")
             end
+            Kold = X.k;
             obj.open_list.remove(X);
             
-            % obj.localMap.plot(X); % comment for fast plot
+            %obj.localMap.plot(X); % comment for fast plot
             
             succ = obj.localMap.neighbors(X, obj.moves);
             if Kold < X.h
                 for Y=succ
-                    if Y.h <= Kold && X.h > Y.h + X.cost(Y)
+                    if Y.h <= Kold && X.h > Y.h + Y.cost(X)
                         X.parent = Y;
-                        X.h = Y.h + X.cost(Y);
+                        X.h = Y.h + Y.cost(X);
                     end
                 end
-            elseif Kold == X.h
+            end
+
+            if Kold == X.h
                 for Y=succ
                     if Y.tag == StateTag.NEW || ...
                             (~isempty(Y.parent) && Y.parent == X && Y.h ~= X.h + X.cost(Y)) || ...
@@ -73,7 +76,7 @@ classdef D_Star < handle
                         if Y.parent ~= X && Y.h > X.h + X.cost(Y)
                             obj.open_list.insert(Y, X.h);
                         else
-                            if Y.parent ~= X && X.h > Y.h + X.cost(Y) && ...
+                            if Y.parent ~= X && X.h > Y.h + Y.cost(X) && ...
                                     Y.tag == StateTag.CLOSED && ...
                                     Y.h > Kold
                                 obj.open_list.insert(Y, Y.h);
@@ -82,26 +85,23 @@ classdef D_Star < handle
                     end
                 end
             end
-
-            res = obj.open_list.get_kmin();
         end
 
-        function modify(obj)
-            state = obj.currPos;
-%             if state.tag == StateTag.CLOSED
-                obj.open_list.insert(state, state.h + state.cost(state.parent))
-%             end
+        function modify_cost(obj, state)
+            if state.tag == StateTag.CLOSED
+                obj.open_list.insert(state, state.cost(state.parent))
+            end
 
             while ~obj.open_list.isEmpty()
-                k_min = obj.process_state();
-                if k_min >= state.h
+                obj.process_state();
+                if obj.open_list.get_kmin() >= state.h
                     break
                 end
             end
         end
 
         function f = isFinish(obj)
-            f = obj.currPos == obj.goal && ~obj.open_list.isEmpty();
+            f = obj.currPos == obj.goal;
         end
 
         function step(obj)
@@ -114,7 +114,7 @@ classdef D_Star < handle
 
             % update graph
             if obj.currPos.parent.state == MapState.OBSTACLE
-                obj.modify()
+                obj.modify_cost(obj.currPos)
                 return
             end
 

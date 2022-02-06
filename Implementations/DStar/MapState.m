@@ -40,7 +40,7 @@ classdef MapState
                 case MapState.START % "ⓢ"
                     color = [120, 0, 120];
                 case MapState.GOAL % "♛"
-                    color = [255, 0, 0];
+                    color = [120, 0, 0];
                 case MapState.PATH % "≡"
                     color = [255, 0, 0];
                 otherwise

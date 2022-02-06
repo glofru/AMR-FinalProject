@@ -3,12 +3,6 @@ classdef OpenList < handle
         actualList;
     end
 
-    methods (Access = private)
-        function res = is_empty(obj)
-            res = isempty(obj.actualList);
-        end
-    end
-    
     methods (Access = public)
         function obj = OpenList(initialState)
             obj.actualList = initialState;
@@ -33,30 +27,22 @@ classdef OpenList < handle
         end
 
         function remove(obj, state)
-            if state.tag == StateTag.OPEN
-                state.tag = StateTag.CLOSED;
+            state.tag = StateTag.CLOSED;
+            pos = obj.findPosition(state);
+            if pos ~= -1
+                obj.actualList(pos) = [];
             end
-            pos = obj.find(state);
-            obj.actualList(pos) = [];
         end
-        
-        function pos = find(obj, s)
+
+        function pos = findPosition(obj, s)
             % find in the queue vertex s
             % if not exists return -1
             pos = -1;
             for i=1:size(obj.actualList, 2)
                 if s.eq(obj.actualList(i))
-                    pos=i;
+                    pos = i;
                     return;
                 end
-            end
-        end
-        
-        function h = has(obj, s)
-            if obj.find(s) == -1
-                h = false;
-            else
-                h = true;
             end
         end
 
@@ -73,11 +59,9 @@ classdef OpenList < handle
             end
         end
 
-        function [k, s] = min_state(obj)
+        function s = min_state(obj)
             s = State.empty;
-            if isempty(obj.actualList)
-                k = -1;
-            else
+            if ~isempty(obj.actualList)
                 k = Inf;
                 for e=obj.actualList
                     if e.k < k
@@ -93,5 +77,3 @@ classdef OpenList < handle
         end
     end
 end
-
-

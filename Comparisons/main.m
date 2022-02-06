@@ -4,7 +4,6 @@ clc
 restoredefaultpath
 
 addpath('./utils')
-addpath('./DStarLite')
 
 %% LOAD DATA
 warning('error', 'MATLAB:deblank:NonStringInput');
@@ -43,10 +42,20 @@ end
 
 
 
+%% IMPORT
+switch initParams.typeAlgo
+    case 1
+        addpath('./DStar')
+    case 2
+        addpath('./DStarLite')
+    case 3
+        addpath('./DStarLite')
+end
+
 %% MAIN
 D1 = initParams.dim(1);
 D2 = initParams.dim(2);
-epoch = double(input("How much epochs: "));
+epoch = double(input("How many epochs: "));
 
 infosAlgo(epoch, initParams.Na) = AlgoInfo();
 
@@ -65,29 +74,39 @@ for currEpoch=1:epoch
         end
     end
     
-    map = Map(D1, D2, globalObstacles, Map.TYPE_KNOWN, 1); % TODO cost
-    map.map(initParams.Sstart(1), initParams.Sstart(2)).state = Map.MAP_START;
-    map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = Map.MAP_GOAL;
+    switch initParams.typeAlgo
+        case 1
+            map = Map(D1, D2, globalObstacles);
+            map.map(initParams.Sstart(1), initParams.Sstart(2)).state = MapState.START;
+            map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = MapState.GOAL;
+        otherwise
+            map = Map(D1, D2, globalObstacles, Map.TYPE_KNOWN, 1); % TODO cost
+            map.map(initParams.Sstart(1), initParams.Sstart(2)).state = Map.MAP_START;
+            map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = Map.MAP_GOAL;
+    end
     obstacles = [];
     knownObstacles = [];
     
     for i=1:initParams.Na
         disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
         disp("Inizialization");
+
+        tic
         switch(initParams.typeAlgo)
             case 1
-                tic
+                currAlgo = D_Star(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                    initParams.moves, initParams.ranges(i), initParams.costs(i));
+            case 2
                 currAlgo = D_star_lite_v1(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
                     initParams.moves, initParams.ranges(i), initParams.costs(i));
-                tocTime = toc;
-            case 2
-                tic
+            case 3
                 currAlgo = D_star_lite_v2(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
                     initParams.moves, initParams.ranges(i), initParams.costs(i));
-                tocTime = toc;
             otherwise
                 error("Wrong type of algorithm!")
         end
+        tocTime = toc;
+
         infosAlgo(currEpoch, i).initTime = tocTime;
         disp("└──-Inizialization terminated in: <strong>"+string(tocTime)+...
             "</strong> s");
@@ -105,18 +124,18 @@ for currEpoch=1:epoch
         infosAlgo(currEpoch, i).expCellsList = currAlgo.expCellsList;
         infosAlgo(currEpoch, i).totSteps = currAlgo.totSteps;
         infosAlgo(currEpoch, i).totStepsList = currAlgo.totStepsList;
-        infosAlgo(currEpoch, i).pathLenght = currAlgo.pathLenght;
+        infosAlgo(currEpoch, i).pathLength = currAlgo.pathLength;
     end
 end
 disp("Terminated!")
 
 initParams.epochDone = epoch;
-switch (typeOfInput)
-    case 1
+% switch (typeOfInput)
+%     case 1
         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
-    case 2
+%     case 2
         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
-end
+% end
 
 %% FUNCTIONS %%
 
@@ -147,7 +166,7 @@ function plotAlgs(img_g, algos, Na)
         title(ax, {"Algorithm Map c="+num2str(algo.cost);...
             "explored cells: "+num2str(algo.getExpCells())+...
             ", tot steps: "+num2str(algo.getTotSteps())+...
-            ", path lenght: "+num2str(algo.getPathLenght())
+            ", path lenght: "+num2str(algo.getPathLength())
             })
         axis off;
         
@@ -180,7 +199,7 @@ function WIP_plotAlgs(img_g, algorithm_c1, algorithm_c2, algorithm_c3)
     title(ax2, {"Algorithm Map c=0.1";...
         "explored cells: "+num2str(algorithm_c1.getExpCells())+...
         ", tot steps: "+num2str(algorithm_c1.getTotSteps())+...
-        ", path lenght: "+num2str(algorithm_c1.getPathLenght())
+        ", path lenght: "+num2str(algorithm_c1.getPathLength())
         })
     axis off;
     
@@ -202,7 +221,7 @@ function WIP_plotAlgs(img_g, algorithm_c1, algorithm_c2, algorithm_c3)
     title(ax3, {"Algorithm Map c=1";...
         "explored cells: "+num2str(algorithm_c2.getExpCells())+...
         ", tot steps: "+num2str(algorithm_c2.getTotSteps())+...
-        ", path lenght: "+num2str(algorithm_c2.getPathLenght())
+        ", path lenght: "+num2str(algorithm_c2.getPathLength())
         })
     axis off;
     
@@ -224,7 +243,7 @@ function WIP_plotAlgs(img_g, algorithm_c1, algorithm_c2, algorithm_c3)
     title(ax4, {"Algorithm Map c=2";...
         "explored cells: "+num2str(algorithm_c3.getExpCells())+...
         ", tot steps: "+num2str(algorithm_c3.getTotSteps())+...
-        ", path lenght: "+num2str(algorithm_c3.getPathLenght())
+        ", path lenght: "+num2str(algorithm_c3.getPathLength())
         })
     axis off;
     

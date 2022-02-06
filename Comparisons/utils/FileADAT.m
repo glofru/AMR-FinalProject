@@ -29,16 +29,20 @@ classdef FileADAT < handle
             obj = FileADAT();
             
             disp("Which algorithm?"+newline+...
-                 "    1) D* Lite v1"+newline+...
-                 "    2) D* Lite v2"+newline)
+                 "    1) D*"+newline+...
+                 "    2) D* Lite v1"+newline+...
+                 "    3) D* Lite v2"+newline+...
+                 "    4) Field D*")
             typeOfAlgo = input('search option: ');
             switch(typeOfAlgo)
                 case 1
-                    obj.typeAlgo = FileADAT.ALGO_DSL_V1;
-                    
+                    obj.typeAlgo = FileADAT.ALGO_DS;
                 case 2
+                    obj.typeAlgo = FileADAT.ALGO_DSL_V1;
+                case 3
                     obj.typeAlgo = FileADAT.ALGO_DSL_V2;
-                    
+                case 4
+                    obj.typeAlgo = FileADAT.ALGO_FDS;
                 otherwise
                     error("Wrong input!");
             end
@@ -51,16 +55,16 @@ classdef FileADAT < handle
             obj.Sgoal = [D1; D2]; % TODO
             obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
-            obj.Na = double(input("Input Na: "));
+            obj.Na = double(input("Number of tries: "));
 
             obj.ranges = zeros(1, obj.Na);
             for i=1:obj.Na
-                obj.ranges(i) = double(input("Input range i: "));
+                obj.ranges(i) = double(input("Input range try N. " + i + ": "));
             end
             
             obj.costs = zeros(1, obj.Na);
             for i=1:obj.Na
-                obj.costs(i) = double(input("Input costs i: "));
+                obj.costs(i) = double(input("Input costs try N. " + i + ": "));
             end
         end
         

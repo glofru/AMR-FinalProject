@@ -9,7 +9,7 @@ classdef AlgoInfo < handle
         expCellsList;
         totSteps;
         totStepsList;
-        pathLenght;
+        pathLength;
     end
     
     methods(Static)
@@ -22,7 +22,7 @@ classdef AlgoInfo < handle
             obj.expCellsList = s.expCellsList;
             obj.totSteps = s.totSteps;
             obj.totStepsList = s.totStepsList;
-            obj.pathLenght = s.pathLenght;
+            obj.pathLength = s.pathLength;
        end
     end
     
@@ -35,7 +35,7 @@ classdef AlgoInfo < handle
             obj.expCellsList = [];
             obj.totSteps = 0;
             obj.totStepsList = [];
-            obj.pathLenght = 0;
+            obj.pathLength = 0;
         end
     end
 end

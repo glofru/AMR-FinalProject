@@ -18,7 +18,7 @@ classdef D_star_lite_v1 < handle
         expCellsList;
         totSteps; % for each cell popped from computeShortestPath +1
         totStepsList;
-        pathLenght; % for each step +1
+        pathLength; % for each step +1
         maxLenghtFinalPath;
     end
     
@@ -48,7 +48,7 @@ classdef D_star_lite_v1 < handle
             obj.expCellsList = [];
             obj.totSteps = 0;
             obj.totStepsList = [];
-            obj.pathLenght = 0;
+            obj.pathLength = 0;
             obj.maxLenghtFinalPath = (obj.globalMap.row+obj.globalMap.col)*2;
             
             % inizialize map
@@ -144,8 +144,8 @@ classdef D_star_lite_v1 < handle
             ret = obj.totSteps;
         end
         
-        function ret = getPathLenght(obj)
-            ret = obj.pathLenght;
+        function ret = getpathLength(obj)
+            ret = obj.pathLength;
         end
         
         
@@ -307,7 +307,7 @@ classdef D_star_lite_v1 < handle
         
         function step(obj)
             % obj.totSteps = obj.totSteps+1;
-            obj.pathLenght = obj.pathLenght+1;
+            obj.pathLength = obj.pathLength+1;
 
             minV = inf;
             minPos = State.empty(1, 0);

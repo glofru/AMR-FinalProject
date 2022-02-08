@@ -22,7 +22,7 @@ heatMap = zeros(initParams.Na, initParams.dim(1), initParams.dim(2));
 
 for e=1:initParams.epochDone
     for n=1:initParams.Na
-        for k=1:infosAlgo(e, n).pathLenght
+        for k=1:infosAlgo(e, n).pathLength
             pos = infosAlgo(e, n).finalPath(k, :);
             heatMap(n, pos(1), pos(2)) = heatMap(n, pos(1), pos(2)) + 1;
         end
@@ -48,7 +48,7 @@ initTimes4Epoch = zeros(initParams.epochDone, initParams.Na);
 computationTimes4Epoch = zeros(initParams.epochDone, initParams.Na);
 expCells4Epoch = zeros(initParams.epochDone, initParams.Na);
 totSteps4Epoch = zeros(initParams.epochDone, initParams.Na);
-pathLenght4Epoch = zeros(initParams.epochDone, initParams.Na);
+pathLength4Epoch = zeros(initParams.epochDone, initParams.Na);
 
 for i=1:initParams.epochDone
     for j=1:initParams.Na
@@ -56,7 +56,7 @@ for i=1:initParams.epochDone
         computationTimes4Epoch(i, j) = infosAlgo(i, j).computationTime;
         expCells4Epoch(i, j) = infosAlgo(i, j).expCells;
         totSteps4Epoch(i, j) = infosAlgo(i, j).totSteps;
-        pathLenght4Epoch(i, j) = infosAlgo(i, j).pathLenght;
+        pathLength4Epoch(i, j) = infosAlgo(i, j).pathLength;
     end
 end
 
@@ -77,8 +77,8 @@ bar(totSteps4Epoch)
 title("totSteps4Epoch")
 
 figure
-bar(pathLenght4Epoch)
-title("pathLenght4Epoch")
+bar(pathLength4Epoch)
+title("pathLength4Epoch")
 
 
 figure
@@ -95,8 +95,8 @@ subplot(1, 5, 4)
 bar(mean(totSteps4Epoch))
 title("totSteps4Epoch")
 subplot(1, 5, 5)
-bar(mean(pathLenght4Epoch))
-title("pathLenght4Epoch")
+bar(mean(pathLength4Epoch))
+title("pathLength4Epoch")
 
 
 waitInput();
@@ -117,8 +117,8 @@ subplot(1, 5, 4)
 boxplot(totSteps4Epoch)
 title("totSteps4Epoch")
 subplot(1, 5, 5)
-boxplot(pathLenght4Epoch)
-title("pathLenght4Epoch")
+boxplot(pathLength4Epoch)
+title("pathLength4Epoch")
 
 waitInput();
 

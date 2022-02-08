@@ -77,6 +77,7 @@ classdef D_star_lite_v2 < handle
             obj.computeShortestPath();
         end
         
+        
         % check if the algorithm is finished
         function isFin = isFinish(obj)
             if obj.currPos == obj.goal
@@ -120,7 +121,6 @@ classdef D_star_lite_v2 < handle
             end
             obj.currPos.state = State.POSITION;
         end
-        
         
         % return the set of predecessor states of the state u
         function Lp = predecessor(obj, u)

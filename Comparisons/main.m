@@ -46,24 +46,26 @@ switch(typeOfInput)
         error("Warning: wrong input!");
 end
 
-
-
-%% IMPORT
-switch initParams.typeAlgo
-    case 1
-        addpath('./DStar')
-    case 2
-        addpath('./DStarLite')
-    case 3
-        addpath('./DStarLite')
-end
-
 %% MAIN
 D1 = initParams.dim(1);
 D2 = initParams.dim(2);
 epoch = double(input("How many epochs: "));
 
 infosAlgo(epoch, initParams.Na) = AlgoInfo();
+
+% import
+switch initParams.typeAlgo
+    case FileADAT.ALGO_DS
+        addpath('./DStar')
+    case FileADAT.ALGO_DSL_V1
+        addpath('./DStarLite')
+    case FileADAT.ALGO_DSL_V2
+        addpath('./DStarLite')
+    case FileADAT.ALGO_FDS
+        addpath('./FieldDStar')
+    otherwise
+        error("Wrong input!");
+end
 
 for currEpoch=1:epoch
     disp(newline+"<──- Epoch: <strong>"+num2str(currEpoch)+"/"+num2str(epoch)...
@@ -87,8 +89,8 @@ for currEpoch=1:epoch
             map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = MapState.GOAL;
         otherwise
             map = Map(D1, D2, globalObstacles, Map.TYPE_KNOWN, 1); % TODO cost
-            map.map(initParams.Sstart(1), initParams.Sstart(2)).state = Map.MAP_START;
-            map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = Map.MAP_GOAL;
+            map.map(initParams.Sstart(1), initParams.Sstart(2)).state = State.START;
+            map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = State.GOAL;
     end
     obstacles = [];
     knownObstacles = [];
@@ -97,21 +99,30 @@ for currEpoch=1:epoch
         disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
         disp("Inizialization");
 
-        tic
         switch(initParams.typeAlgo)
             case 1
+                tic
                 currAlgo = D_Star(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
                     initParams.moves, initParams.ranges(i), initParams.costs(i));
+                tocTime = toc;
             case 2
+                tic
                 currAlgo = D_star_lite_v1(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
                     initParams.moves, initParams.ranges(i), initParams.costs(i));
+                tocTime = toc;
             case 3
+                tic
                 currAlgo = D_star_lite_v2(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
                     initParams.moves, initParams.ranges(i), initParams.costs(i));
+                tocTime = toc;
+            case 4
+                tic
+                currAlgo = Field_D_star(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                    initParams.moves, initParams.ranges(i), initParams.costs(i));
+                tocTime = toc;
             otherwise
                 error("Wrong type of algorithm!")
         end
-        tocTime = toc;
 
         infosAlgo(currEpoch, i).initTime = tocTime;
         disp("└──-Inizialization terminated in: <strong>"+string(tocTime)+...
@@ -136,12 +147,12 @@ end
 disp("Terminated!")
 
 initParams.epochDone = epoch;
-% switch (typeOfInput)
-%     case 1
+ switch (typeOfInput)
+     case 1
         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
-%     case 2
-%         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
-% end
+     case 2
+         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
+ end
 
 %% FUNCTIONS %%
 
@@ -289,3 +300,5 @@ function WIP_plotAlgs(img_g, algorithm_c1, algorithm_c2, algorithm_c3)
     
     pause(0.5)
 end
+
+

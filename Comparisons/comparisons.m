@@ -4,7 +4,6 @@ clc
 restoredefaultpath
 
 addpath('./utils')
-addpath('./DStarLite')
 
 %% LOAD DATA
 warning('error', 'MATLAB:deblank:NonStringInput');
@@ -129,4 +128,5 @@ function waitInput()
     pause();
     disp("CONTINUE!!");
 end
+
 

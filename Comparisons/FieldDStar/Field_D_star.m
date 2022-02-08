@@ -1,4 +1,4 @@
-classdef D_star_lite_v1 < handle
+classdef Field_D_star < handle
     %
     %
     
@@ -38,8 +38,8 @@ classdef D_star_lite_v1 < handle
     end
     
     methods
-        % D_star_lite_v1 constructor
-        function obj = D_star_lite_v1(globalMap, obstacles, Sstart, Sgoal,...
+        % Field_D_star constructor
+        function obj = Field_D_star(globalMap, obstacles, Sstart, Sgoal,...
                 moves, range, cost)
             arguments
                 % Map having global knowledge
@@ -107,7 +107,7 @@ classdef D_star_lite_v1 < handle
                 isFin = false;
             end
         end
-        
+
         
         % scan the map for new obstacles
         function isChanged = updateMap(obj)
@@ -122,7 +122,7 @@ classdef D_star_lite_v1 < handle
                 for j=-r:r
                     if obj.localMap.isInside(is+i, js+j)
                         chr = obj.globalMap.map(is+i, js+j).state;
-                            
+                        
                         if chr == State.OBSTACLE
                             obj.localMap.map(is+i, js+j).state = chr;
                             
@@ -183,10 +183,61 @@ classdef D_star_lite_v1 < handle
             end
         end
         
+        % s, sa, sb are neighbourds
+        % c is the traversal cost of the center cell
+        % b is the traversal cost of the bottom cell
+        function vs = computeCost(obj, s, sa, sb)
+            if (s.x ~= sa.x && s.y ~= sa.y)
+                s1 = sa;
+                s2 = sb;
+            else
+                s1 = sb;
+                s2 = sa;
+            end
+            
+            c = 1;
+            b = 0.5;
+            
+            if (min(c,b) == inf)
+                vs = inf;
+            elseif (s1.g <= s2.g)
+                vs = min(c, b) + s1.g;
+            else
+                f = s1.g - s2.g;
+                
+                if (f <= b)
+                    if (c <= f)
+                        vs = c*sqrt(2) + s2.g;
+                    else
+                        y = min(f/(sqrt(c^2-f^2)), 1);
+                        vs = c*sqrt(1+y^2)+f*(1-y)+s2.g;
+                    end
+                else
+                    if (c <= b)
+                        vs = c*sqrt(2)+s2.g;
+                    else
+                        x = 1-min(b/(sqrt(c^2-b^2)), 1);
+                        vs = c*sqrt(1+(1-x)^2)+b*x+s2.g;
+                    end
+                end
+            end
+        end
+        
         % update vertex u
         function updateVertex(obj, u)
             if u ~= obj.goal
-                [u.rhs, ~] = minVal(u, obj.successor(u));
+                minV = inf;
+                connbrs = obj.successor(u);
+                for i=[1:length(connbrs); 2:length(connbrs), 1]
+                    
+                    s1 = connbrs(i(1));
+                    s2 = connbrs(i(2));
+                    curr = obj.computeCost(u, s1, s2);
+                    if curr < minV
+                        minV = curr;
+                    end
+                end
+                u.rhs = minV;
             end
 
             if obj.U.has(u)
@@ -207,7 +258,8 @@ classdef D_star_lite_v1 < handle
                 
                 obj.totSteps = obj.totSteps+1;
                 
-                % obj.localMap.plotMap(); % commented for fast plot
+                %obj.localMap.plot(); % comment for fast plot
+                %pause(0.1)
                 u = obj.U.pop();
                 
                 % TODO
@@ -257,7 +309,7 @@ classdef D_star_lite_v1 < handle
             %end
 
             while ~updateCells.isEmpty()
-                [s, k_old] = updateCells.extract(1);
+                [s, k_old] = updateCells.pop();
                 obj.updateVertex(s);
                 k = s.calcKey(obj.currPos);
                 if ~(k == k_old)
@@ -276,7 +328,7 @@ classdef D_star_lite_v1 < handle
         % compute one step from the current position
         function step(obj)
             obj.pathLength = obj.pathLength+1;
-
+            
             %move to minPos
             obj.currPos.state = State.PATH; % TODO
             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));

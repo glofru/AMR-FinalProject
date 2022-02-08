@@ -8,7 +8,12 @@ addpath('./DStarLite')
 
 %% LOAD DATA
 warning('error', 'MATLAB:deblank:NonStringInput');
-inputPath = strcat(uigetdir('', 'Select Input Directory'), '\');
+if ispc
+    pathDelimiter = "\";
+else
+    pathDelimiter = "/";
+end
+inputPath = strcat(uigetdir('', 'Select Input Directory'), pathDelimiter);
 
 [initParams, infosAlgo] = loadDataFromADAT(inputPath);
 

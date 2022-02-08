@@ -15,10 +15,16 @@ disp("Which option?"+newline+...
 typeOfInput = input('search option: ');
 disp(" ");
 
+if ispc
+    pathDelimiter = "\";
+else
+    pathDelimiter = "/";
+end
+
 % COLLECTING FILES
 switch(typeOfInput)
     case 1
-        inputPath = strcat(uigetdir('', 'Select Input Directory'), '\');
+        inputPath = strcat(uigetdir('', 'Select Input Directory'), pathDelimiter);
         inputFile = input("File Name: ", 's')+".adat";
         
         pathAndFile = inputPath+inputFile;
@@ -29,7 +35,7 @@ switch(typeOfInput)
         initParams = FileADAT.constByUser();
         
     case 2
-        inputPath = strcat(uigetdir('', 'Select Input Directory'), '\');
+        inputPath = strcat(uigetdir('', 'Select Input Directory'), pathDelimiter);
         [inputFile, inputPath] = uigetfile(strcat(inputPath, "\*.adat"), 'MultiSelect', 'off');
         [initParams, ~] = loadDataFromADAT(inputPath, inputFile);
         
@@ -134,7 +140,7 @@ initParams.epochDone = epoch;
 %     case 1
         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
 %     case 2
-        saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
+%         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
 % end
 
 %% FUNCTIONS %%

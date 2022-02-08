@@ -18,7 +18,7 @@ function [initParams, infosAlgo] = loadDataFromADAT(inputPath, inputFile)
     switch nargin
         case 0
             % if we haven't the file's name, we ask to the user to select it
-            [inputFile, inputPath] = uigetfile("*.adat")
+            [inputFile, inputPath] = uigetfile("*.adat");
         case 1
             % if we haven't the file's name, we ask to the user to select it
             [inputFile, inputPath] = uigetfile(strcat(inputPath, "*.adat"));

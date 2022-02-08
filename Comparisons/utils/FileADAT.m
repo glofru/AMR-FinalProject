@@ -71,7 +71,24 @@ classdef FileADAT < handle
         function obj = constSTD()
             obj = FileADAT();
             
-            obj.typeAlgo = FileADAT.ALGO_DSL_V1;
+            disp("Which search algorithm?"+newline+...
+                 "    1) D*"+newline+...
+                 "    2) D*Lite v1"+newline+...
+                 "    3) D*Lite v2"+newline+...
+                 "    4) Field D*"+newline)
+            algorithmType = input('search algorithm: ');
+            switch algorithmType
+                case 1
+                    obj.typeAlgo = FileADAT.ALGO_DS;
+                case 2
+                    obj.typeAlgo = FileADAT.ALGO_DSL_V1;
+                case 3
+                    obj.typeAlgo = FileADAT.ALGO_DSL_V2;
+                case 4
+                    obj.typeAlgo = FileADAT.ALGO_FDS;
+                otherwise
+                    error("Wrong input!");
+            end
             
             D1 = 50;
             D2 = 50;

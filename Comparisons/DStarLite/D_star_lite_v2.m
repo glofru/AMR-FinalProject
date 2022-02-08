@@ -60,21 +60,13 @@ classdef D_star_lite_v2 < handle
                 obj.obstacles, Map.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
-            obj.currPos.state = Map.MAP_POSITION;
+            obj.currPos.state = State.POSITION;
             obj.Slast = obj.currPos;
             obj.goal = obj.localMap.map(Sgoal(1), Sgoal(2));
-            obj.goal.state = Map.MAP_GOAL;
-            
-            % inizialize state vals
-            for i=1:obj.localMap.row
-                for j=1:obj.localMap.col
-                    obj.localMap.map(i, j).g = inf;
-                    obj.localMap.map(i, j).rhs = inf;
-                end
-            end
+            obj.goal.state = State.GOAL;
             
             obj.goal.rhs = 0;
-            obj.U = obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos, obj.km));
+            obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos, obj.km));
 
             % first scan
             obj.updateMap();
@@ -112,7 +104,7 @@ classdef D_star_lite_v2 < handle
                     if obj.localMap.isInside(is+i, js+j)
                         chr = obj.globalMap.map(is+i, js+j).state;
                             
-                        if chr == Map.MAP_OBSTACLE
+                        if chr == State.OBSTACLE
                             obj.localMap.map(is+i, js+j).state = chr;
 
                             new_obs = [is+i, js+j];
@@ -125,7 +117,7 @@ classdef D_star_lite_v2 < handle
                     end
                 end
             end
-            obj.currPos.state = Map.MAP_POSITION;
+            obj.currPos.state = State.POSITION;
         end
         
         function isFin = isFinish(obj)
@@ -163,7 +155,7 @@ classdef D_star_lite_v2 < handle
                 end
 
                 obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                if  obj_pos.state ~= Map.MAP_OBSTACLE
+                if  obj_pos.state ~= State.OBSTACLE
                     % TODO ottimizzare
                     if ~obj.isAlredyIn(Lp, obj_pos)
                         Lp(currI) = obj_pos;
@@ -185,7 +177,7 @@ classdef D_star_lite_v2 < handle
                 end
 
                 obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                if obj_pos.state ~= Map.MAP_OBSTACLE
+                if obj_pos.state ~= State.OBSTACLE
                     % TODO ottimizzare
                     if ~obj.isAlredyIn(Ls, obj_pos)
                         Ls(currI) = obj_pos;
@@ -209,38 +201,33 @@ classdef D_star_lite_v2 < handle
             end
 
             if obj.U.has(u)
-                obj.U = obj.U.remove(u);
+                obj.U.remove(u);
                 obj.expCells = obj.expCells-1;
             end
 
             if u.g ~= u.rhs
-                obj.U = obj.U.insert(u, u.calcKey(obj.currPos, obj.km));
+                obj.U.insert(u, u.calcKey(obj.currPos, obj.km));
                 obj.expCells = obj.expCells+1;
             end
         end
         
         function computeShortestPath(obj)
-            if obj.U.isEmpty()
-                    return
-            end
-                
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos, obj.km)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                 
                 obj.totSteps = obj.totSteps+1;
                 
                 %obj.localMap.plot(); % comment for fast plot
-                Kold = obj.U.topKey();
-                [obj.U, u] = obj.U.pop();
+                [u, Kold] = obj.U.pop();
                 
                 % TODO
-                if u.state == Map.MAP_UNKNOWN || u.state == Map.MAP_EMPTY || ...
-                        u.state == Map.MAP_VISITED
-                    u.state = Map.MAP_START;
+                if u.state == State.UNKNOWN || u.state == State.EMPTY || ...
+                        u.state == State.VISITED
+                    u.state = State.START;
                 end
 
                 if (Kold < u.calcKey(obj.currPos, obj.km))
-                    obj.U = obj.U.insert(u, u.calcKey(obj.currPos, obj.km));
+                    obj.U.insert(u, u.calcKey(obj.currPos, obj.km));
                     obj.expCells = obj.expCells+1;
                 elseif (u.g > u.rhs)
                     u.g = u.rhs;
@@ -253,20 +240,11 @@ classdef D_star_lite_v2 < handle
                 for p=pred
                     obj.updateVertex(p);
                 end
-
-                if obj.U.isEmpty()
-                    return
-                end
             end
         end
 
         function updateEdgesCost(obj)
-            % updato tutti i predecessori degli ostacoli nuovi
-            % li metto in una lista e estraggo il più vicino al goal
-
             updateCells = PriorityQueue();
-
-
             for o=obj.newObstacles
                 oState = obj.localMap.map(o(1), o(2));
 
@@ -276,12 +254,11 @@ classdef D_star_lite_v2 < handle
 
                 for p=pred
                     if ~updateCells.has(p)
-                        updateCells = updateCells.insert(p, p.calcKey(obj.currPos, obj.km));
+                        updateCells.insert(p, p.calcKey(obj.currPos, obj.km));
                     end
                 end
             end
             obj.newObstacles = [];
-
 
             %for all directed edges (u, v)
             %    update edge cost c(u, v)
@@ -289,7 +266,7 @@ classdef D_star_lite_v2 < handle
             %end
 
             while ~updateCells.isEmpty()
-                [updateCells, s, k_old] = updateCells.pop();
+                [s, k_old] = updateCells.pop();
                 obj.updateVertex(s);
                 k = s.calcKey(obj.currPos, obj.km);
                 if ~(k == k_old)
@@ -297,14 +274,10 @@ classdef D_star_lite_v2 < handle
 
                     for p=pred
                         if ~updateCells.has(p)
-                            updateCells = updateCells.insert(p, p.calcKey(obj.currPos, obj.km));
+                            updateCells.insert(p, p.calcKey(obj.currPos, obj.km));
                         end
                     end
                 end
-            end
-            
-            for s=obj.U.queue
-                obj.U = obj.U.insert(s, s.calcKey(obj.currPos));
             end
         end
         
@@ -323,7 +296,7 @@ classdef D_star_lite_v2 < handle
             end
 
             %move to minPos
-            obj.currPos.state = Map.MAP_PATH; % TODO
+            obj.currPos.state = State.PATH; % TODO
             obj.currPos = minPos;
 
             % scan graph

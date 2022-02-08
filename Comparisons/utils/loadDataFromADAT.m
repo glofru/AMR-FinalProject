@@ -4,12 +4,10 @@ function [initParams, infosAlgo] = loadDataFromADAT(inputPath, inputFile)
 % OUTPUT
 %
 % initParams: Cell contening the first k lines of the file
-% NumRows: Number of the rows inside the body of the file
-% NumCols: Number of the columns inside the body of the file
-% m_fm: Matrix containig the data of the markers over the time
+% infosAlgo: Matrix containig the data of the algos
 
     arguments
-        % Directory in which we are going to load the data as MOT file format
+        % Directory in which we are going to load the data as ADAT file format
         inputPath string {mustBeFolder}
         % (OPTIONAL) Name of the file in which we want to write
         inputFile string {mustBeText} = ""
@@ -40,7 +38,6 @@ function [initParams, infosAlgo] = loadDataFromADAT(inputPath, inputFile)
         infosAlgo(initParams.epochDone, initParams.Na) = AlgoInfo();
 
         % preallocating memory for faster execution
-        %m_fm = zeros(NumRows, NumCols);
         totWork = numel(infosAlgo);
         reverseStr = '';
         for i=1:totWork

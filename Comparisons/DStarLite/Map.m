@@ -1,65 +1,31 @@
 classdef Map < handle
-    properties (Constant)
-        MAP_OBSTACLE = "█";
-        MAP_UNKNOWN = "▓";
-        MAP_EMPTY = "░";
-        MAP_POSITION = "☺";
-        
-        MAP_START = "ⓢ";
-        MAP_GOAL = "♛";
-        
-        MAP_VISITED = "╬"
-        MAP_PATH = "≡"
-        
-        TYPE_KNOWN = 0;
-        TYPE_UNKNOWN = 1;
+    %
+    %
+    
+    properties(Constant) % enumeration
+        TYPE_KNOWN = 1;
+        TYPE_UNKNOWN = 2;
     end
     
     properties
-        %
+        % num of map's rows
         row
-        %
+        % num of map's cols
         col
         
-        %
+        % row x col matrix of States
         map
         
-        %
+        % matrix 2 x N list of obstacles
         % | x1, x2, x3, ...
         % | y1, y2, y3, ...
         obstacles
         
-        %
+        % cost of a step
         cost
     end
-
-    methods
-        function obj = Map(row, col, obstacles, type, cost)
-            arguments
-                row
-                col
-                obstacles
-                type
-                
-                cost = 1;
-            end
-            obj.row = row;
-            obj.col = col;
-            obj.cost = cost;
-            
-            switch type
-                case Map.TYPE_KNOWN
-                    obj.init_map(Map.MAP_EMPTY);
-                case Map.TYPE_UNKNOWN
-                    obj.init_map(Map.MAP_UNKNOWN);
-                otherwise
-                    error("Wrong!") % TODO
-            end
-            
-            obj.obstacles = obstacles;
-            obj.setObstacles(obstacles);
-        end
-
+    
+    methods(Access=private)
         function init_map(obj, chr)
             obj.map = State.empty(1, 0);
             for i=1:obj.row
@@ -70,15 +36,48 @@ classdef Map < handle
                 obj.map = [obj.map; tmp];
             end
         end
-        
-        function setObstacles(obj, point_list)
-            for point=point_list
+    end
+
+    methods
+        % Map constructor
+        function obj = Map(row, col, obstacles, type, cost)
+            arguments
+                % num of map's rows
+                row
+                % num of map's cols
+                col
+                % matrix 2 x N list of obstacles
+                % | x1, x2, x3, ...
+                % | y1, y2, y3, ...
+                obstacles
+                % type of the non obstacles tiles
+                type = Map.TYPE_UNKNOWN
+                % cost of a step
+                cost = 1;
+            end
+            obj.row = row;
+            obj.col = col;
+            obj.cost = cost;
+            
+            switch type
+                case Map.TYPE_KNOWN
+                    obj.init_map(State.EMPTY);
+                case Map.TYPE_UNKNOWN
+                    obj.init_map(State.UNKNOWN);
+                otherwise
+                    error("Wrong Map Type!")
+            end
+            
+            obj.obstacles = obstacles;
+            for point = obj.obstacles
                 if obj.isInside(point(1), point(2))
-                    obj.map(point(1), point(2)).state = Map.MAP_OBSTACLE;
+                    obj.map(point(1), point(2)).state = State.OBSTACLE;
                 end
             end
         end
         
+        
+        % check if (x, y) is inside the map
         function res = isInside(obj, x, y)
             if x < 1 || x > obj.row
                 res = false;
@@ -91,129 +90,29 @@ classdef Map < handle
             res = true;
         end
         
+        % check if (x, y) is an obstacle
         function res = isObstacle(obj, x, y)
-            res = false;
-            for o=obj.obstacles
-                if all(o==[x; y])
-                    res = true;
-                    break
-                end
-            end
+            res = (obj.map(x, y).state == State.OBSTACLE)
         end
         
-        % ### PLOT FUNCTIONS ### %
         
-        function plotMap_old(obj) % TODO
-            outHeader = "";
-            for i=1:(obj.col+2)
-                outHeader = outHeader + Map.MAP_OBSTACLE;
-            end
-            disp(outHeader);
-
-            for i=1:obj.row
-                out = "";
-                for j=1:obj.col
-                    out = out + obj.map(i, j).state;
-                end
-                disp(Map.MAP_OBSTACLE+out+Map.MAP_OBSTACLE);
-            end
-
-            disp(outHeader+newline);
-        end
-        
+        % generate the map image
         function rgbImage = buildImageMap(obj)
             rgbImage = zeros(obj.row, obj.col, 3)+255;
 
             for i = 1:obj.row
                 for j = 1:obj.col
-                    switch obj.map(i, j).state
-                        case Map.MAP_OBSTACLE % "█"
-                            rgbImage(i,j,:) = [0, 0, 0];
-                            
-                        case Map.MAP_GOAL % "♛"
-                            rgbImage(i,j,:) = [255, 0, 0];
-                            
-                        case Map.MAP_PATH % "≡"
-                            rgbImage(i,j,:) = [255, 0, 0];
-                            
-                        case Map.MAP_VISITED % "╬"
-                            rgbImage(i,j,:) = [0, 255, 0];
-                            
-                        case Map.MAP_EMPTY % "░"
-                            rgbImage(i,j,:) = [255, 255, 255];
-                            
-                        case Map.MAP_UNKNOWN % "▓"
-                            rgbImage(i,j,:) = [255, 120, 120];
-                            
-                        case Map.MAP_POSITION % "☺"
-                            rgbImage(i,j,:) = [0, 0, 255];
-                            
-                        case Map.MAP_START % "ⓢ"
-                            rgbImage(i,j,:) = [120, 0, 120];
-                    end
+                    rgbImage(i,j,:) = obj.map(i, j).getColor();
                 end
             end
         end
         
-        function plotMap(obj)
+        % plot the map image
+        function plot(obj)
             J = obj.buildImageMap();
-            %J = imrotate(rgbImage,90);
-            %J = imresize( J , 100);
             imshow(J,'InitialMagnification',1000);
-        end
-        
-        function plotMap_g(obj)
-            outHeader = "";
-            for i=1:(obj.col+2)
-                outHeader = outHeader + Map.MAP_OBSTACLE;
-            end
-            disp(outHeader);
-
-            for i=1:obj.row
-                out = "";
-                for j=1:obj.col
-                    out = out + obj.map(i, j).g+" ";
-                end
-                disp(Map.MAP_OBSTACLE+out+Map.MAP_OBSTACLE);
-            end
-
-            disp(outHeader+newline);
-        end
-        
-        function plotMap_rhs(obj)
-            outHeader = "";
-            for i=1:(obj.col+2)
-                outHeader = outHeader + Map.MAP_OBSTACLE;
-            end
-            disp(outHeader);
-
-            for i=1:obj.row
-                out = "";
-                for j=1:obj.col
-                    out = out + obj.map(i, j).rhs+" ";
-                end
-                disp(Map.MAP_OBSTACLE+out+Map.MAP_OBSTACLE);
-            end
-
-            disp(outHeader+newline);
-        end
-        
-        function plotMap_k(obj)
-            outHeader = "";
-            for i=1:(obj.col+2)
-                outHeader = outHeader + Map.MAP_OBSTACLE;
-            end
-            disp(outHeader);
-
-            for i=1:obj.row
-                out = "";
-                for j=1:obj.col
-                    out = out + obj.map(i, j).k+" ";
-                end
-                disp(Map.MAP_OBSTACLE+out+Map.MAP_OBSTACLE);
-            end
-
-            disp(outHeader+newline);
         end
     end
 end
+
+

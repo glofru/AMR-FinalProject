@@ -2,11 +2,11 @@ function saveDataOnFileADAT(outputPath, initParams, infosAlgo, outputFile)
 % Save the data inside the file following the ADAT format.
 
     arguments
-        % Directory in which we are going to save the data as MOT file format
+        % Directory in which we are going to save the data as ADAT file format
         outputPath string {mustBeFolder}
         % initParams, cell contening the first k lines of the file
         initParams %cell
-        % Matrix containig the data over the time
+        % Matrix containig the data of the algos
         infosAlgo (:, :)
         % (OPTIONAL) Name of the file in which we want to write
         outputFile string {mustBeText} = ""

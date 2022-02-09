@@ -14,7 +14,9 @@ else
 end
 inputPath = strcat(uigetdir('', 'Select Input Directory'), pathDelimiter);
 
+
 [initParams, infosAlgo] = loadDataFromADAT(inputPath);
+
 
 %% HEATMAP
 heatMap = zeros(initParams.Na, initParams.dim(1), initParams.dim(2));
@@ -31,13 +33,15 @@ end
 figure
 num = ceil(sqrt(initParams.Na));
 
+costs = [];
 for i=1:initParams.Na
     subplot(num, num, i)
     colormap('hot')
     imagesc(reshape(heatMap(i, :, :), [initParams.dim(1), initParams.dim(2)]))
     colorbar
-    title("Algorithm r= "+num2str(initParams.ranges(i))+...
-        "c="+num2str(initParams.costs(i)))
+    costs(end+1) = initParams.costs(i);
+    title("Range="+num2str(initParams.ranges(i))+...
+        " Cost="+num2str(costs(i)))
 end
 
 waitInput();
@@ -61,42 +65,81 @@ end
 
 figure
 bar(initTimes4Epoch)
-title("initTimes4Epoch")
+title("Initialization times")
+xlabel("Epoch")
+ylabel("Time (s)")
+grid on;
+legend(string(costs));
+
 
 figure
 bar(computationTimes4Epoch)
-title("computationTimes4Epoch")
+title("Running time")
+xlabel("Epoch")
+ylabel("Time (s)")
+grid on;
+legend(string(costs));
 
 figure
 bar(expCells4Epoch)
-title("expCells4Epoch")
+title("Explored cells")
+xlabel("Epoch")
+ylabel("Number of cells")
+grid on;
+legend(string(costs));
 
 figure
 bar(totSteps4Epoch)
-title("totSteps4Epoch")
+title("Total algorithm steps")
+xlabel("Epoch")
+ylabel("Number of steps")
+grid on;
+legend(string(costs));
 
 figure
 bar(pathLength4Epoch)
-title("pathLength4Epoch")
+title("Path length")
+xlabel("Epoch")
+ylabel("Path length")
+grid on;
+legend(string(costs));
 
 
 figure
 subplot(1, 5, 1)
 bar(mean(initTimes4Epoch))
-title("initTimes4Epoch")
+title("Initialization time")
+grid on;
+xlabel("Epoch")
+ylabel("Time (s)")
+
 subplot(1, 5, 2)
 bar(mean(computationTimes4Epoch))
-title("computationTimes4Epoch")
+title("Running time")
+xlabel("Epoch")
+ylabel("Time (s)")
+grid on;
+
 subplot(1, 5, 3)
 bar(mean(expCells4Epoch))
-title("expCells4Epoch")
+title("Explored cells")
+xlabel("Epoch")
+ylabel("Number of cells")
+grid on;
+
 subplot(1, 5, 4)
 bar(mean(totSteps4Epoch))
-title("totSteps4Epoch")
+title("Total algorithm steps")
+xlabel("Epoch")
+ylabel("Number of steps")
+grid on;
+
 subplot(1, 5, 5)
 bar(mean(pathLength4Epoch))
-title("pathLength4Epoch")
-
+title("Path Length")
+xlabel("Epoch")
+ylabel("Path length")
+grid on;
 
 waitInput();
 
@@ -105,19 +148,38 @@ waitInput();
 figure
 subplot(1, 5, 1)
 boxplot(initTimes4Epoch)
-title("initTimes4Epoch")
+title("Initialization time")
+grid on;
+xlabel("Epoch")
+ylabel("Time (s)")
+
 subplot(1, 5, 2)
 boxplot(computationTimes4Epoch)
-title("computationTimes4Epoch")
+title("Running time")
+xlabel("Epoch")
+ylabel("Time (s)")
+grid on;
+
 subplot(1, 5, 3)
 boxplot(expCells4Epoch)
-title("expCells4Epoch")
+title("Explored cells")
+xlabel("Epoch")
+ylabel("Number of cells")
+grid on;
+
 subplot(1, 5, 4)
 boxplot(totSteps4Epoch)
-title("totSteps4Epoch")
+title("Total algorithm steps")
+xlabel("Epoch")
+ylabel("Number of steps")
+grid on;
+
 subplot(1, 5, 5)
 boxplot(pathLength4Epoch)
-title("pathLength4Epoch")
+title("Path length")
+xlabel("Epoch")
+ylabel("Path length")
+grid on;
 
 waitInput();
 

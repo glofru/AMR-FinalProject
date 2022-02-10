@@ -38,17 +38,6 @@ classdef DSLState < handle
     methods
         % DSLState constructor
         function obj = DSLState(x, y, state, cost)
-            arguments
-                % x coord
-                x
-                % y coord
-                y
-                
-                % state of this cell
-                state {} = DSLState.UNKNOWN
-                % cost of a step
-                cost = 1
-            end
             obj.x = x;
             obj.y = y;
             obj.state = state;

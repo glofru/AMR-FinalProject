@@ -90,8 +90,8 @@ classdef FileADAT < handle
 %                     error("Wrong input!");
 %             end
             
-            D1 = 20;
-            D2 = 20;
+            D1 = 50;
+            D2 = 50;
             obj.dim = [D1; D2];
             
             obj.Sstart = [1; 1];

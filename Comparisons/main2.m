@@ -52,6 +52,7 @@ end
 %% MAIN
 D1 = initParams.dim(1);
 D2 = initParams.dim(2);
+numObs = round(D1*D2/10);
 epoch = 20;%double(input("How many epochs: "));
 
 initParams.Na = 4;
@@ -63,8 +64,8 @@ for currEpoch=1:epoch
     disp(newline+"<──- Epoch: <strong>"+num2str(currEpoch)+"/"+num2str(epoch)...
         +"</strong> ──->");
 
-    globalObstacles = zeros(2, round(D1*D2/4));
-    for i=1:round(D1*D2/4) % 2)
+    globalObstacles = zeros(2, numObs);
+    for i=1:numObs
         x = round(mod(rand*D1, D1))+1;
         y = round(mod(rand*D2, D2))+1;
 
@@ -121,7 +122,7 @@ for currEpoch=1:epoch
         infosAlgo(currEpoch, i).initTime = tocTime;
 %         disp("└──-Inizialization terminated in: <strong>"+string(tocTime)+...
 %             "</strong> s");
-        
+%         
 %         disp("Execution");
         tic
         finalPath = currAlgo.run();

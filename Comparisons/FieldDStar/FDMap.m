@@ -41,20 +41,6 @@ classdef FDMap < handle
     methods
         % FDMap constructor
         function obj = FDMap(row, col, obstacles, type, cost)
-            arguments
-                % num of map's rows
-                row
-                % num of map's cols
-                col
-                % matrix 2 x N list of obstacles
-                % | x1, x2, x3, ...
-                % | y1, y2, y3, ...
-                obstacles
-                % type of the non obstacles tiles
-                type = FDMap.TYPE_UNKNOWN
-                % cost of a step
-                cost = 1;
-            end
             obj.row = row;
             obj.col = col;
             obj.cost = cost;

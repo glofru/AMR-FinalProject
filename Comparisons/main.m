@@ -83,11 +83,15 @@ for currEpoch=1:epoch
     end
     
     switch initParams.typeAlgo
-        case 1
+        case FileADAT.ALGO_DS
             map = Map(D1, D2, globalObstacles);
             map.map(initParams.Sstart(1), initParams.Sstart(2)).state = MapState.START;
             map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = MapState.GOAL;
-        otherwise
+        case {FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2}
+            map = Map(D1, D2, globalObstacles, Map.TYPE_KNOWN, 1); % TODO cost
+            map.map(initParams.Sstart(1), initParams.Sstart(2)).state = State.START;
+            map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = State.GOAL;
+        case FileADAT.ALGO_FDS
             map = Map(D1, D2, globalObstacles, Map.TYPE_KNOWN, 1); % TODO cost
             map.map(initParams.Sstart(1), initParams.Sstart(2)).state = State.START;
             map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = State.GOAL;

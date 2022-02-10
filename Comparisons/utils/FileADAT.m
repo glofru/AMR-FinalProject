@@ -71,37 +71,37 @@ classdef FileADAT < handle
         function obj = constSTD()
             obj = FileADAT();
             
-            disp("Which search algorithm?"+newline+...
-                 "    1) D*"+newline+...
-                 "    2) D*Lite v1"+newline+...
-                 "    3) D*Lite v2"+newline+...
-                 "    4) Field D*"+newline)
-            algorithmType = input('search algorithm: ');
-            switch algorithmType
-                case 1
-                    obj.typeAlgo = FileADAT.ALGO_DS;
-                case 2
-                    obj.typeAlgo = FileADAT.ALGO_DSL_V1;
-                case 3
-                    obj.typeAlgo = FileADAT.ALGO_DSL_V2;
-                case 4
-                    obj.typeAlgo = FileADAT.ALGO_FDS;
-                otherwise
-                    error("Wrong input!");
-            end
+%             disp("Which search algorithm?"+newline+...
+%                  "    1) D*"+newline+...
+%                  "    2) D*Lite v1"+newline+...
+%                  "    3) D*Lite v2"+newline+...
+%                  "    4) Field D*"+newline)
+%             algorithmType = input('search algorithm: ');
+%             switch algorithmType
+%                 case 1
+%                     obj.typeAlgo = FileADAT.ALGO_DS;
+%                 case 2
+%                     obj.typeAlgo = FileADAT.ALGO_DSL_V1;
+%                 case 3
+%                     obj.typeAlgo = FileADAT.ALGO_DSL_V2;
+%                 case 4
+%                     obj.typeAlgo = FileADAT.ALGO_FDS;
+%                 otherwise
+%                     error("Wrong input!");
+%             end
             
-            D1 = 10;
-            D2 = 10;
+            D1 = 20;
+            D2 = 20;
             obj.dim = [D1; D2];
             
             obj.Sstart = [1; 1];
             obj.Sgoal = [D1; D2];
             obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
-            obj.Na = 3;
+            obj.Na = 4;
 
-            obj.ranges = [2   2   2];
-            obj.costs  = [0.1 0.5 0.9];
+            obj.ranges = ones(1, obj.Na) * 2;
+            obj.costs  = ones(1, obj.Na) * 0.1;
         end
         
         function obj = getFromFile(fid)
@@ -178,3 +178,5 @@ classdef FileADAT < handle
         end
     end
 end
+
+

@@ -62,3 +62,5 @@ function [initParams, infosAlgo] = loadDataFromADAT(inputPath, inputFile)
         rethrow(ME);
     end
 end
+
+

@@ -1,4 +1,4 @@
-classdef State < handle
+classdef DSLState < handle
     %
     %
     
@@ -36,8 +36,8 @@ classdef State < handle
     end
 
     methods
-        % State constructor
-        function obj = State(x, y, state, cost)
+        % DSLState constructor
+        function obj = DSLState(x, y, state, cost)
             arguments
                 % x coord
                 x
@@ -45,7 +45,7 @@ classdef State < handle
                 y
                 
                 % state of this cell
-                state {} = State.UNKNOWN
+                state {} = DSLState.UNKNOWN
                 % cost of a step
                 cost = 1
             end
@@ -95,23 +95,23 @@ classdef State < handle
         % return the color of the state
         function color = getColor(obj)
             switch obj.state
-                case State.OBSTACLE % "█"
+                case DSLState.OBSTACLE % "█"
                     color = [0, 0, 0];
-                case State.UNKNOWN % "▓"
+                case DSLState.UNKNOWN % "▓"
                     color = [255, 120, 120];
-                case State.EMPTY % "░"
+                case DSLState.EMPTY % "░"
                     color = [255, 255, 255];
 
-                case State.START % "ⓢ"
+                case DSLState.START % "ⓢ"
                     color = [120, 0, 120];
-                case State.GOAL % "♛"
+                case DSLState.GOAL % "♛"
                     color = [255, 0, 0];
-                case State.POSITION % "☺"
+                case DSLState.POSITION % "☺"
                     color = [0, 0, 255];
 
-                case State.VISITED % "╬"
+                case DSLState.VISITED % "╬"
                     color = [0, 255, 0];
-                case State.PATH % "≡"
+                case DSLState.PATH % "≡"
                     color = [255, 0, 0];
             end
         end

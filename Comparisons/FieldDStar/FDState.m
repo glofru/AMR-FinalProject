@@ -1,4 +1,4 @@
-classdef State < handle
+classdef FDState < handle
     %
     %
     
@@ -36,8 +36,8 @@ classdef State < handle
     end
 
     methods
-        % State constructor
-        function obj = State(x, y, state, cost)
+        % FDState constructor
+        function obj = FDState(x, y, state, cost)
             arguments
                 % x coord
                 x
@@ -45,7 +45,7 @@ classdef State < handle
                 y
                 
                 % state of this cell
-                state {} = State.UNKNOWN
+                state {} = FDState.UNKNOWN
                 % cost of a step
                 cost = 1
             end
@@ -127,23 +127,23 @@ classdef State < handle
         % return the color of the state
         function color = getColor(obj)
             switch obj.state
-                case State.OBSTACLE % "█"
+                case FDState.OBSTACLE % "█"
                     color = [0, 0, 0];
-                case State.UNKNOWN % "▓"
+                case FDState.UNKNOWN % "▓"
                     color = [255, 120, 120];
-                case State.EMPTY % "░"
+                case FDState.EMPTY % "░"
                     color = [255, 255, 255];
 
-                case State.START % "ⓢ"
+                case FDState.START % "ⓢ"
                     color = [120, 0, 120];
-                case State.GOAL % "♛"
+                case FDState.GOAL % "♛"
                     color = [255, 0, 0];
-                case State.POSITION % "☺"
+                case FDState.POSITION % "☺"
                     color = [0, 0, 255];
 
-                case State.VISITED % "╬"
+                case FDState.VISITED % "╬"
                     color = [0, 255, 0];
-                case State.PATH % "≡"
+                case FDState.PATH % "≡"
                     color = [255, 0, 0];
             end
         end

@@ -31,7 +31,7 @@ classdef D_Star < handle
 
 
             % initialize map
-            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col, obstacles);
+            obj.localMap = DMap(obj.globalMap.row, obj.globalMap.col, obstacles);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
             obj.currPos.state = MapState.START;
@@ -46,7 +46,7 @@ classdef D_Star < handle
             obj.totSteps = 0;
             obj.totStepsList = [];
             obj.pathLength = 0;
-            obj.maxLenghtFinalPath = (obj.globalMap.row+obj.globalMap.col)*2;
+            obj.maxLenghtFinalPath = (obj.globalMap.row+obj.globalMap.col)*4;
 
             % first scan and path computation
             obj.updateMap();
@@ -136,8 +136,8 @@ classdef D_Star < handle
 
             obj.updateMap()
 
-            obj.localMap.plot();
-            pause(0.25); % because otherwise matlab doesn't update the plot
+            %obj.localMap.plot();
+            %pause(0.25); % because otherwise matlab doesn't update the plot
 
             % update graph
             if obj.currPos.parent.state == MapState.OBSTACLE

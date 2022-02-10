@@ -1,4 +1,4 @@
-classdef Map < handle
+classdef FDMap < handle
     %
     %
     
@@ -27,11 +27,11 @@ classdef Map < handle
     
     methods(Access=private)
         function init_map(obj, chr)
-            obj.map = State.empty(1, 0);
+            obj.map = FDState.empty(1, 0);
             for i=1:obj.row
-                tmp = State.empty(0, 1);
+                tmp = FDState.empty(0, 1);
                 for j=1:obj.col
-                    tmp(j) = State(i, j, chr, obj.cost);
+                    tmp(j) = FDState(i, j, chr, obj.cost);
                 end
                 obj.map = [obj.map; tmp];
             end
@@ -39,8 +39,8 @@ classdef Map < handle
     end
 
     methods
-        % Map constructor
-        function obj = Map(row, col, obstacles, type, cost)
+        % FDMap constructor
+        function obj = FDMap(row, col, obstacles, type, cost)
             arguments
                 % num of map's rows
                 row
@@ -51,7 +51,7 @@ classdef Map < handle
                 % | y1, y2, y3, ...
                 obstacles
                 % type of the non obstacles tiles
-                type = Map.TYPE_UNKNOWN
+                type = FDMap.TYPE_UNKNOWN
                 % cost of a step
                 cost = 1;
             end
@@ -60,10 +60,10 @@ classdef Map < handle
             obj.cost = cost;
             
             switch type
-                case Map.TYPE_KNOWN
-                    obj.init_map(State.EMPTY);
-                case Map.TYPE_UNKNOWN
-                    obj.init_map(State.UNKNOWN);
+                case FDMap.TYPE_KNOWN
+                    obj.init_map(FDState.EMPTY);
+                case FDMap.TYPE_UNKNOWN
+                    obj.init_map(FDState.UNKNOWN);
                 otherwise
                     error("Wrong Map Type!")
             end
@@ -71,7 +71,7 @@ classdef Map < handle
             obj.obstacles = obstacles;
             for point = obj.obstacles
                 if obj.isInside(point(1), point(2))
-                    obj.map(point(1), point(2)).state = State.OBSTACLE;
+                    obj.map(point(1), point(2)).state = FDState.OBSTACLE;
                 end
             end
         end
@@ -92,7 +92,7 @@ classdef Map < handle
         
         % check if (x, y) is an obstacle
         function res = isObstacle(obj, x, y)
-            res = (obj.map(x, y).state == State.OBSTACLE);
+            res = (obj.map(x, y).state == FDState.OBSTACLE);
         end
         
         

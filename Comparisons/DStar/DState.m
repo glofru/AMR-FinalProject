@@ -1,4 +1,4 @@
-classdef State < handle
+classdef DState < handle
     properties (SetAccess = private)
         x
         y
@@ -14,14 +14,14 @@ classdef State < handle
     end
 
     methods
-        function obj = State(x, y)
+        function obj = DState(x, y)
             arguments
                 x {}
                 y {}
             end
             obj.x = x;
             obj.y = y;
-            obj.parent = State.empty;
+            obj.parent = DState.empty;
             obj.state = MapState.EMPTY;
             obj.tag = StateTag.NEW;
             

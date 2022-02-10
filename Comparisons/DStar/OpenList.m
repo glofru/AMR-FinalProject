@@ -60,7 +60,7 @@ classdef OpenList < handle
         end
 
         function s = min_state(obj)
-            s = State.empty;
+            s = DState.empty(1, 0);
             if ~isempty(obj.actualList)
                 k = Inf;
                 for e=obj.actualList

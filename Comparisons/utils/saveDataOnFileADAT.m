@@ -88,3 +88,5 @@ function saveDataOnFileADAT(outputPath, initParams, infosAlgo, outputFile)
         rethrow(ME);
     end
 end
+
+

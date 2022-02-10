@@ -1,4 +1,4 @@
-classdef PriorityQueue < handle
+classdef FDPriorityQueue < handle
     %
     %
     
@@ -8,9 +8,9 @@ classdef PriorityQueue < handle
     end
     
     methods
-        % PriorityQueue constructor
-        function obj = PriorityQueue()
-            obj.queue = State.empty(1, 0);
+        % FDPriorityQueue constructor
+        function obj = FDPriorityQueue()
+            obj.queue = FDState.empty(1, 0);
         end
         
         
@@ -51,8 +51,8 @@ classdef PriorityQueue < handle
                 obj.queue(end+1) = s;
                 
                 % TODO
-                if s.state == State.UNKNOWN || s.state == State.EMPTY
-                    s.state = State.VISITED;
+                if s.state == FDState.UNKNOWN || s.state == FDState.EMPTY
+                    s.state = FDState.VISITED;
                 end
             end
         end

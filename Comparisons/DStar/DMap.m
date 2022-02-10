@@ -1,5 +1,7 @@
-classdef Map < handle
-    % Class to keep and work with the map
+classdef DMap < handle
+    %
+    %
+    
     properties
         % num of map's rows
         row %double {mustBePositive, mustBeInteger}
@@ -12,11 +14,11 @@ classdef Map < handle
     
     methods (Access = private)
         function init_map(obj)
-            obj.map = State.empty(1, 0);
+            obj.map = DState.empty(1, 0);
             for i=1:obj.row
-                tmp = State.empty(0, 1);
+                tmp = DState.empty(0, 1);
                 for j=1:obj.col
-                    tmp(j) = State(i, j);
+                    tmp(j) = DState(i, j);
                 end
                 obj.map = [obj.map; tmp];
             end
@@ -24,8 +26,8 @@ classdef Map < handle
     end
 
     methods
-        % map constructor
-        function obj = Map(row, col, obstacles)
+        % DMap constructor
+        function obj = DMap(row, col, obstacles)
             arguments
                 % num of map's rows
                 row %double {mustBePositive, mustBeInteger}
@@ -103,7 +105,7 @@ classdef Map < handle
                 X {}
                 moves {} = [[1, 0], [1, 1], [0, 1], [-1, 0], [-1, -1], [0, -1], [-1, 1], [1, -1]];
             end
-            s = [State.empty];
+            s = DState.empty(1, 0);
             
             for m=moves
                 x = X.x + m(1);
@@ -126,7 +128,7 @@ classdef Map < handle
         end
 
         % generate the map image
-        function rgbImage = buildImage(obj, highlightedState)
+        function rgbImage = buildImageMap(obj)
             rgbImage = zeros(obj.row, obj.col, 3) + 255;
 
             for i = 1:obj.row
@@ -144,12 +146,6 @@ classdef Map < handle
                     end
                 end
             end
-
-            tmp = highlightedState;
-            while size(tmp, 1) ~= 0 && tmp.state ~= MapState.GOAL
-                rgbImage(tmp.x, tmp.y, :) = MapState.PATH.getColor();
-                tmp = tmp.parent;
-            end
         end
 
 
@@ -157,9 +153,9 @@ classdef Map < handle
         function plot(obj, highlightedState)
             arguments
                 obj {}
-                highlightedState {} = State.empty
+                highlightedState {} = DState.empty(1, 0)
             end
-            J = obj.buildImage(highlightedState);
+            J = obj.buildImageMap(highlightedState);
             %J = imrotate(rgbImage,90);
             %J = imresize( J , 100);
             imshow(J, 'InitialMagnification', 1000);

@@ -41,26 +41,10 @@ classdef D_star_lite_v1 < handle
         % D_star_lite_v1 constructor
         function obj = D_star_lite_v1(globalMap, obstacles, Sstart, Sgoal,...
                 moves, range, cost)
-            arguments
-                % Map having global knowledge
-                globalMap
-                % set of obstacles known
-                obstacles
-                % start position
-                Sstart
-                % goal position
-                Sgoal
-                % set of moves that the algorithm can do
-                moves
-                % range of the scan
-                range = 1;
-                % cost of a step
-                cost = 1;
-            end
             % copy vals
             obj.globalMap = globalMap;
             obj.moves = moves;
-            obj.U = PriorityQueue();
+            obj.U = DSLPriorityQueue();
             obj.newObstacles = [];
             obj.range = range;
             obj.cost = cost;
@@ -70,16 +54,16 @@ classdef D_star_lite_v1 < handle
             obj.totSteps = 0;
             obj.totStepsList = [];
             obj.pathLength = 0;
-            obj.maxLengthFinalPath = (obj.globalMap.row+obj.globalMap.col)*2;
+            obj.maxLengthFinalPath = (obj.globalMap.row+obj.globalMap.col)*4;
             
             % inizialize map
-            obj.localMap = Map(obj.globalMap.row, obj.globalMap.col,...
-                obstacles, Map.TYPE_UNKNOWN, cost);
+            obj.localMap = DSLMap(obj.globalMap.row, obj.globalMap.col,...
+                obstacles, DSLMap.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
-            obj.currPos.state = State.POSITION;
+            obj.currPos.state = DSLState.POSITION;
             obj.goal = obj.localMap.map(Sgoal(1), Sgoal(2));
-            obj.goal.state = State.GOAL;
+            obj.goal.state = DSLState.GOAL;
             
             obj.goal.rhs = 0;
             obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos));
@@ -120,65 +104,52 @@ classdef D_star_lite_v1 < handle
 
             for i=-r:r
                 for j=-r:r
-                    if obj.localMap.isInside(is+i, js+j)
-                        chr = obj.globalMap.map(is+i, js+j).state;
+                    newX = is+i;
+                    newY = js+j;
+                    if obj.localMap.isInside(newX, newY)
+                        chr = obj.globalMap.map(newX, newY).state;
                             
-                        if chr == State.OBSTACLE
-                            obj.localMap.map(is+i, js+j).state = chr;
-                            
-                            new_obs = [is+i, js+j];
-                            if ~isAlredyIn(obj.localMap.obstacles, new_obs')
-                                obj.localMap.obstacles(:, end+1) = new_obs';
-                                obj.newObstacles(:, end+1) = new_obs';
+                        if chr == DSLState.OBSTACLE
+                            if obj.localMap.map(newX, newY).state ~= chr
+                                obj.localMap.map(newX, newY).state = chr;
+                                new_obs = [newX, newY]';
+                                obj.localMap.obstacles(:, end+1) = new_obs;
+                                obj.newObstacles(:, end+1) = new_obs;
                                 isChanged = true;
                             end
                         end
                     end
                 end
             end
-            obj.currPos.state = State.POSITION;
+            obj.currPos.state = DSLState.POSITION;
         end
         
         % return the set of predecessor states of the state u
         function Lp = predecessor(obj, u)
-            Lp = State.empty(length(obj.moves), 0);
+            Lp = DSLState.empty(length(obj.moves), 0);
             currI = 1;
             for m=obj.moves
-                pred_pos = [u.x; u.y]+m;
+                x = u.x + m(1);
+                y = u.y + m(2);
 
-                if ~obj.localMap.isInside(pred_pos(1), pred_pos(2))
-                    continue
-                end
-
-                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                if  obj_pos.state ~= State.OBSTACLE
-                    % TODO ottimizzare
-                    if ~isAlredyIn(Lp, obj_pos)
-                        Lp(currI) = obj_pos;
-                        currI = currI+1;
-                    end
+                if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
+                    Lp(currI) = obj.localMap.map(x, y);
+                    currI = currI+1;
                 end
             end
         end
         
         % return the set of successor states of the state u
         function Ls = successor(obj, u)
-            Ls = State.empty(length(obj.moves), 0);
+            Ls = DSLState.empty(length(obj.moves), 0);
             currI = 1;
             for m=obj.moves
-                pred_pos = [u.x; u.y]+m;
+                x = u.x + m(1);
+                y = u.y + m(2);
 
-                if ~obj.localMap.isInside(pred_pos(1), pred_pos(2))
-                    continue
-                end
-
-                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                if obj_pos.state ~= State.OBSTACLE
-                    % TODO ottimizzare
-                    if ~isAlredyIn(Ls, obj_pos)
-                        Ls(currI) = obj_pos;
-                        currI = currI+1;
-                    end
+                if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
+                    Ls(currI) = obj.localMap.map(x, y);
+                    currI = currI+1;
                 end
             end
         end
@@ -191,7 +162,6 @@ classdef D_star_lite_v1 < handle
 
             if obj.U.has(u)
                 obj.U.remove(u);
-                obj.expCells = obj.expCells-1;
             end
 
             if u.g ~= u.rhs
@@ -202,18 +172,24 @@ classdef D_star_lite_v1 < handle
         
         % compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
-            while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
+            while true
+                [u, k] = obj.U.top();
+                if ~(min2(k, obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
+                    return
+                end
                 
                 obj.totSteps = obj.totSteps+1;
                 
-                % obj.localMap.plotMap(); % commented for fast plot
-                u = obj.U.pop();
+                %obj.localMap.plot(); % commented for fast plot
+                %pause(0.1);
+                
+                obj.U.remove(u);
                 
                 % TODO
-                if u.state == State.UNKNOWN || u.state == State.EMPTY || ...
-                        u.state == State.VISITED
-                    u.state = State.START;
+                if u.state == DSLState.UNKNOWN || u.state == DSLState.EMPTY || ...
+                        u.state == DSLState.VISITED
+                    u.state = DSLState.START;
                 end
 
                 if (u.g > u.rhs)
@@ -235,7 +211,7 @@ classdef D_star_lite_v1 < handle
         % update the cost of all the cells needed when new obstacles are
         % discovered
         function updateEdgesCost(obj)
-            updateCells = PriorityQueue();
+            updateCells = DSLPriorityQueue();
             for o=obj.newObstacles
                 oState = obj.localMap.map(o(1), o(2));
 
@@ -264,10 +240,25 @@ classdef D_star_lite_v1 < handle
                     pred = obj.predecessor(s);
 
                     for p=pred
-                        if ~updateCells.has(p)
+                        %if ~updateCells.has(p)
                             updateCells.insert(p, p.calcKey(obj.currPos));
-                        end
+                        %end
                     end
+                end
+            end
+        end
+        
+        % return the set of successor states of the state u
+        function Ls = successor2(obj, u)
+            Ls = DSLState.empty(length(obj.moves), 0);
+            currI = 1;
+            for m=obj.moves
+                x = u.x + m(1);
+                y = u.y + m(2);
+
+                if obj.localMap.isInside(x, y)
+                    Ls(currI) = obj.localMap.map(x, y);
+                    currI = currI+1;
                 end
             end
         end
@@ -276,20 +267,26 @@ classdef D_star_lite_v1 < handle
         % compute one step from the current position
         function step(obj)
             obj.pathLength = obj.pathLength+1;
-
-            %move to minPos
-            obj.currPos.state = State.PATH; % TODO
-            [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
+            
+            % move to minPos
+            obj.currPos.state = DSLState.PATH; % TODO
+            [~, nextState] = minVal(obj.currPos, obj.successor2(obj.currPos));
 
             % scan graph
             isChanged = obj.updateMap();
 
+            %obj.localMap.plot();
+            %pause(0.25); % because otherwise matlab doesn't update the plot
+
             % update graph
-            if isChanged
+            if nextState.state == DSLState.OBSTACLE %isChanged
                 % TODO optimize
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
             end
+            
+            obj.currPos.state = DSLState.PATH; % TODO
+            [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
             
             obj.expCellsList = [obj.expCellsList, obj.expCells];
             obj.totStepsList = [obj.totStepsList, obj.totSteps];

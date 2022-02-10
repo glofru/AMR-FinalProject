@@ -190,7 +190,12 @@ classdef D_Star < handle
                     if obj.localMap.isInside(newX, newY)
                         s = obj.globalMap.map(newX, newY).state;
                         if s == MapState.OBSTACLE
-                            obj.localMap.map(newX, newY).state = s;
+                            state = obj.localMap.map(newX, newY);
+                            if state.state ~= s
+                                state.h = Inf;
+                                state.k = Inf;
+                                state.state = s;
+                            end
                         end
                     end
                 end

@@ -134,7 +134,7 @@ classdef Map < handle
                     state = obj.map(i, j).state;
                     tag = obj.map(i, j).tag;
 
-                    if state == MapState.START || state == MapState.GOAL...
+                    if state == MapState.CURPOS || state == MapState.START || state == MapState.GOAL...
                             || state == MapState.PATH || state == MapState.OBSTACLE
                         rgbImage(i, j, :) = state.getColor();
                     elseif tag == StateTag.OPEN || tag == StateTag.CLOSED

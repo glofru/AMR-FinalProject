@@ -242,7 +242,7 @@ classdef Field_D_star < handle
             %end
 
             while ~updateCells.isEmpty()
-                [s, k_old] = updateCells.pop();
+                [s, k_old] = updateCells.extract(1);
                 obj.updateState(s);
                 k = s.calcKey(obj.currPos);
                 if ~(k == k_old)

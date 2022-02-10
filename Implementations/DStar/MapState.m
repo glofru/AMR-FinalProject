@@ -5,6 +5,7 @@ classdef MapState
         EMPTY
         
         START
+        CURPOS
         GOAL
         
         PATH
@@ -20,6 +21,8 @@ classdef MapState
                     chr = "░";
                 case MapState.START
                     chr = "ⓢ";
+                case MapState.CURPOS
+                    chr = "a";
                 case MapState.GOAL
                     chr = "♛";
                 case MapState.PATH
@@ -39,6 +42,8 @@ classdef MapState
                     color= [255, 255, 255];
                 case MapState.START % "ⓢ"
                     color = [120, 0, 120];
+                case MapState.CURPOS % "a"
+                    color = [120, 120, 0];
                 case MapState.GOAL % "♛"
                     color = [120, 0, 0];
                 case MapState.PATH % "≡"

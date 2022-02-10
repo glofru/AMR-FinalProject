@@ -36,16 +36,18 @@ classdef D_Star < handle
             obj.updateMap();
             obj.computeShortestPath();
         end
-
+        
+        
         function process_state(obj)
             X = obj.open_list.min_state();
             if isempty(X)
-                error("Path not found")
+                error("Path not found") % TODO
             end
             Kold = X.k;
             obj.open_list.remove(X);
             
             %obj.localMap.plot(X); % comment for fast plot
+            %pause(0.1);
             
             succ = obj.localMap.neighbors(X, obj.moves);
             if Kold < X.h
@@ -105,14 +107,17 @@ classdef D_Star < handle
         end
 
         function step(obj)
-            obj.currPos.state = MapState.PATH;
-
             obj.updateMap()
 
-            obj.localMap.plot();
-            pause(0.25); % because otherwise matlab doesn't update the plot
-
+            obj.currPos.state = MapState.PATH;
+            
             % update graph
+            
+            if isempty(obj.currPos.parent.state)
+                disp("no poss path")
+                return
+            end
+            
             if obj.currPos.parent.state == MapState.OBSTACLE
                 obj.modify_cost(obj.currPos)
                 return
@@ -120,6 +125,10 @@ classdef D_Star < handle
 
             % goes forward
             obj.currPos = obj.currPos.parent;
+            obj.currPos.state = MapState.CURPOS;
+            
+            obj.localMap.plot();
+            pause(0.25); % because otherwise matlab doesn't update the plot
         end
 
         function run(obj)
@@ -148,7 +157,12 @@ classdef D_Star < handle
                     if obj.localMap.isInside(newX, newY)
                         s = obj.globalMap.map(newX, newY).state;
                         if s == MapState.OBSTACLE
-                            obj.localMap.map(newX, newY).state = s;
+                            state = obj.localMap.map(newX, newY);
+                            if state.state ~= s
+                                state.h = Inf;
+                                state.k = Inf;
+                                state.state = s;
+                            end
                         end
                     end
                 end

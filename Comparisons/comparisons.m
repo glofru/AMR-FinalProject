@@ -33,13 +33,12 @@ end
 figure
 num = ceil(sqrt(initParams.Na));
 
-costs = [];
+costs = initParams.costs;
 for i=1:initParams.Na
     subplot(num, num, i)
     colormap('hot')
     imagesc(reshape(heatMap(i, :, :), [initParams.dim(1), initParams.dim(2)]))
     colorbar
-    costs(end+1) = initParams.costs(i);
     title("Range="+num2str(initParams.ranges(i))+...
         " Cost="+num2str(costs(i)))
 end
@@ -110,34 +109,34 @@ subplot(1, 5, 1)
 bar(mean(initTimes4Epoch))
 title("Initialization time")
 grid on;
-xlabel("Epoch")
+xlabel("Algorithm")
 ylabel("Time (s)")
 
 subplot(1, 5, 2)
 bar(mean(computationTimes4Epoch))
 title("Running time")
-xlabel("Epoch")
+xlabel("Algorithm")
 ylabel("Time (s)")
 grid on;
 
 subplot(1, 5, 3)
 bar(mean(expCells4Epoch))
 title("Explored cells")
-xlabel("Epoch")
+xlabel("Algorithm")
 ylabel("Number of cells")
 grid on;
 
 subplot(1, 5, 4)
 bar(mean(totSteps4Epoch))
 title("Total algorithm steps")
-xlabel("Epoch")
+xlabel("Algorithm")
 ylabel("Number of steps")
 grid on;
 
 subplot(1, 5, 5)
 bar(mean(pathLength4Epoch))
 title("Path Length")
-xlabel("Epoch")
+xlabel("Algorithm")
 ylabel("Path length")
 grid on;
 
@@ -150,34 +149,34 @@ subplot(1, 5, 1)
 boxplot(initTimes4Epoch)
 title("Initialization time")
 grid on;
-xlabel("Epoch")
+xlabel("Algorithm")
 ylabel("Time (s)")
 
 subplot(1, 5, 2)
 boxplot(computationTimes4Epoch)
 title("Running time")
-xlabel("Epoch")
+xlabel("Algorithm")
 ylabel("Time (s)")
 grid on;
 
 subplot(1, 5, 3)
 boxplot(expCells4Epoch)
 title("Explored cells")
-xlabel("Epoch")
+xlabel("Algorithm")
 ylabel("Number of cells")
 grid on;
 
 subplot(1, 5, 4)
 boxplot(totSteps4Epoch)
 title("Total algorithm steps")
-xlabel("Epoch")
+xlabel("Algorithm")
 ylabel("Number of steps")
 grid on;
 
 subplot(1, 5, 5)
 boxplot(pathLength4Epoch)
 title("Path length")
-xlabel("Epoch")
+xlabel("Algorithm")
 ylabel("Path length")
 grid on;
 

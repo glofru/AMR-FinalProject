@@ -160,7 +160,6 @@ classdef Field_D_star < handle
             end
         end
         
-        
         % update vertex u
         function updateState(obj, s)
             if s ~= obj.goal

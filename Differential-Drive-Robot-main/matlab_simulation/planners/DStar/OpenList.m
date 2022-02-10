@@ -76,7 +76,7 @@ classdef OpenList < handle
         function [k, s] = min_state(obj)
             if isempty(obj.actualList)
                 k = -1;
-                s = State.empty;
+                s = State.empty(1, 0);
             else
                 k = Inf;
                 for e=obj.actualList

@@ -11,7 +11,8 @@ disp("Which search algorithm?"+newline+...
      "    2) D*Lite v1"+newline+...
      "    3) D*Lite v2"+newline+...
      "    4) D*Lite v2 optimized"+newline+...
-     "    5) Field D*"+newline)
+     "    5) Field D*"+newline+...
+     "    6) Field D* optimized"+newline)
 algorithmType = input('search algorithm: ');
 
 D1 = 25;
@@ -50,6 +51,8 @@ while execute
             addpath('./DStarLite')
         case 5
             addpath('./FieldDStar')
+        case 6
+            addpath('./FieldDStar')
         otherwise
             error("Wrong input!");
     end
@@ -83,11 +86,15 @@ while execute
         case 5
             algorithm = Field_D_star(map, obstacles, Sstart, Sgoal, moves,...
                 range, cost);
+        case 6
+            algorithm = Field_D_star_opt(map, obstacles, Sstart, Sgoal, moves,...
+                range, cost);
     end
     
     disp('Inizialization terminated in: '+string(toc)+' s'+newline);
     disp("Global Map and Algorithm Initial Map!");
     
+    set(gcf, 'Position', [400 200 1000 400]);
     ax1 = subplot(1, 2, 1);
     map.plot();
     title(ax1, "Global Map")

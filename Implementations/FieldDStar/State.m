@@ -33,6 +33,9 @@ classdef State < handle
         
         % key pair
         k
+        
+        
+        bptr
     end
 
     methods
@@ -56,6 +59,9 @@ classdef State < handle
             
             obj.g = Inf;
             obj.rhs = Inf;
+            
+            
+            obj.bptr = State.empty(1, 0);
         end
         
         
@@ -77,10 +83,51 @@ classdef State < handle
             res = obj.cost * norm([obj.x - s.x, obj.y - s.y]);
         end
         
+        % s, sa, sb are neighbourds
+        % c is the traversal cost of the center cell
+        % b is the traversal cost of the bottom cell
+        function vs = computeCost(obj, sa, sb)
+            if (obj.x ~= sa.x && obj.y ~= sa.y)
+                s1 = sa;
+                s2 = sb;
+            else
+                s1 = sb;
+                s2 = sa;
+            end
+            
+            c = obj.c(sa);
+            b = obj.c(sb);
+            
+            if (min(c,b) == inf)
+                vs = inf;
+            elseif (s1.g <= s2.g)
+                vs = min(c, b) + s1.g;
+            else
+                f = s1.g - s2.g;
+                
+                if (f <= b)
+                    if (c <= f)
+                        vs = c*sqrt(2) + s2.g;
+                    else
+                        Y = min(f/(sqrt(c^2-f^2)), 1);
+                        vs = c*sqrt(1+Y^2)+f*(1-Y)+s2.g;
+                    end
+                else
+                    if (c <= b)
+                        vs = c*sqrt(2)+s2.g;
+                    else
+                        X = 1-min(b/(sqrt(c^2-b^2)), 1);
+                        vs = c*sqrt(1+(1-X)^2)+b*X+s2.g;
+                    end
+                end
+            end
+        end
+        
         
         % check if 2 states are equal
         function e = eq(obj, s)
-            e = (obj.x == s.x && obj.y == s.y);
+            e = ~isempty(obj) && ~isempty(s) && ...
+                (obj.x == s.x && obj.y == s.y);
         end
         
         

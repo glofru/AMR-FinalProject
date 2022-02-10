@@ -195,8 +195,8 @@ classdef Field_D_star < handle
                 s2 = sa;
             end
             
-            c = 1;
-            b = 0.5;
+            c = s.c(sa);
+            b = s.c(sb);
             
             if (min(c,b) == inf)
                 vs = inf;

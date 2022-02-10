@@ -18,7 +18,7 @@ classdef Field_D_star < handle
         % cost of a step
         cost;
         % priority queue
-        U;
+        OPEN;
         % set of new obstacles discovered
         newObstacles;
     end
@@ -46,7 +46,7 @@ classdef Field_D_star < handle
             % copy vals
             obj.globalMap = globalMap;
             obj.moves = moves;
-            obj.U = PriorityQueue();
+            obj.OPEN = PriorityQueue();
             obj.newObstacles = [];
             obj.range = range;
             obj.cost = cost;
@@ -61,7 +61,7 @@ classdef Field_D_star < handle
             obj.goal.state = State.GOAL;
             
             obj.goal.rhs = 0;
-            obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos));
+            obj.OPEN.insert(obj.goal, obj.goal.calcKey(obj.currPos));
 
             % first scan
             obj.updateMap();
@@ -160,98 +160,59 @@ classdef Field_D_star < handle
             end
         end
         
-        % s, sa, sb are neighbourds
-        % c is the traversal cost of the center cell
-        % b is the traversal cost of the bottom cell
-        function vs = computeCost(obj, s, sa, sb)
-            if (s.x ~= sa.x && s.y ~= sa.y)
-                s1 = sa;
-                s2 = sb;
-            else
-                s1 = sb;
-                s2 = sa;
-            end
-            
-            c = 1;
-            b = 0.5;
-            
-            if (min(c,b) == inf)
-                vs = inf;
-            elseif (s1.g <= s2.g)
-                vs = min(c, b) + s1.g;
-            else
-                f = s1.g - s2.g;
-                
-                if (f <= b)
-                    if (c <= f)
-                        vs = c*sqrt(2) + s2.g;
-                    else
-                        y = min(f/(sqrt(c^2-f^2)), 1);
-                        vs = c*sqrt(1+y^2)+f*(1-y)+s2.g;
-                    end
-                else
-                    if (c <= b)
-                        vs = c*sqrt(2)+s2.g;
-                    else
-                        x = 1-min(b/(sqrt(c^2-b^2)), 1);
-                        vs = c*sqrt(1+(1-x)^2)+b*x+s2.g;
-                    end
-                end
-            end
-        end
         
         % update vertex u
-        function updateVertex(obj, u)
-            if u ~= obj.goal
+        function updateState(obj, s)
+            if s ~= obj.goal
                 minV = inf;
-                connbrs = obj.successor(u);
+                connbrs = obj.successor(s);
                 for i=[1:length(connbrs); 2:length(connbrs), 1]
                     
                     s1 = connbrs(i(1));
                     s2 = connbrs(i(2));
-                    curr = obj.computeCost(u, s1, s2);
+                    curr = s.computeCost(s1, s2);
                     if curr < minV
                         minV = curr;
                     end
                 end
-                u.rhs = minV;
+                s.rhs = minV;
             end
 
-            if obj.U.has(u)
-                obj.U.remove(u);
+            if obj.OPEN.has(s)
+                obj.OPEN.remove(s);
             end
 
-            if u.g ~= u.rhs
-                obj.U.insert(u, u.calcKey(obj.currPos));
+            if s.g ~= s.rhs
+                obj.OPEN.insert(s, s.calcKey(obj.currPos));
             end
         end
         
         % compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
-            while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
+            while (min2(obj.OPEN.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                 
                 %obj.localMap.plot(); % comment for fast plot
                 %pause(0.1)
-                u = obj.U.pop();
+                s = obj.OPEN.pop();
                 
                 % TODO
-                if u.state == State.UNKNOWN || u.state == State.EMPTY || ...
-                        u.state == State.VISITED
-                    u.state = State.START;
+                if s.state == State.UNKNOWN || s.state == State.EMPTY || ...
+                        s.state == State.VISITED
+                    s.state = State.START;
                 end
 
-                if (u.g > u.rhs)
-                    u.g = u.rhs;
-                    pred = obj.predecessor(u);
-                    for p=pred
-                        obj.updateVertex(p);
+                if (s.g > s.rhs)
+                    s.g = s.rhs;
+                    pred = obj.predecessor(s);
+                    for s1=pred
+                        obj.updateState(s1);
                     end
                 else
-                    u.g = inf;
-                    pred = [obj.predecessor(u), u];
-                    for p=pred
-                        obj.updateVertex(p);
+                    s.g = inf;
+                    pred = [obj.predecessor(s), s];
+                    for s1=pred
+                        obj.updateState(s1);
                     end
                 end
             end
@@ -283,7 +244,7 @@ classdef Field_D_star < handle
 
             while ~updateCells.isEmpty()
                 [s, k_old] = updateCells.pop();
-                obj.updateVertex(s);
+                obj.updateState(s);
                 k = s.calcKey(obj.currPos);
                 if ~(k == k_old)
                     pred = obj.predecessor(s);

@@ -226,14 +226,16 @@ classdef D_star_lite_v2 < handle
                     obj.expCells = obj.expCells+1;
                 elseif (u.g > u.rhs)
                     u.g = u.rhs;
+                    pred = obj.predecessor(u);
+                    for p=pred
+                        obj.updateVertex(p);
+                    end
                 else
                     u.g = inf;
-                    obj.updateVertex(u);
-                end
-
-                pred = obj.predecessor(u);
-                for p=pred
-                    obj.updateVertex(p);
+                    pred = [obj.predecessor(u), u];
+                    for p=pred
+                        obj.updateVertex(p);
+                    end
                 end
             end
         end

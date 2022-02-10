@@ -1,6 +1,6 @@
 % return the min value and pos inside a list
 function [minV, minPos] = minVal(u, list)
-    minV = inf;
+    minV = Inf;
     minPos = State.empty(1, 0);
     for s=list
         curr = u.c(s) + s.g;

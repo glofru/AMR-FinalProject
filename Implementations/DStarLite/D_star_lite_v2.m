@@ -109,10 +109,10 @@ classdef D_star_lite_v2 < handle
                         if chr == State.OBSTACLE
                             obj.localMap.map(is+i, js+j).state = chr;
 
-                            new_obs = [is+i, js+j];
-                            if ~isAlredyIn(obj.localMap.obstacles, new_obs')
-                                obj.localMap.obstacles(:, end+1) = new_obs';
-                                obj.newObstacles(:, end+1) = new_obs';
+                            new_obs = [is+i; js+j];
+                            if ~isAlredyIn(obj.localMap.obstacles, new_obs)
+                                obj.localMap.obstacles(:, end+1) = new_obs;
+                                obj.newObstacles(:, end+1) = new_obs;
                                 isChanged = true;
                             end
                         end
@@ -257,7 +257,7 @@ classdef D_star_lite_v2 < handle
         
         % compute one step from the current position
         function step(obj)
-            %move to minPos
+            % move to minPos
             obj.currPos.state = State.PATH; % TODO
             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
 

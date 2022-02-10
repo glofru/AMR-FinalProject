@@ -92,7 +92,7 @@ classdef Map < handle
         
         % check if (x, y) is an obstacle
         function res = isObstacle(obj, x, y)
-            res = (obj.map(x, y).state == State.OBSTACLE)
+            res = (obj.map(x, y).state == State.OBSTACLE);
         end
         
         

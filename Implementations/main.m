@@ -17,7 +17,7 @@ algorithmType = input('search algorithm: ');
 
 D1 = 50;
 D2 = 50;
-numObs = round(D1*D2/3);
+numObs = round(D1*D2/2);
 dim = [D1; D2];
 Sstart = [1; 1];
 Sgoal = [D1; D2];

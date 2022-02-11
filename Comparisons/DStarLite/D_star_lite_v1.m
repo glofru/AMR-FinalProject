@@ -112,7 +112,7 @@ classdef D_star_lite_v1 < handle
                         if chr == DSLState.OBSTACLE
                             if obj.localMap.map(newX, newY).state ~= chr
                                 obj.localMap.map(newX, newY).state = chr;
-                                new_obs = [newX, newY]';
+                                new_obs = [newX; newY];
                                 obj.localMap.obstacles(:, end+1) = new_obs;
                                 obj.newObstacles(:, end+1) = new_obs;
                                 isChanged = true;
@@ -181,9 +181,6 @@ classdef D_star_lite_v1 < handle
                 
                 obj.totSteps = obj.totSteps+1;
                 
-                %obj.localMap.plot(); % commented for fast plot
-                %pause(0.1);
-                
                 obj.U.remove(u);
                 
                 % TODO
@@ -220,9 +217,7 @@ classdef D_star_lite_v1 < handle
                 pred = obj.predecessor(oState);
 
                 for p=pred
-                    if ~updateCells.has(p)
-                        updateCells.insert(p, p.calcKey(obj.currPos));
-                    end
+                    updateCells.insert(p, p.calcKey(obj.currPos));
                 end
             end
             obj.newObstacles = [];
@@ -240,9 +235,7 @@ classdef D_star_lite_v1 < handle
                     pred = obj.predecessor(s);
 
                     for p=pred
-                        %if ~updateCells.has(p)
-                            updateCells.insert(p, p.calcKey(obj.currPos));
-                        %end
+                        updateCells.insert(p, p.calcKey(obj.currPos));
                     end
                 end
             end

@@ -59,7 +59,7 @@ classdef D_Star < handle
         function process_state(obj)
             X = obj.open_list.min_state();
             if isempty(X)
-                error("Path not found")
+                error("Path not found") % TODO
             end
             Kold = X.k;
             obj.open_list.remove(X);
@@ -131,13 +131,23 @@ classdef D_Star < handle
             f = obj.currPos == obj.goal;
         end
 
-        function step(obj)
-            obj.currPos.state = MapState.PATH;
+        function state = step(obj)
+            obj.pathLength = obj.pathLength + 1;
+            state = 1;
 
             obj.updateMap()
+            
+            obj.currPos.state = MapState.PATH;
 
             %obj.localMap.plot();
             %pause(0.25); % because otherwise matlab doesn't update the plot
+            
+            if isempty(obj.currPos.parent)
+                disp("no poss path")
+                pause(2.5);
+                state = -1;
+                return
+            end
 
             % update graph
             if obj.currPos.parent.state == MapState.OBSTACLE
@@ -146,7 +156,6 @@ classdef D_Star < handle
             end
 
             % metrics
-            obj.pathLength = obj.pathLength + 1;
             obj.expCellsList(end+1) = obj.expCells;
             obj.totStepsList(end+1) = obj.totSteps;
 
@@ -160,10 +169,14 @@ classdef D_Star < handle
             finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
             
             while(~isFinish(obj))
-                obj.step()
+                state = obj.step();
 
                 dimensionPath = dimensionPath + 1;
                 finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
+                
+                if state == -1
+                    break
+                end
             end
 
             finalPath = finalPath(1:dimensionPath, :);
@@ -195,6 +208,7 @@ classdef D_Star < handle
                                 state.h = Inf;
                                 state.k = Inf;
                                 state.state = s;
+                                state.parent = DState.empty;
                             end
                         end
                     end

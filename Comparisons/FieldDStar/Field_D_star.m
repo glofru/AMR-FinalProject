@@ -41,22 +41,6 @@ classdef Field_D_star < handle
         % Field_D_star constructor
         function obj = Field_D_star(globalMap, obstacles, Sstart, Sgoal,...
                 moves, range, cost)
-            arguments
-                % Map having global knowledge
-                globalMap
-                % set of obstacles known
-                obstacles
-                % start position
-                Sstart
-                % goal position
-                Sgoal
-                % set of moves that the algorithm can do
-                moves
-                % range of the scan
-                range = 1;
-                % cost of a step
-                cost = 1;
-            end
             % copy vals
             obj.globalMap = globalMap;
             obj.moves = moves;
@@ -120,16 +104,17 @@ classdef Field_D_star < handle
 
             for i=-r:r
                 for j=-r:r
-                    if obj.localMap.isInside(is+i, js+j)
-                        chr = obj.globalMap.map(is+i, js+j).state;
+                    newX = is+i;
+                    newY = js+j;
+                    if obj.localMap.isInside(newX, newY)
+                        chr = obj.globalMap.map(newX, newY).state;
                         
                         if chr == FDState.OBSTACLE
-                            obj.localMap.map(is+i, js+j).state = chr;
-                            
-                            new_obs = [is+i, js+j];
-                            if ~isAlredyIn(obj.localMap.obstacles, new_obs')
-                                obj.localMap.obstacles(:, end+1) = new_obs';
-                                obj.newObstacles(:, end+1) = new_obs';
+                            if obj.localMap.map(newX, newY).state ~= chr
+                                obj.localMap.map(is+i, js+j).state = chr;
+                                new_obs = [newX; newY];
+                                obj.localMap.obstacles(:, end+1) = new_obs;
+                                obj.newObstacles(:, end+1) = new_obs;
                                 isChanged = true;
                             end
                         end
@@ -144,19 +129,12 @@ classdef Field_D_star < handle
             Lp = FDState.empty(length(obj.moves), 0);
             currI = 1;
             for m=obj.moves
-                pred_pos = [u.x; u.y]+m;
+                x = u.x + m(1);
+                y = u.y + m(2);
 
-                if ~obj.localMap.isInside(pred_pos(1), pred_pos(2))
-                    continue
-                end
-
-                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                if  obj_pos.state ~= FDState.OBSTACLE
-                    % TODO ottimizzare
-                    if ~isAlredyIn(Lp, obj_pos)
-                        Lp(currI) = obj_pos;
-                        currI = currI+1;
-                    end
+                if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
+                    Lp(currI) = obj.localMap.map(x, y);
+                    currI = currI+1;
                 end
             end
         end
@@ -166,19 +144,12 @@ classdef Field_D_star < handle
             Ls = FDState.empty(length(obj.moves), 0);
             currI = 1;
             for m=obj.moves
-                pred_pos = [u.x; u.y]+m;
+                x = u.x + m(1);
+                y = u.y + m(2);
 
-                if ~obj.localMap.isInside(pred_pos(1), pred_pos(2))
-                    continue
-                end
-
-                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                if obj_pos.state ~= FDState.OBSTACLE
-                    % TODO ottimizzare
-                    if ~isAlredyIn(Ls, obj_pos)
-                        Ls(currI) = obj_pos;
-                        currI = currI+1;
-                    end
+                if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
+                    Ls(currI) = obj.localMap.map(x, y);
+                    currI = currI+1;
                 end
             end
         end
@@ -205,7 +176,6 @@ classdef Field_D_star < handle
 
             if obj.OPEN.has(s)
                 obj.OPEN.remove(s);
-                obj.expCells = obj.expCells-1;
             end
 
             if s.g ~= s.rhs
@@ -224,9 +194,6 @@ classdef Field_D_star < handle
                 end
                 
                 obj.totSteps = obj.totSteps+1;
-                
-                %obj.localMap.plot(); % commented for fast plot
-                %pause(0.1);
                 
                 obj.OPEN.remove(s);
                 
@@ -264,9 +231,7 @@ classdef Field_D_star < handle
                 pred = obj.predecessor(oState);
 
                 for p=pred
-                    if ~updateCells.has(p)
-                        updateCells.insert(p, p.calcKey(obj.currPos));
-                    end
+                    updateCells.insert(p, p.calcKey(obj.currPos));
                 end
             end
             obj.newObstacles = [];
@@ -284,9 +249,7 @@ classdef Field_D_star < handle
                     pred = obj.predecessor(s);
 
                     for p=pred
-                        if ~updateCells.has(p)
-                            updateCells.insert(p, p.calcKey(obj.currPos));
-                        end
+                        updateCells.insert(p, p.calcKey(obj.currPos));
                     end
                 end
             end
@@ -334,24 +297,6 @@ classdef Field_D_star < handle
             
             obj.expCellsList = [obj.expCellsList, obj.expCells];
             obj.totStepsList = [obj.totStepsList, obj.totSteps];
-%             obj.pathLength = obj.pathLength+1;
-%             
-%             %move to minPos
-%             obj.currPos.state = FDState.PATH; % TODO
-%             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
-% 
-%             % scan graph
-%             isChanged = obj.updateMap();
-% 
-%             % update graph
-%             if isChanged
-%                 % TODO optimize
-%                 obj.updateEdgesCost();
-%                 obj.computeShortestPath();
-%             end
-%             
-%             obj.expCellsList = [obj.expCellsList, obj.expCells];
-%             obj.totStepsList = [obj.totStepsList, obj.totSteps];
         end
         
         % run the algorithm until reach the end

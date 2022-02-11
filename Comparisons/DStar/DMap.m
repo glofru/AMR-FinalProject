@@ -150,12 +150,11 @@ classdef DMap < handle
 
 
         % plot the map image
-        function plot(obj, highlightedState)
+        function plot(obj)
             arguments
                 obj {}
-                highlightedState {} = DState.empty(1, 0)
             end
-            J = obj.buildImageMap(highlightedState);
+            J = obj.buildImageMap();
             %J = imrotate(rgbImage,90);
             %J = imresize( J , 100);
             imshow(J, 'InitialMagnification', 1000);

@@ -45,22 +45,6 @@ classdef D_star_lite_v2 < handle
         % D_star_lite_v2 constructor
         function obj = D_star_lite_v2(globalMap, obstacles, Sstart, Sgoal,...
                 moves, range, cost)
-            arguments
-                % Map having global knowledge
-                globalMap
-                % set of obstacles known
-                obstacles
-                % start position
-                Sstart
-                % goal position
-                Sgoal
-                % set of moves that the algorithm can do
-                moves
-                % range of the scan
-                range = 1;
-                % cost of a step
-                cost = 1;
-            end
             % copy vals
             obj.globalMap = globalMap;
             obj.moves = moves;
@@ -129,13 +113,13 @@ classdef D_star_lite_v2 < handle
                     newY = js+j;
                     if obj.localMap.isInside(newX, newY)
                         chr = obj.globalMap.map(newX, newY).state;
-                            
+                        
                         if chr == DSLState.OBSTACLE
                             if obj.localMap.map(newX, newY).state ~= chr
                                 obj.localMap.map(newX, newY).state = chr;
-                                new_obs = [newX, newY];
-                                obj.localMap.obstacles(:, end+1) = new_obs';
-                                obj.newObstacles(:, end+1) = new_obs';
+                                new_obs = [newX; newY];
+                                obj.localMap.obstacles(:, end+1) = new_obs;
+                                obj.newObstacles(:, end+1) = new_obs;
                                 isChanged = true;
                             end
                         end
@@ -202,9 +186,6 @@ classdef D_star_lite_v2 < handle
                 
                 obj.totSteps = obj.totSteps+1;
                 
-                %obj.localMap.plot(); % commented for fast plot
-                %pause(0.1);
-                
                 obj.U.remove(u);
                 
                 % TODO
@@ -244,9 +225,7 @@ classdef D_star_lite_v2 < handle
                 pred = obj.predecessor(oState);
 
                 for p=pred
-                    if ~updateCells.has(p)
-                        updateCells.insert(p, p.calcKey(obj.currPos, obj.km));
-                    end
+                    updateCells.insert(p, p.calcKey(obj.currPos, obj.km));
                 end
             end
             obj.newObstacles = [];
@@ -264,9 +243,7 @@ classdef D_star_lite_v2 < handle
                     pred = obj.predecessor(s);
 
                     for p=pred
-                        if ~updateCells.has(p)
-                            updateCells.insert(p, p.calcKey(obj.currPos, obj.km));
-                        end
+                        updateCells.insert(p, p.calcKey(obj.currPos, obj.km));
                     end
                 end
             end
@@ -314,25 +291,6 @@ classdef D_star_lite_v2 < handle
             
             obj.expCellsList = [obj.expCellsList, obj.expCells];
             obj.totStepsList = [obj.totStepsList, obj.totSteps];
-%             obj.pathLength = obj.pathLength+1;
-%             
-%             %move to minPos
-%             obj.currPos.state = DSLState.PATH; % TODO
-%             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
-% 
-%             % scan graph
-%             isChanged = obj.updateMap();
-% 
-%             % update graph
-%             if isChanged
-%                obj.km = obj.km + h(obj.Slast, obj.currPos);
-%                obj.Slast = obj.currPos;
-%                obj.updateEdgesCost();
-%                obj.computeShortestPath();
-%             end
-%             
-%             obj.expCellsList = [obj.expCellsList, obj.expCells];
-%             obj.totStepsList = [obj.totStepsList, obj.totSteps];
         end
         
         % run the algorithm until reach the end

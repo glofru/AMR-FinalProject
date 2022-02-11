@@ -7,6 +7,8 @@ classdef FileADAT < handle
         ALGO_DSL_V1 = 2;
         ALGO_DSL_V2 = 3;
         ALGO_FDS = 4;
+        
+        ALGO_ALL = 10;
     end
     
     properties
@@ -28,24 +30,7 @@ classdef FileADAT < handle
         function obj = constByUser()
             obj = FileADAT();
             
-            disp("Which algorithm?"+newline+...
-                 "    1) D*"+newline+...
-                 "    2) D* Lite v1"+newline+...
-                 "    3) D* Lite v2"+newline+...
-                 "    4) Field D*")
-            typeOfAlgo = input('search option: ');
-            switch(typeOfAlgo)
-                case 1
-                    obj.typeAlgo = FileADAT.ALGO_DS;
-                case 2
-                    obj.typeAlgo = FileADAT.ALGO_DSL_V1;
-                case 3
-                    obj.typeAlgo = FileADAT.ALGO_DSL_V2;
-                case 4
-                    obj.typeAlgo = FileADAT.ALGO_FDS;
-                otherwise
-                    error("Wrong input!");
-            end
+            obj.typeAlgo = FileADAT.selectAlgoType();
             
             D1 = double(input("Input D1: "));
             D2 = double(input("Input D2: "));
@@ -55,15 +40,17 @@ classdef FileADAT < handle
             obj.Sgoal = [D1; D2]; % TODO
             obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
-            obj.Na = double(input("Number of tries: "));
-
-            obj.ranges = zeros(1, obj.Na);
-            for i=1:obj.Na
-                obj.ranges(i) = double(input("Input range try N. " + i + ": "));
+            if obj.typeAlgo == FileADAT.ALGO_ALL
+                obj.Na = 4;
+            else
+                obj.Na = double(input("Number of tries: "));
             end
             
+            obj.ranges = zeros(1, obj.Na);
             obj.costs = zeros(1, obj.Na);
+            
             for i=1:obj.Na
+                obj.ranges(i) = double(input("Input range try N. " + i + ": "));
                 obj.costs(i) = double(input("Input costs try N. " + i + ": "));
             end
         end
@@ -71,23 +58,12 @@ classdef FileADAT < handle
         function obj = constSTD()
             obj = FileADAT();
             
-            disp("Which search algorithm?"+newline+...
-                 "    1) D*"+newline+...
-                 "    2) D*Lite v1"+newline+...
-                 "    3) D*Lite v2"+newline+...
-                 "    4) Field D*"+newline)
-            algorithmType = 3;%input('search algorithm: ');
-            switch algorithmType
-                case 1
-                    obj.typeAlgo = FileADAT.ALGO_DS;
-                case 2
-                    obj.typeAlgo = FileADAT.ALGO_DSL_V1;
-                case 3
-                    obj.typeAlgo = FileADAT.ALGO_DSL_V2;
-                case 4
-                    obj.typeAlgo = FileADAT.ALGO_FDS;
-                otherwise
-                    error("Wrong input!");
+            obj.typeAlgo = FileADAT.selectAlgoType();
+            
+            if obj.typeAlgo == FileADAT.ALGO_ALL
+                obj.Na = 4;
+            else
+                obj.Na = 3;
             end
             
             D1 = 50;
@@ -97,8 +73,6 @@ classdef FileADAT < handle
             obj.Sstart = [1; 1];
             obj.Sgoal = [D1; D2];
             obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
-
-            obj.Na = 4;
 
             obj.ranges = ones(1, obj.Na) * 2;
             obj.costs  = ones(1, obj.Na) * 0.5;
@@ -130,11 +104,35 @@ classdef FileADAT < handle
             
             fgetl(fid); % jump
         end
+        
+        function at = selectAlgoType()
+            disp("Which algorithm?"+newline+...
+                 "    1) D*"+newline+...
+                 "    2) D* Lite v1"+newline+...
+                 "    3) D* Lite v2"+newline+...
+                 "    4) Field D*"+newline+...
+                 "    5) All")
+            typeOfAlgo = input('search option: ');
+            switch(typeOfAlgo)
+                case 1
+                    at = FileADAT.ALGO_DS;
+                case 2
+                    at = FileADAT.ALGO_DSL_V1;
+                case 3
+                    at = FileADAT.ALGO_DSL_V2;
+                case 4
+                    at = FileADAT.ALGO_FDS;
+                case 5
+                    at = FileADAT.ALGO_ALL;
+                otherwise
+                    error("Wrong input!");
+            end
+        end
     end
     
     methods
         function obj = FileADAT()
-            obj.typeAlgo = FileADAT.ALGO_INIT_NO_ALGO;
+            obj.typeAlgo = [FileADAT.ALGO_INIT_NO_ALGO];
             
             obj.dim = [];
             obj.Sstart = [];
@@ -149,7 +147,8 @@ classdef FileADAT < handle
         end
         
         function putOnFile(obj, fid)
-            fprintf(fid, "typeAlgorithm %d\n", obj.typeAlgo);
+            ftm = [' ', repmat('%g ', 1, numel(obj.typeAlgo)-1), '%g\n'];
+            fprintf(fid, "typeAlgorithm "+ftm, obj.typeAlgo);
             
             fprintf(fid, "mapSize_x mapSize_y start_x start_y goal_x goal_y\n");
             fprintf(fid, "%d %d %d %d %d %d\n", obj.dim, obj.Sstart, obj.Sgoal);
@@ -167,7 +166,7 @@ classdef FileADAT < handle
         end
         
         function e = eq(obj, f)
-            e = (obj.typeAlgo == f.typeAlgo &&...
+            e = (all(obj.typeAlgo == f.typeAlgo) &&...
                 all(obj.dim == f.dim) &&...
                 all(obj.Sstart == f.Sstart) &&...
                 all(obj.Sgoal == f.Sgoal) &&...

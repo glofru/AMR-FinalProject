@@ -15,7 +15,7 @@ disp("Which option?"+newline+...
      "    1) Create a new file for testing"+newline+...
      "    2) Open an old test to be continued"+newline+...
      "    3) Fast test"+newline)
-typeOfInput = 3;%input('search option: ');
+typeOfInput = input('search option: ');
 disp(" ");
 
 if ispc
@@ -157,15 +157,24 @@ disp("Terminated!")
 
 initParams.epochDone = epoch;
  switch (typeOfInput)
-     case 1
-        saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
-     case 2
-         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
+     case {1, 2}
+         if obj.typeAlgo == FileADAT.ALGO_ALL
+             fileName = split(inputFile, ".");
+             pref = fileName(1);
+             suff = fileName(2);
+             for i=["_DS.", "_DSLV1.", "_DSLV2.", "_FDS."]
+                 appInputFile = pref+i+suff;
+                 saveDataOnFileADAT(inputPath, initParams, infosAlgo, appInputFile);
+             end
+         else
+             saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
+         end
  end
  
-%%
+%% RESOULTS
 
 heatMap = zeros(initParams.Na, initParams.dim(1), initParams.dim(2));
+
 for e=1:initParams.epochDone
     for n=1:initParams.Na
         for k=1:infosAlgo(e, n).pathLength
@@ -178,13 +187,14 @@ end
 figure
 num = ceil(sqrt(initParams.Na));
 
+costs = initParams.costs;
 for i=1:initParams.Na
     subplot(num, num, i)
     colormap('hot')
     imagesc(reshape(heatMap(i, :, :), [initParams.dim(1), initParams.dim(2)]))
     colorbar
-    title("Algorithm r= "+num2str(initParams.ranges(i))+...
-        "c="+num2str(initParams.costs(i)))
+    title(initParams(n).typeAlgo+newline+"Range="+num2str(initParams.ranges(i))+...
+        " Cost="+num2str(costs(i)))
 end
 
 
@@ -207,19 +217,34 @@ end
 figure
 subplot(1, 5, 1)
 boxplot(initTimes4Epoch)
-title("initTimes4Epoch")
+title("Initialization time")
+grid on;
+xlabel("Algorithm")
+ylabel("Time (s)")
 subplot(1, 5, 2)
 boxplot(computationTimes4Epoch)
-title("computationTimes4Epoch")
+title("Running time")
+xlabel("Algorithm")
+ylabel("Time (s)")
+grid on;
 subplot(1, 5, 3)
 boxplot(expCells4Epoch)
-title("expCells4Epoch")
+title("Explored cells")
+xlabel("Algorithm")
+ylabel("Number of cells")
+grid on;
 subplot(1, 5, 4)
 boxplot(totSteps4Epoch)
-title("totSteps4Epoch")
+title("Total algorithm steps")
+xlabel("Algorithm")
+ylabel("Number of steps")
+grid on;
 subplot(1, 5, 5)
 boxplot(pathLength4Epoch)
-title("pathLength4Epoch")
+title("Path length")
+xlabel("Algorithm")
+ylabel("Path length")
+grid on;
 
 %% FUNCTIONS %%
 

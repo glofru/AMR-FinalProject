@@ -49,20 +49,23 @@ end
 %% MAIN
 D1 = initParams.dim(1);
 D2 = initParams.dim(2);
-numObs = round(D1*D2*4/10);
+numObs = round(D1*D2*0.45);
 epoch = double(input("How many epochs: "));
 
 infosAlgo(epoch, initParams.Na) = AlgoInfo();
+imgs = zeros(D1, D2, 3, initParams.Na);
 
 % import
 switch initParams.typeAlgo
     case FileADAT.ALGO_DS
         addpath('./DStar')
-    case FileADAT.ALGO_DSL_V1
-        addpath('./DStarLite')
-    case FileADAT.ALGO_DSL_V2
+    case {FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2}
         addpath('./DStarLite')
     case FileADAT.ALGO_FDS
+        addpath('./FieldDStar')
+    case FileADAT.ALGO_ALL
+        addpath('./DStar')
+        addpath('./DStarLite')
         addpath('./FieldDStar')
     otherwise
         error("Wrong input!");
@@ -86,19 +89,24 @@ for currEpoch=1:epoch
             end
         end
         
-        switch initParams.typeAlgo
-            case FileADAT.ALGO_DS
-                map = DMap(D1, D2, globalObstacles);
-                map.map(initParams.Sstart(1), initParams.Sstart(2)).state = MapState.START;
-                map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = MapState.GOAL;
-            case {FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2}
-                map = DSLMap(D1, D2, globalObstacles, DSLMap.TYPE_KNOWN, 1); % TODO cost
-                map.map(initParams.Sstart(1), initParams.Sstart(2)).state = DSLState.START;
-                map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = DSLState.GOAL;
-            case FileADAT.ALGO_FDS
-                map = FDMap(D1, D2, globalObstacles, FDMap.TYPE_KNOWN, 1); % TODO cost
-                map.map(initParams.Sstart(1), initParams.Sstart(2)).state = FDState.START;
-                map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = FDState.GOAL;
+        if initParams.typeAlgo == FileADAT.ALGO_DS ||...
+                initParams.typeAlgo == FileADAT.ALGO_ALL
+            map1 = DMap(D1, D2, globalObstacles);
+            map1.map(initParams.Sstart(1), initParams.Sstart(2)).state = MapState.START;
+            map1.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = MapState.GOAL;
+        end
+        if initParams.typeAlgo ==  FileADAT.ALGO_DSL_V1 ||...
+                initParams.typeAlgo == FileADAT.ALGO_DSL_V2 ||...
+                initParams.typeAlgo == FileADAT.ALGO_ALL
+            map2 = DSLMap(D1, D2, globalObstacles, DSLMap.TYPE_KNOWN, 1); % TODO cost
+            map2.map(initParams.Sstart(1), initParams.Sstart(2)).state = DSLState.START;
+            map2.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = DSLState.GOAL;
+        end
+        if initParams.typeAlgo == FileADAT.ALGO_FDS ||...
+                initParams.typeAlgo == FileADAT.ALGO_ALL
+            map3 = FDMap(D1, D2, globalObstacles, FDMap.TYPE_KNOWN, 1); % TODO cost
+            map3.map(initParams.Sstart(1), initParams.Sstart(2)).state = FDState.START;
+            map3.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = FDState.GOAL;
         end
         obstacles = [];
         knownObstacles = [];
@@ -106,30 +114,36 @@ for currEpoch=1:epoch
         for i=1:initParams.Na
             disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
             disp("Inizialization");
-    
-            switch(initParams.typeAlgo)
-                case 1
-                    tic
-                    currAlgo = D_Star(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                        initParams.moves, initParams.ranges(i), initParams.costs(i));
-                    tocTime = toc;
-                case 2
-                    tic
-                    currAlgo = D_star_lite_v1(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                        initParams.moves, initParams.ranges(i), initParams.costs(i));
-                    tocTime = toc;
-                case 3
-                    tic
-                    currAlgo = D_star_lite_v2(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                        initParams.moves, initParams.ranges(i), initParams.costs(i));
-                    tocTime = toc;
-                case 4
-                    tic
-                    currAlgo = Field_D_star(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                        initParams.moves, initParams.ranges(i), initParams.costs(i));
-                    tocTime = toc;
-                otherwise
-                    error("Wrong type of algorithm!")
+            
+            if initParams.typeAlgo == FileADAT.ALGO_DS ||...
+                    initParams.typeAlgo == FileADAT.ALGO_ALL && i == 1
+                tic
+                currAlgo = D_Star(map1, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                    initParams.moves, initParams.ranges(i), initParams.costs(i));
+                tocTime = toc;
+                    
+            elseif initParams.typeAlgo == FileADAT.ALGO_DSL_V1 ||...
+                    initParams.typeAlgo == FileADAT.ALGO_ALL && i == 2
+                tic
+                currAlgo = D_star_lite_v1(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                    initParams.moves, initParams.ranges(i), initParams.costs(i));
+                tocTime = toc;
+                    
+            elseif initParams.typeAlgo == FileADAT.ALGO_DSL_V2 ||...
+                    initParams.typeAlgo == FileADAT.ALGO_ALL && i == 3
+                tic
+                currAlgo = D_star_lite_v2(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                    initParams.moves, initParams.ranges(i), initParams.costs(i));
+                tocTime = toc;
+                
+            elseif initParams.typeAlgo == FileADAT.ALGO_FDS ||...
+                    initParams.typeAlgo == FileADAT.ALGO_ALL && i == 4
+                tic
+                currAlgo = Field_D_star(map3, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                    initParams.moves, initParams.ranges(i), initParams.costs(i));
+                tocTime = toc;
+            else
+                error("Wrong type of algorithm!")
             end
     
             infosAlgo(currEpoch, i).initTime = tocTime;
@@ -152,23 +166,109 @@ for currEpoch=1:epoch
                 infosAlgo(currEpoch, i).totStepsList = currAlgo.totStepsList;
                 infosAlgo(currEpoch, i).pathLength = currAlgo.pathLength;
             catch
-                disp("Map not valid: obstacles make the goal unreachable")
-                map.plot()
-                waitInput()
+                disp(newline+" ### Map not valid: obstacles make the goal unreachable ### "+newline)
                 break
             end
         end
+        break
     end
+    
+    %plotAlgs(map2.buildImageMap(), imgs, initParams.Na);
 end
 disp("Terminated!")
 
+%%
 initParams.epochDone = epoch;
  switch (typeOfInput)
-     case 1
-        saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
-     case 2
-         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
+     case {1, 2}
+         if initParams.typeAlgo == FileADAT.ALGO_ALL
+             initParams.Na = 1;
+             fileName = split(inputFile, ".");
+             pref = fileName(1);
+             suff = fileName(2);
+             for i=["_DS.", "_DSLV1.", "_DSLV2.", "_FDS."]
+                 appInputFile = pref+i+suff;
+                 saveDataOnFileADAT(inputPath, initParams, infosAlgo, appInputFile);
+             end
+         else
+             saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
+         end
  end
+ 
+%% RESOULTS
+
+heatMap = zeros(initParams.Na, initParams.dim(1), initParams.dim(2));
+
+for e=1:initParams.epochDone
+    for n=1:initParams.Na
+        for k=1:infosAlgo(e, n).pathLength
+            pos = infosAlgo(e, n).finalPath(k, :);
+            heatMap(n, pos(1), pos(2)) = heatMap(n, pos(1), pos(2)) + 1;
+        end
+    end
+end
+
+figure
+num = ceil(sqrt(initParams.Na));
+
+costs = initParams.costs;
+for i=1:initParams.Na
+    subplot(num, num, i)
+    colormap('hot')
+    imagesc(reshape(heatMap(i, :, :), [initParams.dim(1), initParams.dim(2)]))
+    colorbar
+    title(initParams(n).typeAlgo+newline+"Range="+num2str(initParams.ranges(i))+...
+        " Cost="+num2str(costs(i)))
+end
+
+
+initTimes4Epoch = zeros(initParams.epochDone, initParams.Na);
+computationTimes4Epoch = zeros(initParams.epochDone, initParams.Na);
+expCells4Epoch = zeros(initParams.epochDone, initParams.Na);
+totSteps4Epoch = zeros(initParams.epochDone, initParams.Na);
+pathLength4Epoch = zeros(initParams.epochDone, initParams.Na);
+
+for i=1:initParams.epochDone
+    for j=1:initParams.Na
+        initTimes4Epoch(i, j) = infosAlgo(i, j).initTime;
+        computationTimes4Epoch(i, j) = infosAlgo(i, j).computationTime;
+        expCells4Epoch(i, j) = infosAlgo(i, j).expCells;
+        totSteps4Epoch(i, j) = infosAlgo(i, j).totSteps;
+        pathLength4Epoch(i, j) = infosAlgo(i, j).pathLength;
+    end
+end
+ 
+figure
+subplot(1, 5, 1)
+boxplot(initTimes4Epoch)
+title("Initialization time")
+grid on;
+xlabel("Algorithm")
+ylabel("Time (s)")
+subplot(1, 5, 2)
+boxplot(computationTimes4Epoch)
+title("Running time")
+xlabel("Algorithm")
+ylabel("Time (s)")
+grid on;
+subplot(1, 5, 3)
+boxplot(expCells4Epoch)
+title("Explored cells")
+xlabel("Algorithm")
+ylabel("Number of cells")
+grid on;
+subplot(1, 5, 4)
+boxplot(totSteps4Epoch)
+title("Total algorithm steps")
+xlabel("Algorithm")
+ylabel("Number of steps")
+grid on;
+subplot(1, 5, 5)
+boxplot(pathLength4Epoch)
+title("Path length")
+xlabel("Algorithm")
+ylabel("Path length")
+grid on;
 
 %% FUNCTIONS %%
 
@@ -181,6 +281,7 @@ end
 function plotAlgs(img_g, algos, Na)
     Nc = ceil(Na/3)+1;
     
+    figure
     ax1 = subplot(3,Nc,Nc+1);
     image(ax1, img_g);
     title(ax1, "Global Map");
@@ -188,7 +289,7 @@ function plotAlgs(img_g, algos, Na)
     
     for i=1:Na
         algo = algos(i);
-        img_c = algo.localMap.buildImageMap();
+        img_c = imgs(:, :, :, i); % algo.localMap.buildImageMap();
 
 
         j = floor((i-1)/(Nc-1));
@@ -196,125 +297,11 @@ function plotAlgs(img_g, algos, Na)
 
         ax = subplot(3,Nc,index);
         image(ax, img_c);
-        title(ax, {"Algorithm Map c="+num2str(algo.cost);...
-            "explored cells: "+num2str(algo.getExpCells())+...
-            ", tot steps: "+num2str(algo.getTotSteps())+...
-            ", path lenght: "+num2str(algo.getPathLength())
-            })
+        title(ax, "Algorithm Map ")
         axis off;
-        
-%         ax = subplot(3,3,3);
-%         title(ax, "Algorithm c="+num2str(algo.cost))
-%         
-%         yyaxis left
-%         y_axis1 = diff(algo.expCellsList)';
-%         bar(ax, [ y_axis1, zeros(size(y_axis1)) ])
-%         ylabel(ax, 'explored cells')
-%         
-%         yyaxis right
-%         y_axis2 = diff(algo.totStepsList)';
-%         bar(ax, [ zeros(size(y_axis2)) ,y_axis2])
-%         ylabel(ax, "work for step")
     end
 
-    pause(0.25)
-end
-
-function WIP_plotAlgs(img_g, algorithm_c1, algorithm_c2, algorithm_c3)
-    img_c1 = algorithm_c1.localMap.buildImageMap();
-    img_c2 = algorithm_c2.localMap.buildImageMap();
-    img_c3 = algorithm_c3.localMap.buildImageMap();
-    
-
-    % ### 1 ###
-    ax2 = subplot(3,2,1);
-    image(ax2, img_c1);
-    title(ax2, {"Algorithm Map c=0.1";...
-        "explored cells: "+num2str(algorithm_c1.getExpCells())+...
-        ", tot steps: "+num2str(algorithm_c1.getTotSteps())+...
-        ", path lenght: "+num2str(algorithm_c1.getPathLength())
-        })
-    axis off;
-    
-    ax2_2 = subplot(3,2,2);
-    title(ax2_2, 'Algorithm c=0.1')
-    yyaxis left
-    ylabel(ax2_2, 'explored cells')
-    y_axis1 = diff(algorithm_c1.expCellsList)';
-    bar(ax2_2, [ y_axis1, zeros(size(y_axis1)) ])
-    yyaxis right
-    ylabel(ax2_2, 'work for step')
-    y_axis2 = diff(algorithm_c1.totStepsList)';
-    bar(ax2_2, [ zeros(size(y_axis2)) ,y_axis2])
-
-    
-    % ### 2 ###
-    ax3 = subplot(3,2,3);
-    image(ax3, img_c2);
-    title(ax3, {"Algorithm Map c=1";...
-        "explored cells: "+num2str(algorithm_c2.getExpCells())+...
-        ", tot steps: "+num2str(algorithm_c2.getTotSteps())+...
-        ", path lenght: "+num2str(algorithm_c2.getPathLength())
-        })
-    axis off;
-    
-    ax3_2 = subplot(3,2,4);
-    title(ax3_2, 'Algorithm c=1')
-    yyaxis left
-    ylabel(ax3_2, 'explored cells')
-    y_axis1 = diff(algorithm_c2.expCellsList)';
-    bar(ax3_2, [ y_axis1, zeros(size(y_axis1)) ])
-    yyaxis right
-    ylabel(ax3_2, 'work for step')
-    y_axis2 = diff(algorithm_c2.totStepsList)';
-    bar(ax3_2, [ zeros(size(y_axis2)) ,y_axis2])
-
-    
-    % ### 3 ###
-    ax4 = subplot(3,2,5);
-    image(ax4, img_c3);
-    title(ax4, {"Algorithm Map c=2";...
-        "explored cells: "+num2str(algorithm_c3.getExpCells())+...
-        ", tot steps: "+num2str(algorithm_c3.getTotSteps())+...
-        ", path lenght: "+num2str(algorithm_c3.getPathLength())
-        })
-    axis off;
-    
-    ax4_2 = subplot(3,2,6);
-    title(ax4_2, 'Algorithm c=2')
-    yyaxis left
-    ylabel(ax4_2, 'explored cells')
-    y_axis1 = diff(algorithm_c3.expCellsList)';
-    bar(ax4_2, [ y_axis1, zeros(size(y_axis1)) ])
-    yyaxis right
-    ylabel(ax4_2, 'work for step')
-    y_axis2 = diff(algorithm_c3.totStepsList)';
-    bar(ax4_2, [ zeros(size(y_axis2)) ,y_axis2])
-    
-    
-    y_axis1 = diff(algorithm_c1.totStepsList)';
-    y_axis2 = diff(algorithm_c2.totStepsList)';
-    y_axis3 = diff(algorithm_c3.totStepsList)';
-    maxDim = max([length(y_axis1), length(y_axis2), length(y_axis3)]);
-    y_addon1 = zeros(maxDim-length(y_axis1), 1);
-    y_addon2 = zeros(maxDim-length(y_axis2), 1);
-    y_addon3 = zeros(maxDim-length(y_axis3), 1);
-    
-    bar([[y_axis1; y_addon1], [y_axis2; y_addon2], [y_axis3; y_addon3]])
-    
-    
-    
-    y_axis1 = diff(algorithm_c1.expCellsList)';
-    y_axis2 = diff(algorithm_c2.expCellsList)';
-    y_axis3 = diff(algorithm_c3.expCellsList)';
-    maxDim = max([length(y_axis1), length(y_axis2), length(y_axis3)]);
-    y_addon1 = zeros(maxDim-length(y_axis1), 1);
-    y_addon2 = zeros(maxDim-length(y_axis2), 1);
-    y_addon3 = zeros(maxDim-length(y_axis3), 1);
-    
-    bar([[y_axis1; y_addon1], [y_axis2; y_addon2], [y_axis3; y_addon3]])
-    
-    pause(0.5)
+    pause(0.1)
 end
 
 

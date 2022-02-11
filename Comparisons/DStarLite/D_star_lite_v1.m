@@ -86,7 +86,7 @@ classdef D_star_lite_v1 < handle
             if obj.currPos == obj.goal
                 isFin = true;
             elseif obj.currPos.g == inf
-                isFin = true;
+                error("Path not found")
             else
                 isFin = false;
             end
@@ -268,8 +268,8 @@ classdef D_star_lite_v1 < handle
             % scan graph
             isChanged = obj.updateMap();
 
-            %obj.localMap.plot();
-            %pause(0.25); % because otherwise matlab doesn't update the plot
+            % obj.localMap.plot();
+            % pause(0.1); % because otherwise matlab doesn't update the plot
 
             % update graph
             if nextState.state == DSLState.OBSTACLE %isChanged

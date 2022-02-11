@@ -71,81 +71,91 @@ for currEpoch=1:epoch
     disp(newline+"<──- Epoch: <strong>"+num2str(currEpoch)+"/"+num2str(epoch)...
         +"</strong> ──->");
 
-    globalObstacles = zeros(2, round(D1*D2/2));
-    for i=1:round(D1*D2/2) % 2)
-        x = round(mod(rand*D1, D1))+1;
-        y = round(mod(rand*D2, D2))+1;
-
-        % obstacles overlap, ok, not an error
-        if ~(all([x; y]==initParams.Sstart) || all([x; y]==initParams.Sgoal))
-            globalObstacles(:, i) = [x; y];
-        end
-    end
+    % try to execute the algorithm, if no path is found obstacles make
+    % the goal unreachable, so it is tried again with new obstacles
+    while 1
+        globalObstacles = zeros(2, round(D1*D2/2));
+        for i=1:round(D1*D2/2) % 2)
+            x = round(mod(rand*D1, D1))+1;
+            y = round(mod(rand*D2, D2))+1;
     
-    switch initParams.typeAlgo
-        case FileADAT.ALGO_DS
-            map = DMap(D1, D2, globalObstacles);
-            map.map(initParams.Sstart(1), initParams.Sstart(2)).state = MapState.START;
-            map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = MapState.GOAL;
-        case {FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2}
-            map = DSLMap(D1, D2, globalObstacles, DSLMap.TYPE_KNOWN, 1); % TODO cost
-            map.map(initParams.Sstart(1), initParams.Sstart(2)).state = DSLState.START;
-            map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = DSLState.GOAL;
-        case FileADAT.ALGO_FDS
-            map = FDMap(D1, D2, globalObstacles, FDMap.TYPE_KNOWN, 1); % TODO cost
-            map.map(initParams.Sstart(1), initParams.Sstart(2)).state = FDState.START;
-            map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = FDState.GOAL;
-    end
-    obstacles = [];
-    knownObstacles = [];
-    
-    for i=1:initParams.Na
-        disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
-        disp("Inizialization");
-
-        switch(initParams.typeAlgo)
-            case 1
-                tic
-                currAlgo = D_Star(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                    initParams.moves, initParams.ranges(i), initParams.costs(i));
-                tocTime = toc;
-            case 2
-                tic
-                currAlgo = D_star_lite_v1(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                    initParams.moves, initParams.ranges(i), initParams.costs(i));
-                tocTime = toc;
-            case 3
-                tic
-                currAlgo = D_star_lite_v2(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                    initParams.moves, initParams.ranges(i), initParams.costs(i));
-                tocTime = toc;
-            case 4
-                tic
-                currAlgo = Field_D_star(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                    initParams.moves, initParams.ranges(i), initParams.costs(i));
-                tocTime = toc;
-            otherwise
-                error("Wrong type of algorithm!")
+            % obstacles overlap, ok, not an error
+            if ~(all([x; y] == initParams.Sstart) || all([x; y] == initParams.Sgoal))
+                globalObstacles(:, i) = [x; y];
+            end
         end
-
-        infosAlgo(currEpoch, i).initTime = tocTime;
-        disp("└──-Inizialization terminated in: <strong>"+string(tocTime)+...
-            "</strong> s");
         
-        disp("Execution");
-        tic
-        finalPath = currAlgo.run();
-        tocTime = toc;
-        infosAlgo(currEpoch, i).computationTime = tocTime;
-        infosAlgo(currEpoch, i).finalPath = finalPath;
-        disp("└──-Execution terminated in: <strong>"+string(tocTime)+...
-            "</strong> s");
+        switch initParams.typeAlgo
+            case FileADAT.ALGO_DS
+                map = DMap(D1, D2, globalObstacles);
+                map.map(initParams.Sstart(1), initParams.Sstart(2)).state = MapState.START;
+                map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = MapState.GOAL;
+            case {FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2}
+                map = DSLMap(D1, D2, globalObstacles, DSLMap.TYPE_KNOWN, 1); % TODO cost
+                map.map(initParams.Sstart(1), initParams.Sstart(2)).state = DSLState.START;
+                map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = DSLState.GOAL;
+            case FileADAT.ALGO_FDS
+                map = FDMap(D1, D2, globalObstacles, FDMap.TYPE_KNOWN, 1); % TODO cost
+                map.map(initParams.Sstart(1), initParams.Sstart(2)).state = FDState.START;
+                map.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = FDState.GOAL;
+        end
+        obstacles = [];
+        knownObstacles = [];
         
-        infosAlgo(currEpoch, i).expCells = currAlgo.expCells;
-        infosAlgo(currEpoch, i).expCellsList = currAlgo.expCellsList;
-        infosAlgo(currEpoch, i).totSteps = currAlgo.totSteps;
-        infosAlgo(currEpoch, i).totStepsList = currAlgo.totStepsList;
-        infosAlgo(currEpoch, i).pathLength = currAlgo.pathLength;
+        for i=1:initParams.Na
+            disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
+            disp("Inizialization");
+    
+            switch(initParams.typeAlgo)
+                case 1
+                    tic
+                    currAlgo = D_Star(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                        initParams.moves, initParams.ranges(i), initParams.costs(i));
+                    tocTime = toc;
+                case 2
+                    tic
+                    currAlgo = D_star_lite_v1(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                        initParams.moves, initParams.ranges(i), initParams.costs(i));
+                    tocTime = toc;
+                case 3
+                    tic
+                    currAlgo = D_star_lite_v2(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                        initParams.moves, initParams.ranges(i), initParams.costs(i));
+                    tocTime = toc;
+                case 4
+                    tic
+                    currAlgo = Field_D_star(map, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                        initParams.moves, initParams.ranges(i), initParams.costs(i));
+                    tocTime = toc;
+                otherwise
+                    error("Wrong type of algorithm!")
+            end
+    
+            infosAlgo(currEpoch, i).initTime = tocTime;
+            disp("└──-Inizialization terminated in: <strong>"+string(tocTime)+...
+                "</strong> s");
+            
+            try
+                disp("Execution");
+                tic
+                finalPath = currAlgo.run();
+                tocTime = toc;
+                infosAlgo(currEpoch, i).computationTime = tocTime;
+                infosAlgo(currEpoch, i).finalPath = finalPath;
+                disp("└──-Execution terminated in: <strong>"+string(tocTime)+...
+                    "</strong> s");
+                
+                infosAlgo(currEpoch, i).expCells = currAlgo.expCells;
+                infosAlgo(currEpoch, i).expCellsList = currAlgo.expCellsList;
+                infosAlgo(currEpoch, i).totSteps = currAlgo.totSteps;
+                infosAlgo(currEpoch, i).totStepsList = currAlgo.totStepsList;
+                infosAlgo(currEpoch, i).pathLength = currAlgo.pathLength;
+                
+                break
+            catch
+                disp("Map not valid: obstacles make the goal unreachable")
+            end
+        end
     end
 end
 disp("Terminated!")

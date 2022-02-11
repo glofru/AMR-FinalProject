@@ -91,7 +91,7 @@ classdef D_star_lite_v2 < handle
             if obj.currPos == obj.goal
                 isFin = true;
             elseif obj.currPos.g == inf
-                isFin = true;
+                error("Path not found")
             else
                 isFin = false;
             end

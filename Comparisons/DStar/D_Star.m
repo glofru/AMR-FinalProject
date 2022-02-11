@@ -18,7 +18,7 @@ classdef D_Star < handle
         totSteps;
         totStepsList;
         pathLength;
-        maxLenghtFinalPath;
+        maxLengthFinalPath;
     end
 
     methods
@@ -46,7 +46,7 @@ classdef D_Star < handle
             obj.totSteps = 0;
             obj.totStepsList = [];
             obj.pathLength = 0;
-            obj.maxLenghtFinalPath = (obj.globalMap.row+obj.globalMap.col)*4;
+            obj.maxLengthFinalPath = (obj.globalMap.row+obj.globalMap.col)*4;
 
             % first scan and path computation
             obj.updateMap();
@@ -132,21 +132,18 @@ classdef D_Star < handle
         end
 
         function state = step(obj)
-            obj.pathLength = obj.pathLength + 1;
+            obj.totStepsList(end+1) = obj.totSteps;
             state = 1;
 
             obj.updateMap()
             
             obj.currPos.state = MapState.PATH;
 
-            %obj.localMap.plot();
-            %pause(0.25); % because otherwise matlab doesn't update the plot
+            % obj.localMap.plot();
+            % pause(0.1); % because otherwise matlab doesn't update the plot
             
-            if isempty(obj.currPos.parent)
-                disp("no poss path")
-                pause(2.5);
-                state = -1;
-                return
+            if isempty(obj.currPos.parent) || obj.pathLength > obj.maxLengthFinalPath
+                error("Path not found")
             end
 
             % update graph
@@ -156,15 +153,15 @@ classdef D_Star < handle
             end
 
             % metrics
+            obj.pathLength = obj.pathLength + 1;
             obj.expCellsList(end+1) = obj.expCells;
-            obj.totStepsList(end+1) = obj.totSteps;
 
             % goes forward
             obj.currPos = obj.currPos.parent;
         end
 
         function finalPath = run(obj)
-            finalPath = zeros(obj.maxLenghtFinalPath, 2);
+            finalPath = zeros(obj.maxLengthFinalPath, 2);
             dimensionPath = 1;
             finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
             

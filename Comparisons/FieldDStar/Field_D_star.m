@@ -86,7 +86,7 @@ classdef Field_D_star < handle
             if obj.currPos == obj.goal
                 isFin = true;
             elseif obj.currPos.g == inf
-                isFin = true;
+                error("Path not found")
             else
                 isFin = false;
             end

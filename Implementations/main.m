@@ -15,8 +15,9 @@ disp("Which search algorithm?"+newline+...
      "    6) Field D* optimized"+newline)
 algorithmType = input('search algorithm: ');
 
-D1 = 25;
+D1 = 50;
 D2 = 50;
+numObs = round(D1*D2/3);
 dim = [D1; D2];
 Sstart = [1; 1];
 Sgoal = [D1; D2];
@@ -29,8 +30,8 @@ moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 execute = true;
 while execute
 
-    globalObstacles = zeros(2, round(D1*D2/2));
-    for i=1:round(D1*D2/2)
+    globalObstacles = zeros(2, numObs);
+    for i=1:numObs
         x = round(mod(rand*D1, D1))+1;
         y = round(mod(rand*D2, D2))+1;
 

@@ -52,8 +52,8 @@ end
 %% MAIN
 D1 = initParams.dim(1);
 D2 = initParams.dim(2);
-numObs = round(D1*D2/10);
-epoch = 20;%double(input("How many epochs: "));
+numObs = round(D1*D2*4/10);
+epoch = 10;%double(input("How many epochs: "));
 
 initParams.Na = 4;
 
@@ -156,7 +156,7 @@ initParams.epochDone = epoch;
 %%
 
 heatMap = zeros(initParams.Na, initParams.dim(1), initParams.dim(2));
-
+initParams.epochDone = 9;
 for e=1:initParams.epochDone
     for n=1:initParams.Na
         for k=1:infosAlgo(e, n).pathLength

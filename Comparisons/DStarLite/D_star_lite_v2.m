@@ -193,13 +193,19 @@ classdef D_star_lite_v2 < handle
         
         % compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
-            while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos, obj.km)) || ...
+            while true
+                [u, Kold] = obj.U.top();
+                if ~(min2(Kold, obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
+                    return
+                end
                 
                 obj.totSteps = obj.totSteps+1;
                 
-                %obj.localMap.plot(); % comment for fast plot
-                [u, Kold] = obj.U.pop();
+                %obj.localMap.plot(); % commented for fast plot
+                %pause(0.1);
+                
+                obj.U.remove(u);
                 
                 % TODO
                 if u.state == DSLState.UNKNOWN || u.state == DSLState.EMPTY || ...
@@ -267,27 +273,66 @@ classdef D_star_lite_v2 < handle
         end
         
         
+        % return the set of successor states of the state u
+        function Ls = successor2(obj, u)
+            Ls = DSLState.empty(length(obj.moves), 0);
+            currI = 1;
+            for m=obj.moves
+                x = u.x + m(1);
+                y = u.y + m(2);
+
+                if obj.localMap.isInside(x, y)
+                    Ls(currI) = obj.localMap.map(x, y);
+                    currI = currI+1;
+                end
+            end
+        end
+        
         % compute one step from the current position
         function step(obj)
             obj.pathLength = obj.pathLength+1;
             
-            %move to minPos
+            % move to minPos
             obj.currPos.state = DSLState.PATH; % TODO
-            [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
+            [~, nextState] = minVal(obj.currPos, obj.successor2(obj.currPos));
 
             % scan graph
             isChanged = obj.updateMap();
 
+            %obj.localMap.plot();
+            %pause(0.25); % because otherwise matlab doesn't update the plot
+
             % update graph
-            if isChanged
-               obj.km = obj.km + h(obj.Slast, obj.currPos);
-               obj.Slast = obj.currPos;
-               obj.updateEdgesCost();
-               obj.computeShortestPath();
+            if nextState.state == DSLState.OBSTACLE %isChanged
+                % TODO optimize
+                obj.updateEdgesCost();
+                obj.computeShortestPath();
             end
+            
+            obj.currPos.state = DSLState.PATH; % TODO
+            [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
             
             obj.expCellsList = [obj.expCellsList, obj.expCells];
             obj.totStepsList = [obj.totStepsList, obj.totSteps];
+%             obj.pathLength = obj.pathLength+1;
+%             
+%             %move to minPos
+%             obj.currPos.state = DSLState.PATH; % TODO
+%             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
+% 
+%             % scan graph
+%             isChanged = obj.updateMap();
+% 
+%             % update graph
+%             if isChanged
+%                obj.km = obj.km + h(obj.Slast, obj.currPos);
+%                obj.Slast = obj.currPos;
+%                obj.updateEdgesCost();
+%                obj.computeShortestPath();
+%             end
+%             
+%             obj.expCellsList = [obj.expCellsList, obj.expCells];
+%             obj.totStepsList = [obj.totStepsList, obj.totSteps];
         end
         
         % run the algorithm until reach the end

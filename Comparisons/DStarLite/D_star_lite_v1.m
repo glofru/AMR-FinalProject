@@ -214,11 +214,7 @@ classdef D_star_lite_v1 < handle
 
                 oState.g = inf;
                 oState.rhs = inf;
-                pred = obj.predecessor(oState);
-
-                for p=pred
-                    updateCells.insert(p, p.calcKey(obj.currPos));
-                end
+                updateCells.insert(oState, oState.calcKey(obj.currPos))
             end
             obj.newObstacles = [];
 

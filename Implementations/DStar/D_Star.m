@@ -162,7 +162,7 @@ classdef D_Star < handle
                                 state.h = Inf;
                                 state.k = Inf;
                                 state.state = s;
-                                state.parent = DState.empty;
+                                state.parent = State.empty;
                             end
                         end
                     end

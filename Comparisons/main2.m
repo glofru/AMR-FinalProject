@@ -52,7 +52,7 @@ end
 %% MAIN
 D1 = initParams.dim(1);
 D2 = initParams.dim(2);
-numObs = round(D1*D2*4/10);
+numObs = round(D1*D2*0.45);
 epoch = double(input("How many epochs: "));
 
 initParams.Na = 4;
@@ -63,85 +63,95 @@ imgs = zeros(D1, D2, 3, initParams.Na);
 for currEpoch=1:epoch
     disp(newline+"<──- Epoch: <strong>"+num2str(currEpoch)+"/"+num2str(epoch)...
         +"</strong> ──->");
-
-    globalObstacles = zeros(2, numObs);
-    for i=1:numObs
-        x = round(mod(rand*D1, D1))+1;
-        y = round(mod(rand*D2, D2))+1;
-
-        % obstacles overlap, ok, not an error
-        if ~(all([x; y]==initParams.Sstart) || all([x; y]==initParams.Sgoal))
-            globalObstacles(:, i) = [x; y];
-        end
-    end
     
-    map1 = DMap(D1, D2, globalObstacles);
-    map1.map(initParams.Sstart(1), initParams.Sstart(2)).state = MapState.START;
-    map1.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = MapState.GOAL;
+    % try to execute the algorithm, if no path is found obstacles make
+    % the goal unreachable, so it is tried again with new obstacles
+    while 1
+        globalObstacles = zeros(2, numObs);
+        for i=1:numObs
+            x = round(mod(rand*(D1-3), D1))+2; % round(mod(rand*D1, D1))+1;
+            y = round(mod(rand*(D2-3), D1))+2; % round(mod(rand*D2, D2))+1;
 
-    map2 = DSLMap(D1, D2, globalObstacles, DSLMap.TYPE_KNOWN, 1); % TODO cost
-    map2.map(initParams.Sstart(1), initParams.Sstart(2)).state = DSLState.START;
-    map2.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = DSLState.GOAL;
-    
-    map3 = FDMap(D1, D2, globalObstacles, DSLMap.TYPE_KNOWN, 1); % TODO cost
-    map3.map(initParams.Sstart(1), initParams.Sstart(2)).state = DSLState.START;
-    map3.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = DSLState.GOAL;
-    
-    obstacles = [];
-    knownObstacles = [];
-    
-    for i=1:initParams.Na
-        disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
-%         disp("Inizialization");
-
-        switch(i)
-            case 1
-                tic
-                currAlgo = D_Star(map1, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                    initParams.moves, initParams.ranges(i), initParams.costs(i));
-                tocTime = toc;
-            case 2
-                tic
-                currAlgo = D_star_lite_v1(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                    initParams.moves, initParams.ranges(i), initParams.costs(i));
-                tocTime = toc;
-            case 3
-                tic
-                currAlgo = D_star_lite_v2(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                    initParams.moves, initParams.ranges(i), initParams.costs(i));
-                tocTime = toc;
-            case 4
-                tic
-                currAlgo = Field_D_star(map3, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                    initParams.moves, initParams.ranges(i), initParams.costs(i));
-                tocTime = toc;
-            otherwise
-                error("Wrong type of algorithm!")
+            % obstacles overlap, ok, not an error
+            if ~(all([x; y] == initParams.Sstart) || all([x; y] == initParams.Sgoal))
+                globalObstacles(:, i) = [x; y];
+            end
         end
 
-        infosAlgo(currEpoch, i).initTime = tocTime;
-%         disp("└──-Inizialization terminated in: <strong>"+string(tocTime)+...
-%             "</strong> s");
-%         
-%         disp("Execution");
-        tic
-        finalPath = currAlgo.run();
-        tocTime = toc;
-        infosAlgo(currEpoch, i).computationTime = tocTime;
-        infosAlgo(currEpoch, i).finalPath = finalPath;
-%         disp("└──-Execution terminated in: <strong>"+string(tocTime)+...
-%             "</strong> s");
-        
-        infosAlgo(currEpoch, i).expCells = currAlgo.expCells;
-        infosAlgo(currEpoch, i).expCellsList = currAlgo.expCellsList;
-        infosAlgo(currEpoch, i).totSteps = currAlgo.totSteps;
-        infosAlgo(currEpoch, i).totStepsList = currAlgo.totStepsList;
-        infosAlgo(currEpoch, i).pathLength = currAlgo.pathLength;
-        
-        imgs(:, :, :, i) = currAlgo.localMap.buildImageMap();
+        map1 = DMap(D1, D2, globalObstacles);
+        map1.map(initParams.Sstart(1), initParams.Sstart(2)).state = MapState.START;
+        map1.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = MapState.GOAL;
+
+        map2 = DSLMap(D1, D2, globalObstacles, DSLMap.TYPE_KNOWN, 1); % TODO cost
+        map2.map(initParams.Sstart(1), initParams.Sstart(2)).state = DSLState.START;
+        map2.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = DSLState.GOAL;
+
+        map3 = FDMap(D1, D2, globalObstacles, DSLMap.TYPE_KNOWN, 1); % TODO cost
+        map3.map(initParams.Sstart(1), initParams.Sstart(2)).state = DSLState.START;
+        map3.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = DSLState.GOAL;
+
+        obstacles = [];
+        knownObstacles = [];
+
+        for i=1:initParams.Na
+            disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
+            disp("Inizialization");
+
+            switch(i)
+                case 1
+                    tic
+                    currAlgo = D_Star(map1, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                        initParams.moves, initParams.ranges(i), initParams.costs(i));
+                    tocTime = toc;
+                case 2
+                    tic
+                    currAlgo = D_star_lite_v1(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                        initParams.moves, initParams.ranges(i), initParams.costs(i));
+                    tocTime = toc;
+                case 3
+                    tic
+                    currAlgo = D_star_lite_v2(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                        initParams.moves, initParams.ranges(i), initParams.costs(i));
+                    tocTime = toc;
+                case 4
+                    tic
+                    currAlgo = Field_D_star(map3, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                        initParams.moves, initParams.ranges(i), initParams.costs(i));
+                    tocTime = toc;
+                otherwise
+                    error("Wrong type of algorithm!")
+            end
+
+            infosAlgo(currEpoch, i).initTime = tocTime;
+            disp("└──-Inizialization terminated in: <strong>"+string(tocTime)+...
+                "</strong> s");
+
+            try
+                disp("Execution");
+                tic
+                finalPath = currAlgo.run();
+                tocTime = toc;
+                infosAlgo(currEpoch, i).computationTime = tocTime;
+                infosAlgo(currEpoch, i).finalPath = finalPath;
+                disp("└──-Execution terminated in: <strong>"+string(tocTime)+...
+                    "</strong> s");
+
+                infosAlgo(currEpoch, i).expCells = currAlgo.expCells;
+                infosAlgo(currEpoch, i).expCellsList = currAlgo.expCellsList;
+                infosAlgo(currEpoch, i).totSteps = currAlgo.totSteps;
+                infosAlgo(currEpoch, i).totStepsList = currAlgo.totStepsList;
+                infosAlgo(currEpoch, i).pathLength = currAlgo.pathLength;
+                imgs(:, :, :, i) = currAlgo.localMap.buildImageMap();
+            catch
+                disp("Map not valid: obstacles make the goal unreachable")
+                break
+            end
+        end
+        break
     end
     
     %plotAlgs(map2.buildImageMap(), imgs, initParams.Na)
+    %waitInput();
 end
 disp("Terminated!")
 
@@ -222,6 +232,7 @@ end
 function plotAlgs(img_g, imgs, Na)
     Nc = ceil(Na/3)+1;
     
+    figure
     ax1 = subplot(3,Nc,Nc+1);
     image(ax1, img_g);
     title(ax1, "Global Map");

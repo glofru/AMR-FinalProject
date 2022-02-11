@@ -49,6 +49,7 @@ end
 %% MAIN
 D1 = initParams.dim(1);
 D2 = initParams.dim(2);
+numObs = round(D1*D2*4/10);
 epoch = double(input("How many epochs: "));
 
 infosAlgo(epoch, initParams.Na) = AlgoInfo();
@@ -74,11 +75,11 @@ for currEpoch=1:epoch
     % try to execute the algorithm, if no path is found obstacles make
     % the goal unreachable, so it is tried again with new obstacles
     while 1
-        globalObstacles = zeros(2, round(D1*D2/2));
-        for i=1:round(D1*D2/2) % 2)
-            x = round(mod(rand*D1, D1))+1;
-            y = round(mod(rand*D2, D2))+1;
-    
+        globalObstacles = zeros(2, numObs);
+        for i=1:numObs
+            x = round(mod(rand*(D1-3), D1))+2; % round(mod(rand*D1, D1))+1;
+            y = round(mod(rand*(D2-3), D1))+2; % round(mod(rand*D2, D2))+1;
+
             % obstacles overlap, ok, not an error
             if ~(all([x; y] == initParams.Sstart) || all([x; y] == initParams.Sgoal))
                 globalObstacles(:, i) = [x; y];
@@ -150,10 +151,11 @@ for currEpoch=1:epoch
                 infosAlgo(currEpoch, i).totSteps = currAlgo.totSteps;
                 infosAlgo(currEpoch, i).totStepsList = currAlgo.totStepsList;
                 infosAlgo(currEpoch, i).pathLength = currAlgo.pathLength;
-                
-                break
             catch
                 disp("Map not valid: obstacles make the goal unreachable")
+                map.plot()
+                waitInput()
+                break
             end
         end
     end

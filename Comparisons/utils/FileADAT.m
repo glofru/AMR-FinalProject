@@ -76,7 +76,7 @@ classdef FileADAT < handle
                  "    2) D*Lite v1"+newline+...
                  "    3) D*Lite v2"+newline+...
                  "    4) Field D*"+newline)
-            algorithmType = input('search algorithm: ');
+            algorithmType = 3;%input('search algorithm: ');
             switch algorithmType
                 case 1
                     obj.typeAlgo = FileADAT.ALGO_DS;
@@ -101,7 +101,7 @@ classdef FileADAT < handle
             obj.Na = 4;
 
             obj.ranges = ones(1, obj.Na) * 2;
-            obj.costs  = ones(1, obj.Na) * 0.1;
+            obj.costs  = ones(1, obj.Na) * 0.5;
         end
         
         function obj = getFromFile(fid)

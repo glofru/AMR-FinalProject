@@ -113,7 +113,7 @@ classdef D_Star < handle
             
             % update graph
             
-            if isempty(obj.currPos.parent.state)
+            if isempty(obj.currPos.parent)
                 disp("no poss path")
                 return
             end
@@ -162,6 +162,7 @@ classdef D_Star < handle
                                 state.h = Inf;
                                 state.k = Inf;
                                 state.state = s;
+                                state.parent = DState.empty;
                             end
                         end
                     end

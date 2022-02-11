@@ -132,7 +132,6 @@ classdef D_Star < handle
         end
 
         function state = step(obj)
-            obj.totStepsList(end+1) = obj.totSteps;
             state = 1;
 
             obj.updateMap()
@@ -149,11 +148,13 @@ classdef D_Star < handle
             % update graph
             if obj.currPos.parent.state == MapState.OBSTACLE
                 obj.modify_cost(obj.currPos)
+                state = 0;
                 return
             end
 
             % metrics
             obj.pathLength = obj.pathLength + 1;
+            obj.totStepsList(end+1) = obj.totSteps;
             obj.expCellsList(end+1) = obj.expCells;
 
             % goes forward
@@ -168,11 +169,9 @@ classdef D_Star < handle
             while(~isFinish(obj))
                 state = obj.step();
 
-                dimensionPath = dimensionPath + 1;
-                finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
-                
-                if state == -1
-                    break
+                if state == 1
+                    dimensionPath = dimensionPath + 1;
+                    finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
                 end
             end
 

@@ -93,40 +93,41 @@ for currEpoch=1:epoch
         obstacles = [];
         knownObstacles = [];
 
-        for i=1:initParams.Na
-            disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
-            disp("Inizialization");
-
-            switch(i)
-                case 1
-                    tic
-                    currAlgo = D_Star(map1, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                        initParams.moves, initParams.ranges(i), initParams.costs(i));
-                    tocTime = toc;
-                case 2
-                    tic
-                    currAlgo = D_star_lite_v1(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                        initParams.moves, initParams.ranges(i), initParams.costs(i));
-                    tocTime = toc;
-                case 3
-                    tic
-                    currAlgo = D_star_lite_v2(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                        initParams.moves, initParams.ranges(i), initParams.costs(i));
-                    tocTime = toc;
-                case 4
-                    tic
-                    currAlgo = Field_D_star(map3, knownObstacles, initParams.Sstart, initParams.Sgoal,...
-                        initParams.moves, initParams.ranges(i), initParams.costs(i));
-                    tocTime = toc;
-                otherwise
-                    error("Wrong type of algorithm!")
-            end
-
-            infosAlgo(currEpoch, i).initTime = tocTime;
-            disp("└──-Inizialization terminated in: <strong>"+string(tocTime)+...
-                "</strong> s");
-
-            try
+        try
+            for i=1:initParams.Na
+                disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
+                disp("Inizialization");
+    
+                switch(i)
+                    case 1
+                        tic
+                        currAlgo = D_Star(map1, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                            initParams.moves, initParams.ranges(i), initParams.costs(i));
+                        tocTime = toc;
+                    case 2
+                        tic
+                        currAlgo = D_star_lite_v1(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                            initParams.moves, initParams.ranges(i), initParams.costs(i));
+                        tocTime = toc;
+                    case 3
+                        tic
+                        currAlgo = D_star_lite_v2(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                            initParams.moves, initParams.ranges(i), initParams.costs(i));
+                        tocTime = toc;
+                    case 4
+                        tic
+                        currAlgo = Field_D_star(map3, knownObstacles, initParams.Sstart, initParams.Sgoal,...
+                            initParams.moves, initParams.ranges(i), initParams.costs(i));
+                        tocTime = toc;
+                    otherwise
+                        error("Wrong type of algorithm!")
+                end
+    
+                infosAlgo(currEpoch, i).initTime = tocTime;
+                disp("└──-Inizialization terminated in: <strong>"+string(tocTime)+...
+                    "</strong> s");
+    
+                
                 disp("Execution");
                 tic
                 finalPath = currAlgo.run();
@@ -142,12 +143,11 @@ for currEpoch=1:epoch
                 infosAlgo(currEpoch, i).totStepsList = currAlgo.totStepsList;
                 infosAlgo(currEpoch, i).pathLength = currAlgo.pathLength;
                 imgs(:, :, :, i) = currAlgo.localMap.buildImageMap();
-            catch
-                disp("Map not valid: obstacles make the goal unreachable")
-                break
             end
+            break
+        catch
+            disp("Map not valid: obstacles make the goal unreachable")
         end
-        break
     end
     
     %plotAlgs(map2.buildImageMap(), imgs, initParams.Na)

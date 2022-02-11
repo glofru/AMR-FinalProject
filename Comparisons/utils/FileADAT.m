@@ -176,6 +176,21 @@ classdef FileADAT < handle
                 all(obj.costs == f.costs) &&...
                 obj.Na == f.Na);
         end
+
+        function s = typeAlgoToStr(obj)
+            switch obj.typeAlgo
+                case FileADAT.ALGO_DS
+                    s = "D*";
+                case FileADAT.ALGO_DSL_V1
+                    s = "D* Lite v1";
+                case FileADAT.ALGO_DSL_V2
+                    s = "D* Lite v2";
+                case FileADAT.ALGO_FDS
+                    s = "Field D*";
+                otherwise
+                    s = "";
+            end
+        end
     end
 end
 

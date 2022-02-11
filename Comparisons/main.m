@@ -181,14 +181,31 @@ initParams.epochDone = epoch;
  switch (typeOfInput)
      case {1, 2}
          if initParams.typeAlgo == FileADAT.ALGO_ALL
+             oldNa = initParams.Na;
              initParams.Na = 1;
              fileName = split(inputFile, ".");
              pref = fileName(1);
              suff = fileName(2);
-             for i=["_DS.", "_DSLV1.", "_DSLV2.", "_FDS."]
-                 appInputFile = pref+i+suff;
-                 saveDataOnFileADAT(inputPath, initParams, infosAlgo, appInputFile);
+             for i=1:oldNa
+                 switch(i)
+                     case 1
+                         core = "_DS.";
+                         initParams.typeAlgo = FileADAT.ALGO_DS;
+                     case 2
+                         core = "_DSLV1.";
+                         initParams.typeAlgo = FileADAT.ALGO_DSL_V1;
+                     case 3
+                         core = "_DSLV2.";
+                         initParams.typeAlgo = FileADAT.ALGO_DSL_V2;
+                     case 4
+                         core = "_FDS.";
+                         initParams.typeAlgo = FileADAT.ALGO_FDS;
+                 end
+                 appInputFile = pref+core+suff;
+                 saveDataOnFileADAT(inputPath, initParams, infosAlgo(:, i), appInputFile);
              end
+             initParams.Na = oldNa;
+             initParams.typeAlgo = FileADAT.ALGO_ALL;
          else
              saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
          end
@@ -216,7 +233,7 @@ for i=1:initParams.Na
     colormap('hot')
     imagesc(reshape(heatMap(i, :, :), [initParams.dim(1), initParams.dim(2)]))
     colorbar
-    title(initParams(n).typeAlgo+newline+"Range="+num2str(initParams.ranges(i))+...
+    title(initParams.typeAlgo+newline+"Range="+num2str(initParams.ranges(i))+...
         " Cost="+num2str(costs(i)))
 end
 

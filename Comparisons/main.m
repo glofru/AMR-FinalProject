@@ -176,7 +176,7 @@ for currEpoch=1:epoch
 end
 disp("Terminated!")
 
-%%
+%% SAVE
 initParams.epochDone = epoch;
  switch (typeOfInput)
      case {1, 2}

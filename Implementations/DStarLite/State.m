@@ -13,6 +13,8 @@ classdef State < handle
 
         VISITED = "╬";
         PATH = "≡";
+        
+        OPEN = "a";
     end
     
     properties
@@ -113,6 +115,9 @@ classdef State < handle
                     color = [0, 255, 0];
                 case State.PATH % "≡"
                     color = [255, 0, 0];
+                    
+                case State.OPEN % "≡"
+                    color = [125, 125, 0];
             end
         end
     end

@@ -44,16 +44,12 @@ classdef DSLPriorityQueue < handle
         % insert in the queue vertex s with value k
         % if already exists change priority of s from k (old) to k
         function insert(obj, s, k)
-            s.k = k; % ==> s.Kold = k
-            
-            pos = obj.find(s);
-            if pos == -1
-                obj.queue(end+1) = s;
+            s.k = k;
+            obj.queue(end+1) = s;
                 
                 % TODO
-                if s.state == DSLState.UNKNOWN || s.state == DSLState.EMPTY
-                    s.state = DSLState.VISITED;
-                end
+            if s.state == DSLState.UNKNOWN || s.state == DSLState.EMPTY
+                s.state = DSLState.VISITED;
             end
         end
         

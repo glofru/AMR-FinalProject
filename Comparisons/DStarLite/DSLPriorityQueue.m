@@ -40,6 +40,7 @@ classdef DSLPriorityQueue < handle
             end
         end
 
+        % check if the queue has vertex s and remove it
         function removeIfPresent(obj, s)
             pos = obj.find(s);
             if pos ~= -1
@@ -53,11 +54,6 @@ classdef DSLPriorityQueue < handle
         function insert(obj, s, k)
             s.k = k;
             obj.queue(end+1) = s;
-                
-                % TODO
-            if s.state == DSLState.UNKNOWN || s.state == DSLState.EMPTY
-                s.state = DSLState.VISITED;
-            end
         end
         
         % remove from the queue vertex s
@@ -66,12 +62,13 @@ classdef DSLPriorityQueue < handle
             obj.queue(pos) = [];
         end
 
+        % remove from the queue vertex in position pos
         function removeIndex(obj, pos)
             obj.queue(pos) = [];
         end
         
         % return a vertex with the smallest priority k
-        % optional minV
+        % optional minV, pos
         function [s, k, pos] = top(obj)
             k = [Inf, Inf];
             s = [];

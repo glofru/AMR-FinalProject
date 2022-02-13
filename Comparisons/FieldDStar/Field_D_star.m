@@ -61,9 +61,7 @@ classdef Field_D_star < handle
                 obstacles, FDMap.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
-            obj.currPos.state = FDState.POSITION;
             obj.goal = obj.localMap.map(Sgoal(1), Sgoal(2));
-            obj.goal.state = FDState.GOAL;
             
             obj.goal.rhs = 0;
             obj.OPEN.insert(obj.goal, obj.goal.calcKey(obj.currPos));
@@ -94,9 +92,7 @@ classdef Field_D_star < handle
 
         
         % scan the map for new obstacles
-        function isChanged = updateMap(obj)
-            isChanged = false;
-            
+        function updateMap(obj)
             is = obj.currPos.x;
             js = obj.currPos.y;
             
@@ -109,19 +105,18 @@ classdef Field_D_star < handle
                     if obj.localMap.isInside(newX, newY)
                         chr = obj.globalMap.map(newX, newY).state;
                         
+                        state = obj.localMap.map(is+i, js+j);
                         if chr == FDState.OBSTACLE
-                            if obj.localMap.map(newX, newY).state ~= chr
-                                obj.localMap.map(is+i, js+j).state = chr;
+                            if state.state ~= chr
+                                state.state = chr;
                                 new_obs = [newX; newY];
                                 obj.localMap.obstacles(:, end+1) = new_obs;
                                 obj.newObstacles(:, end+1) = new_obs;
-                                isChanged = true;
                             end
                         end
                     end
                 end
             end
-            obj.currPos.state = FDState.POSITION;
         end
         
         % return the set of predecessor states of the state u
@@ -174,9 +169,7 @@ classdef Field_D_star < handle
                 end
             end
 
-            if obj.OPEN.has(s)
-                obj.OPEN.remove(s);
-            end
+            obj.U.removeIfPresent(s);
 
             if s.g ~= s.rhs
                 obj.OPEN.insert(s, s.calcKey(obj.currPos));
@@ -187,7 +180,7 @@ classdef Field_D_star < handle
         % compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
             while true
-                [s, k] = obj.OPEN.top();
+                [s, k, pos] = obj.OPEN.top();
                 if ~(min2(k, obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                     return
@@ -195,13 +188,7 @@ classdef Field_D_star < handle
                 
                 obj.totSteps = obj.totSteps+1;
                 
-                obj.OPEN.remove(s);
-                
-                % TODO
-                if s.state == FDState.UNKNOWN || s.state == FDState.EMPTY || ...
-                        s.state == FDState.VISITED
-                    s.state = FDState.START;
-                end
+                obj.OPEN.removeIndex(pos);
 
                 if (s.g > s.rhs)
                     s.g = s.rhs;
@@ -223,13 +210,16 @@ classdef Field_D_star < handle
         % discovered
         function updateEdgesCost(obj)
             updateCells = FDPriorityQueue();
+            updateCells.insert(obj.currPos, obj.currPos.calcKey(obj.currPos));
+
             for o=obj.newObstacles
                 oState = obj.localMap.map(o(1), o(2));
 
                 oState.g = inf;
                 oState.rhs = inf;
+                oState.k = oState.calcKey(obj.currPos);
+                
                 pred = obj.predecessor(oState);
-
                 for p=pred
                     updateCells.insert(p, p.calcKey(obj.currPos));
                 end
@@ -276,14 +266,13 @@ classdef Field_D_star < handle
             obj.pathLength = obj.pathLength+1;
             
             % move to minPos
-            obj.currPos.state = FDState.PATH; % TODO
             [~, nextState] = minVal(obj.currPos, obj.successor2(obj.currPos));
 
             % scan graph
-            isChanged = obj.updateMap();
+            obj.updateMap();
 
             %obj.localMap.plot();
-            %pause(0.25); % because otherwise matlab doesn't update the plot
+            %pause(0.01); % because otherwise matlab doesn't update the plot
 
             % update graph
             if nextState.state == FDState.OBSTACLE %isChanged
@@ -310,6 +299,11 @@ classdef Field_D_star < handle
                 
                 dimensionPath = dimensionPath + 1;
                 finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
+            end
+            
+            if dimensionPath >= obj.maxLengthFinalPath % never happened
+                disp("loop") 
+                error("loop")
             end
             
             finalPath = finalPath(1:dimensionPath, :);

@@ -40,6 +40,14 @@ classdef FDPriorityQueue < handle
             end
         end
         
+        % check if the queue has vertex s and remove it
+        function removeIfPresent(obj, s)
+            pos = obj.find(s);
+            if pos ~= -1
+                obj.removeIndex(pos);
+            end
+        end
+        
         
         % insert in the queue vertex s with value k
         % if already exists change priority of s from k (old) to k
@@ -49,11 +57,6 @@ classdef FDPriorityQueue < handle
             pos = obj.find(s);
             if pos == -1
                 obj.queue(end+1) = s;
-                
-                % TODO
-                if s.state == FDState.UNKNOWN || s.state == FDState.EMPTY
-                    s.state = FDState.VISITED;
-                end
             end
         end
         
@@ -63,16 +66,25 @@ classdef FDPriorityQueue < handle
             obj.queue(pos) = [];
         end
         
+        % remove from the queue vertex in position pos
+        function removeIndex(obj, pos)
+            obj.queue(pos) = [];
+        end
+        
         % return a vertex with the smallest priority k
         % optional minV
-        function [minS, minV] = top(obj)
-            minV = [Inf, Inf];
-            minS = [];
+        function [minS, minV, pos] = top(obj)
+            k = [Inf, Inf];
+            s = [];
+            pos = -1;
+            curPos = 1;
             for elem=obj.queue
-                if min2(elem.k, minV)
-                    minV = elem.k;
-                    minS = elem;
+                if min2(elem.k, k)
+                    k = elem.k;
+                    s = elem;
+                    pos=curPos;
                 end
+                curPos = curPos +1;
             end
         end
         

@@ -61,9 +61,7 @@ classdef D_star_lite_v1 < handle
                 obstacles, DSLMap.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
-            obj.currPos.state = DSLState.POSITION;
             obj.goal = obj.localMap.map(Sgoal(1), Sgoal(2));
-            obj.goal.state = DSLState.GOAL;
             
             obj.goal.rhs = 0;
             obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos));
@@ -94,9 +92,7 @@ classdef D_star_lite_v1 < handle
         
         
         % scan the map for new obstacles
-        function isChanged = updateMap(obj)
-            isChanged = false;
-            
+        function updateMap(obj)
             is = obj.currPos.x;
             js = obj.currPos.y;
             
@@ -116,13 +112,11 @@ classdef D_star_lite_v1 < handle
                                 new_obs = [newX; newY];
                                 obj.localMap.obstacles(:, end+1) = new_obs;
                                 obj.newObstacles(:, end+1) = new_obs;
-                                isChanged = true;
                             end
                         end
                     end
                 end
             end
-            obj.currPos.state = DSLState.POSITION;
         end
         
         % return the set of predecessor states of the state u
@@ -181,12 +175,6 @@ classdef D_star_lite_v1 < handle
                 obj.totSteps = obj.totSteps+1;
                 
                 obj.U.removeIndex(pos);
-                
-                % TODO
-                if u.state == DSLState.UNKNOWN || u.state == DSLState.EMPTY || ...
-                        u.state == DSLState.VISITED
-                    u.state = DSLState.START;
-                end
 
                 if (u.g > u.rhs)
                     u.g = u.rhs;
@@ -208,7 +196,6 @@ classdef D_star_lite_v1 < handle
         % discovered
         function updateEdgesCost(obj)
             updateCells = DSLPriorityQueue();
-            
             updateCells.insert(obj.currPos, obj.currPos.calcKey(obj.currPos));
             
             for o=obj.newObstacles
@@ -264,17 +251,16 @@ classdef D_star_lite_v1 < handle
             obj.pathLength = obj.pathLength+1;
             
             % move to minPos
-            obj.currPos.state = DSLState.PATH; % TODO
             [~, nextState] = minVal(obj.currPos, obj.successor2(obj.currPos));
 
             % scan graph
-            isChanged = obj.updateMap();
+            obj.updateMap();
 
             %obj.localMap.plot();
             %pause(0.01); % because otherwise matlab doesn't update the plot
 
             % update graph
-            if nextState.state == DSLState.OBSTACLE %isChanged
+            if nextState.state == DSLState.OBSTACLE
                 % TODO optimize
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
@@ -324,7 +310,7 @@ classdef D_star_lite_v1 < handle
                 finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
             end
             
-            if dimensionPath >= obj.maxLengthFinalPath
+            if dimensionPath >= obj.maxLengthFinalPath  % never happened
                 disp("loop")
                 error("loop")
             end

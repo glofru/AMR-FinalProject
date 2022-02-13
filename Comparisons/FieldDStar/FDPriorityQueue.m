@@ -74,14 +74,14 @@ classdef FDPriorityQueue < handle
         % return a vertex with the smallest priority k
         % optional minV
         function [minS, minV, pos] = top(obj)
-            k = [Inf, Inf];
-            s = [];
+            minV = [Inf, Inf];
+            minS = [];
             pos = -1;
             curPos = 1;
             for elem=obj.queue
-                if min2(elem.k, k)
-                    k = elem.k;
-                    s = elem;
+                if min2(elem.k, minV)
+                    minV = elem.k;
+                    minS = elem;
                     pos=curPos;
                 end
                 curPos = curPos +1;

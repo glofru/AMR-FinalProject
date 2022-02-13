@@ -169,7 +169,7 @@ classdef Field_D_star < handle
                 end
             end
 
-            obj.U.removeIfPresent(s);
+            obj.OPEN.removeIfPresent(s);
 
             if s.g ~= s.rhs
                 obj.OPEN.insert(s, s.calcKey(obj.currPos));

@@ -49,7 +49,7 @@ end
 %% MAIN
 D1 = initParams.dim(1);
 D2 = initParams.dim(2);
-numObs = round(D1*D2*0.45);
+numObs = round(D1*D2*(initParams.percNumObs/100));
 epoch = double(input("How many epochs: "));
 
 infosAlgo(epoch, initParams.Na) = AlgoInfo();
@@ -177,7 +177,7 @@ end
 disp("Terminated!")
 
 %% SAVE
-initParams.epochDone = epoch;
+initParams.epochDone = initParams.epochDone + epoch;
  switch (typeOfInput)
      case {1, 2}
          if initParams.typeAlgo == FileADAT.ALGO_ALL
@@ -233,9 +233,16 @@ for i=1:initParams.Na
     colormap('hot')
     imagesc(reshape(heatMap(i, :, :), [initParams.dim(1), initParams.dim(2)]))
     colorbar
-    title(initParams.typeAlgo+newline+"Range="+num2str(initParams.ranges(i))+...
-        " Cost="+num2str(costs(i)))
+    title({initParams.typeAlgoToStr(), "Range="+num2str(initParams.ranges(i))+...
+        " Cost="+num2str(costs(i))})
 end
+xlabel(["",...
+    "Map Size: "+initParams.dim(1)+"x"+initParams.dim(2)+...
+    ", num obstacles: "+initParams.percNumObs+"%",...
+    "Start: ["+num2str(initParams.Sstart')+"], goal: ["+num2str(initParams.Sgoal')+"]",...
+    "Epochs done: "+initParams.epochDone])
+
+waitInput();
 
 
 initTimes4Epoch = zeros(initParams.epochDone, initParams.Na);

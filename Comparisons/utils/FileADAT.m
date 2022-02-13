@@ -15,6 +15,7 @@ classdef FileADAT < handle
         typeAlgo;
         
         dim;
+        percNumObs;
         Sstart;
         Sgoal;
         
@@ -35,6 +36,8 @@ classdef FileADAT < handle
             D1 = double(input("Input D1: "));
             D2 = double(input("Input D2: "));
             obj.dim = [D1; D2];
+            
+            obj.percNumObs = double(input("Percentage number of obstacles: "));
             
             obj.Sstart = [1; 1]; % TODO
             obj.Sgoal = [D1; D2]; % TODO
@@ -68,6 +71,7 @@ classdef FileADAT < handle
             
             D1 = 50;
             D2 = 50;
+            obj.percNumObs = 45;
             obj.dim = [D1; D2];
             
             obj.Sstart = [1; 1];
@@ -87,8 +91,9 @@ classdef FileADAT < handle
             fgetl(fid); % jump
             nums = str2double(regexp(fgetl(fid),'\d*','match')');
             obj.dim = nums(1:2);
-            obj.Sstart = nums(3:4);
-            obj.Sgoal = nums(5:6);
+            obj.percNumObs = nums(3);
+            obj.Sstart = nums(4:5);
+            obj.Sgoal = nums(6:7);
     
             nums = str2double(regexp(fgetl(fid),'[-]?\d*','match'));
             obj.moves = reshape(nums(3:end)', nums(1:2));
@@ -135,6 +140,7 @@ classdef FileADAT < handle
             obj.typeAlgo = [FileADAT.ALGO_INIT_NO_ALGO];
             
             obj.dim = [];
+            obj.percNumObs = 0;
             obj.Sstart = [];
             obj.Sgoal = [];
             
@@ -150,8 +156,8 @@ classdef FileADAT < handle
             ftm = [' ', repmat('%g ', 1, numel(obj.typeAlgo)-1), '%g\n'];
             fprintf(fid, "typeAlgorithm "+ftm, obj.typeAlgo);
             
-            fprintf(fid, "mapSize_x mapSize_y start_x start_y goal_x goal_y\n");
-            fprintf(fid, "%d %d %d %d %d %d\n", obj.dim, obj.Sstart, obj.Sgoal);
+            fprintf(fid, "mapSize_x mapSize_y percNumObs start_x start_y goal_x goal_y\n");
+            fprintf(fid, "%d %d %d %d %d %d %d\n", obj.dim, obj.percNumObs, obj.Sstart, obj.Sgoal);
             
             ftm = ['moves %d %d ', repmat('%g ', 1, numel(obj.moves)-1), '%g\n'];
             fprintf(fid, ftm, size(obj.moves, 1), size(obj.moves, 2), obj.moves);
@@ -166,8 +172,9 @@ classdef FileADAT < handle
         end
         
         function e = eq(obj, f)
-            e = (all(obj.typeAlgo == f.typeAlgo) &&...
+            e = (obj.typeAlgo == f.typeAlgo &&...
                 all(obj.dim == f.dim) &&...
+                obj.percNumObs == f.percNumObs &&...
                 all(obj.Sstart == f.Sstart) &&...
                 all(obj.Sgoal == f.Sgoal) &&...
                 all(all(obj.moves == f.moves)) &&...

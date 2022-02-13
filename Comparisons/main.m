@@ -242,7 +242,6 @@ xlabel(["",...
     "Start: ["+num2str(initParams.Sstart')+"], goal: ["+num2str(initParams.Sgoal')+"]",...
     "Epochs done: "+initParams.epochDone])
 
-waitInput();
 
 
 initTimes4Epoch = zeros(initParams.epochDone, initParams.Na);

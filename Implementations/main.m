@@ -18,7 +18,7 @@ algorithmType = 3;%input('search algorithm: ');
 
 D1 = 50;
 D2 = 50;
-numObs = round(D1*D2/2);
+numObs = round(D1*D2*0.5);
 dim = [D1; D2];
 Sstart = [1; 1];
 Sgoal = [D1; D2];
@@ -33,8 +33,8 @@ while execute
 
     globalObstacles = zeros(2, numObs);
     for i=1:numObs
-        x = round(mod(rand*D1, D1))+1;
-        y = round(mod(rand*D2, D2))+1;
+        x = round(mod(rand*(D1-3), D1))+2; % round(mod(rand*D1, D1))+1;
+        y = round(mod(rand*(D2-3), D1))+2; % round(mod(rand*D2, D2))+1;
 
         % obstacles overlap, ok, not an error
         if ~(all([x; y]==Sstart) || all([x; y]==Sgoal))

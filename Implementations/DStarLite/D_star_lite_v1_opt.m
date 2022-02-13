@@ -60,9 +60,6 @@ classdef D_star_lite_v1_opt < handle
         function computeShortestPath2(obj)
             while true
                 [u, k] = obj.U.top();
-                if isempty(k)
-                    k
-                end
                 if ~(min2(k, obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                     return
@@ -103,6 +100,7 @@ classdef D_star_lite_v1_opt < handle
                 isFin = true;
             elseif obj.currPos.g == inf
                 disp("Path not found")
+                isFin = true;
             else
                 isFin = false;
             end

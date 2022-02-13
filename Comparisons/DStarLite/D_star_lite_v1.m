@@ -161,9 +161,7 @@ classdef D_star_lite_v1 < handle
                 [u.rhs, ~] = minVal(u, obj.successor(u));
             end
 
-            if obj.U.has(u)
-                obj.U.remove(u);
-            end
+            obj.U.removeIfPresent(u);
 
             if u.g ~= u.rhs
                 obj.U.insert(u, u.calcKey(obj.currPos));
@@ -174,7 +172,7 @@ classdef D_star_lite_v1 < handle
         % compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
             while true
-                [u, k] = obj.U.top();
+                [u, k, pos] = obj.U.top();
                 if ~(min2(k, obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                     return
@@ -182,7 +180,7 @@ classdef D_star_lite_v1 < handle
                 
                 obj.totSteps = obj.totSteps+1;
                 
-                obj.U.remove(u);
+                obj.U.removeIndex(pos);
                 
                 % TODO
                 if u.state == DSLState.UNKNOWN || u.state == DSLState.EMPTY || ...

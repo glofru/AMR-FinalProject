@@ -39,6 +39,13 @@ classdef DSLPriorityQueue < handle
                 isInside = false;
             end
         end
+
+        function removeIfPresent(obj, s)
+            pos = obj.find(s);
+            if pos ~= -1
+                obj.removeIndex(pos);
+            end
+        end
         
         
         % insert in the queue vertex s with value k
@@ -58,17 +65,25 @@ classdef DSLPriorityQueue < handle
             pos = obj.find(s);
             obj.queue(pos) = [];
         end
+
+        function removeIndex(obj, pos)
+            obj.queue(pos) = [];
+        end
         
         % return a vertex with the smallest priority k
         % optional minV
-        function [minS, minV] = top(obj)
-            minV = [Inf, Inf];
-            minS = [];
+        function [s, k, pos] = top(obj)
+            k = [Inf, Inf];
+            s = [];
+            pos = -1;
+            curPos = 1;
             for elem=obj.queue
-                if min2(elem.k, minV)
-                    minV = elem.k;
-                    minS = elem;
+                if min2(elem.k, k)
+                    k = elem.k;
+                    s = elem;
+                    pos=curPos;
                 end
+                curPos = curPos +1;
             end
         end
         

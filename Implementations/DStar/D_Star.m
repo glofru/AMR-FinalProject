@@ -114,7 +114,7 @@ classdef D_Star < handle
             % update graph
             
             if isempty(obj.currPos.parent)
-                disp("no poss path")
+                disp("Path not found")
                 return
             end
             
@@ -128,7 +128,7 @@ classdef D_Star < handle
             obj.currPos.state = MapState.CURPOS;
             
             obj.localMap.plot();
-            pause(0.25); % because otherwise matlab doesn't update the plot
+            pause(0.1); % because otherwise matlab doesn't update the plot
         end
 
         function run(obj)

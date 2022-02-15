@@ -248,8 +248,8 @@ classdef D_star_lite_v1 < handle
         
         % compute one step from the current position
         function step(obj)
-            obj.pathLength = obj.pathLength+1;
-            
+            obj.pathLength = obj.pathLength + 1;
+
             % move to minPos
             [~, nextState] = minVal(obj.currPos, obj.successor2(obj.currPos));
 

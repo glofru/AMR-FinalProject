@@ -21,12 +21,15 @@ classdef Field_D_star < handle
         OPEN;
         % set of new obstacles discovered
         newObstacles;
+        
+        
+        plotVideo;
     end
     
     methods
         % Field_D_star constructor
         function obj = Field_D_star(globalMap, obstacles, Sstart, Sgoal,...
-                moves, range, cost)
+                moves, range, cost, plotVideo)
             arguments
                 % Map having global knowledge
                 globalMap
@@ -42,6 +45,8 @@ classdef Field_D_star < handle
                 range = 1;
                 % cost of a step
                 cost = 1;
+                
+                plotVideo = 0;
             end
             % copy vals
             obj.globalMap = globalMap;
@@ -50,6 +55,7 @@ classdef Field_D_star < handle
             obj.newObstacles = [];
             obj.range = range;
             obj.cost = cost;
+            obj.plotVideo = plotVideo;
             
             % inizialize map
             obj.localMap = Map(obj.globalMap.row, obj.globalMap.col,...
@@ -191,8 +197,10 @@ classdef Field_D_star < handle
             while (min2(obj.OPEN.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                 
-                %obj.localMap.plot(); % comment for fast plot
-                %pause(0.1)
+%                 if obj.plotVideo
+%                     obj.localMap.plot();
+%                     pause(0.01);
+%                 end
                 s = obj.OPEN.pop();
                 
                 % TODO
@@ -267,8 +275,10 @@ classdef Field_D_star < handle
             % scan graph
             isChanged = obj.updateMap();
 
-            obj.localMap.plot();
-            pause(0.25); % because otherwise matlab doesn't update the plot
+            if obj.plotVideo
+                obj.localMap.plot();
+                pause(0.01);
+            end
 
             % update graph
             if isChanged

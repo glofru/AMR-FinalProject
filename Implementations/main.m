@@ -4,7 +4,14 @@ clc
 restoredefaultpath
 
 addpath('./utils')
+
 %% Main
+
+if ispc
+    pathDelimiter = "\";
+else
+    pathDelimiter = "/";
+end
 
 disp("Which search algorithm?"+newline+...
      "    1) D*"+newline+...
@@ -14,16 +21,19 @@ disp("Which search algorithm?"+newline+...
      "    5) D*Lite v2 optimized"+newline+...
      "    6) Field D*"+newline+...
      "    7) Field D* optimized"+newline)
-algorithmType = 3;%input('search algorithm: ');
+algorithmType = input('search algorithm: ');
 
-D1 = 50;
-D2 = 50;
-numObs = round(D1*D2*0.5);
+plotVideo = input("Plot video? [0=No/1=Yes] ");
+saveVideo = input("Save video? [0=No/1=Yes] ");
+
+D1 = 20;
+D2 = 20;
+numObs = round(D1*D2*0.25);
 dim = [D1; D2];
 Sstart = [1; 1];
 Sgoal = [D1; D2];
 
-range = 2;
+range = 3;
 cost = 1;
 
 moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
@@ -71,61 +81,88 @@ while execute
         map.map(Sgoal(1), Sgoal(2)).state = State.GOAL;
     end
     obstacles = [];
+
+    if saveVideo
+        d = dir(strcat(pwd, pathDelimiter, "*.avi"));
+        fileNameVideo = strcat('myVideo', num2str(length(d)));
+        disp("Saving video on file: "+fileNameVideo)
+        writerObj = VideoWriter(fileNameVideo);
+        writerObj.FrameRate = 30;
+        open(writerObj);
+        %figure('units','normalized','outerposition',[0 0 1 1])
+    end
     
     switch algorithmType
         case 1
             tic
             algorithm = D_Star(map, obstacles, Sstart, Sgoal, moves,...
-                range, cost);
+                range, cost, plotVideo);
             tocTime = toc;
         case 2
             tic
             algorithm = D_star_lite_v1(map, obstacles, Sstart, Sgoal, moves,...
-                range, cost);
+                range, cost, plotVideo);
             tocTime = toc;
         case 3
             tic
             algorithm = D_star_lite_v1_opt(map, obstacles, Sstart, Sgoal, moves,...
-                range, cost);
+                range, cost, plotVideo);
             tocTime = toc;
         case 4
             tic
             algorithm = D_star_lite_v2(map, obstacles, Sstart, Sgoal, moves,...
-                range, cost);
+                range, cost, plotVideo);
             tocTime = toc;
         case 5
             tic
             algorithm = D_star_lite_v2_opt(map, obstacles, Sstart, Sgoal, moves,...
-                range, cost);
+                range, cost, plotVideo);
             tocTime = toc;
         case 6
             tic
             algorithm = Field_D_star(map, obstacles, Sstart, Sgoal, moves,...
-                range, cost);
+                range, cost, plotVideo);
             tocTime = toc;
         case 7
             tic
             algorithm = Field_D_star_opt(map, obstacles, Sstart, Sgoal, moves,...
-                range, cost);
+                range, cost, plotVideo);
             tocTime = toc;
     end
     
     disp('Inizialization terminated in: '+string(tocTime)+' s'+newline);
     disp("Global Map and Algorithm Initial Map!");
     
-    set(gcf, 'Position', [400 200 1000 400]);
-    ax1 = subplot(1, 2, 1);
-    map.plot();
-    title(ax1, "Global Map")
-    ax2 = subplot(1, 2, 2);
-    algorithm.localMap.plot();
-    title(ax2, "Algorithm Initial Map")
-    xlabel(['',newline,'\bf Press Enter to continue!'])
-    waitInput();
+    if plotVideo
+        set(gcf, 'Position', [400 200 1000 400]);
+        ax1 = subplot(1, 2, 1);
+        map.plot();
+        title(ax1, "Global Map")
+        ax2 = subplot(1, 2, 2);
+        algorithm.localMap.plot();
+        title(ax2, "Algorithm Initial Map")
+        xlabel(['',newline,'\bf Press Enter to continue!'])
+        waitInput();
+    end
 
-    tic
-    algorithm.run();
-    disp('run terminated in: '+string(toc)+' s'+newline);
+    if saveVideo
+        tic
+        while(~algorithm.isFinish())
+            algorithm.step()
+
+            %frame = getframe(gcf);
+            frame = algorithm.localMap.buildImageMap();
+            writeVideo(writerObj, frame);
+            writeVideo(writerObj, frame);
+            writeVideo(writerObj, frame);
+        end
+        disp('run terminated in: '+string(toc)+' s'+newline);
+        close(writerObj);
+    else
+        tic
+        algorithm.run();
+        disp('run terminated in: '+string(toc)+' s'+newline);
+    end
     
     execute = input("Another map? [0=No/1=Yes] ");
     try

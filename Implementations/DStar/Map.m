@@ -126,7 +126,12 @@ classdef Map < handle
         end
 
         % generate the map image
-        function rgbImage = buildImage(obj, highlightedState)
+        function rgbImage = buildImageMap(obj, highlightedState)
+            arguments
+                obj {}
+                highlightedState {} = State.empty
+            end
+            
             rgbImage = zeros(obj.row, obj.col, 3) + 255;
 
             for i = 1:obj.row
@@ -150,6 +155,8 @@ classdef Map < handle
                 rgbImage(tmp.x, tmp.y, :) = MapState.PATH.getColor();
                 tmp = tmp.parent;
             end
+            
+            rgbImage = imresize(rgbImage , 100, 'nearest');
         end
 
 
@@ -159,10 +166,10 @@ classdef Map < handle
                 obj {}
                 highlightedState {} = State.empty
             end
-            J = obj.buildImage(highlightedState);
+            J = obj.buildImageMap(highlightedState);
             %J = imrotate(rgbImage,90);
             %J = imresize( J , 100);
-            imshow(J, 'InitialMagnification', 1000);
+            imshow(J);
         end
     end
 end

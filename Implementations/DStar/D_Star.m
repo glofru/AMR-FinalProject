@@ -11,15 +11,19 @@ classdef D_Star < handle
         cost;
 
         open_list;
+        
+        
+        plotVideo;
     end
 
     methods
         function obj = D_Star(globalMap, obstacles, Sstart, Sgoal,...
-                moves, range, cost)
+                moves, range, cost, plotVideo)
             obj.globalMap = globalMap;
             obj.moves = moves;
             obj.range = range;
             obj.cost = cost;
+            obj.plotVideo = plotVideo;
 
 
             % initialize map
@@ -45,9 +49,11 @@ classdef D_Star < handle
             end
             Kold = X.k;
             obj.open_list.remove(X);
-            
-            %obj.localMap.plot(X); % comment for fast plot
-            %pause(0.1);
+% 
+%             if obj.plotVideo
+%                 obj.localMap.plot();
+%                 pause(0.01);
+%             end
             
             succ = obj.localMap.neighbors(X, obj.moves);
             if Kold < X.h
@@ -127,8 +133,10 @@ classdef D_Star < handle
             obj.currPos = obj.currPos.parent;
             obj.currPos.state = MapState.CURPOS;
             
-            obj.localMap.plot();
-            pause(0.1); % because otherwise matlab doesn't update the plot
+            if obj.plotVideo
+                obj.localMap.plot();
+                pause(0.01);
+            end
         end
 
         function run(obj)

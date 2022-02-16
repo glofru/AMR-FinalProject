@@ -15,11 +15,14 @@ classdef D_star_lite_v2_opt < handle
         
         Slast;
         km;
+        
+        
+        plotVideo;
     end
     
     methods
         function obj = D_star_lite_v2_opt(globalMap, obstacles, Sstart, Sgoal,...
-                moves, range, cost)
+                moves, range, cost, plotVideo)
             arguments
                 globalMap
                 obstacles
@@ -29,6 +32,8 @@ classdef D_star_lite_v2_opt < handle
                 
                 range = 1;
                 cost = 1;
+                
+                plotVideo = 0;
             end
             % copy vals
             obj.globalMap = globalMap;
@@ -39,6 +44,7 @@ classdef D_star_lite_v2_opt < handle
             obj.newObstacles = [];
             obj.range = range;
             obj.cost = cost;
+            obj.plotVideo = plotVideo;
             
             obj.localMap = Map(obj.globalMap.row, obj.globalMap.col,...
                 obj.obstacles, Map.TYPE_UNKNOWN, cost);
@@ -173,7 +179,12 @@ classdef D_star_lite_v2_opt < handle
         function computeShortestPath(obj)
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos, obj.km)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
-                %obj.localMap.plot(); % comment for fast plot
+                
+%                 if obj.plotVideo
+%                     obj.localMap.plot();
+%                     pause(0.01);
+%                 end
+                
                 [u, Kold] = obj.U.top();
                 Knew = u.calcKey(obj.currPos, obj.km);
                 
@@ -272,10 +283,12 @@ classdef D_star_lite_v2_opt < handle
 
             % scan graph
             isChanged = obj.updateMap();
-
-            obj.localMap.plot();
-            pause(0.25); % because otherwise matlab doesn't update the plot
-
+            
+            if obj.plotVideo
+                obj.localMap.plot();
+                pause(0.01);
+            end
+            
             % update graph
             if isChanged
                obj.km = obj.km + h(obj.Slast, obj.currPos);

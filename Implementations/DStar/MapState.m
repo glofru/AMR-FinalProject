@@ -39,15 +39,15 @@ classdef MapState
                 case MapState.OBSTACLE % "█"
                     color = [0, 0, 0];
                 case MapState.EMPTY % "░"
-                    color= [255, 255, 255];
+                    color= [1, 1, 1];
                 case MapState.START % "ⓢ"
-                    color = [120, 0, 120];
+                    color = [0.5, 0, 0.5];
                 case MapState.CURPOS % "a"
-                    color = [120, 120, 0];
+                    color = [0.5, 0.5, 0];
                 case MapState.GOAL % "♛"
-                    color = [120, 0, 0];
+                    color = [0.5, 0, 0];
                 case MapState.PATH % "≡"
-                    color = [255, 0, 0];
+                    color = [1, 0, 0];
                 otherwise
                     error("Wrong value!");
             end

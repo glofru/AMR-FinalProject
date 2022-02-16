@@ -13,6 +13,8 @@ classdef State < handle
 
         VISITED = "╬";
         PATH = "≡";
+        
+        OPEN = "o";
     end
     
     properties
@@ -137,21 +139,24 @@ classdef State < handle
                 case State.OBSTACLE % "█"
                     color = [0, 0, 0];
                 case State.UNKNOWN % "▓"
-                    color = [255, 120, 120];
+                    color = [0.75, 0.75, 0.75];
                 case State.EMPTY % "░"
-                    color = [255, 255, 255];
+                    color = [1, 1, 1];
 
                 case State.START % "ⓢ"
-                    color = [120, 0, 120];
+                    color = [0.5, 0, 0.5];
                 case State.GOAL % "♛"
-                    color = [255, 0, 0];
+                    color = [1, 0, 0];
                 case State.POSITION % "☺"
-                    color = [0, 0, 255];
+                    color = [0, 0, 1];
 
                 case State.VISITED % "╬"
-                    color = [0, 255, 0];
+                    color = [0, 1, 0];
                 case State.PATH % "≡"
-                    color = [255, 0, 0];
+                    color = [1, 0, 0];
+                    
+                case State.OPEN % "o"
+                    color = [0.5, 0.5, 0];
             end
         end
     end

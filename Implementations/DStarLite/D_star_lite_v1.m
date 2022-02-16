@@ -21,12 +21,15 @@ classdef D_star_lite_v1 < handle
         U;
         % set of new obstacles discovered
         newObstacles;
+        
+        
+        plotVideo;
     end
     
     methods
         % D_star_lite_v1 constructor
         function obj = D_star_lite_v1(globalMap, obstacles, Sstart, Sgoal,...
-                moves, range, cost)
+                moves, range, cost, plotVideo)
             arguments
                 % Map having global knowledge
                 globalMap
@@ -42,6 +45,8 @@ classdef D_star_lite_v1 < handle
                 range = 1;
                 % cost of a step
                 cost = 1;
+                
+                plotVideo = 0;
             end
             % copy vals
             obj.globalMap = globalMap;
@@ -50,6 +55,7 @@ classdef D_star_lite_v1 < handle
             obj.newObstacles = [];
             obj.range = range;
             obj.cost = cost;
+            obj.plotVideo = plotVideo;
             
             % inizialize map
             obj.localMap = Map(obj.globalMap.row, obj.globalMap.col,...
@@ -182,8 +188,10 @@ classdef D_star_lite_v1 < handle
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                 
-                %obj.localMap.plot(); % comment for fast plot
-                %pause(0.01)
+%                 if obj.plotVideo
+%                     obj.localMap.plot();
+%                     pause(0.01);
+%                 end
                 u = obj.U.pop();
                 
                 % TODO
@@ -254,9 +262,11 @@ classdef D_star_lite_v1 < handle
 
             % scan graph
             isChanged = obj.updateMap();
-
-            obj.localMap.plot();
-            pause(0.01); % because otherwise matlab doesn't update the plot
+            
+            if obj.plotVideo
+                obj.localMap.plot();
+                pause(0.01);
+            end
 
             % update graph
             if isChanged

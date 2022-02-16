@@ -9,11 +9,11 @@ classdef StateTag
         function c = getColor(obj)
             switch obj
                 case StateTag.NEW
-                    c = [0, 100, 100];
+                    c = [0, 0.4, 0.4];
                 case StateTag.OPEN
-                    c = [0, 255, 0];
+                    c = [0, 1, 0];
                 case StateTag.CLOSED
-                    c = [0, 0, 255];
+                    c = [0, 0, 1];
             end
         end
     end

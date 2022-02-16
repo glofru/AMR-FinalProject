@@ -98,19 +98,20 @@ classdef Map < handle
         
         % generate the map image
         function rgbImage = buildImageMap(obj)
-            rgbImage = zeros(obj.row, obj.col, 3)+255;
-
+            rgbImage = ones(obj.row, obj.col, 3);
             for i = 1:obj.row
                 for j = 1:obj.col
-                    rgbImage(i,j,:) = obj.map(i, j).getColor();
+                    rgbImage(i, j, :) = obj.map(i, j).getColor();
                 end
             end
+            
+            rgbImage = imresize(rgbImage , 100, 'nearest');
         end
         
         % plot the map image
         function plot(obj)
             J = obj.buildImageMap();
-            imshow(J,'InitialMagnification',1000);
+            imshow(J);
         end
     end
 end

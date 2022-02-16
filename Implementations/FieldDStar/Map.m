@@ -105,12 +105,14 @@ classdef Map < handle
                     rgbImage(i,j,:) = obj.map(i, j).getColor();
                 end
             end
+            
+            rgbImage = imresize(rgbImage , 100, 'nearest');
         end
         
         % plot the map image
         function plot(obj)
             J = obj.buildImageMap();
-            imshow(J,'InitialMagnification',1000);
+            imshow(J);
         end
     end
 end

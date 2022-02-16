@@ -32,6 +32,36 @@ end
 epochs = initParams{1}.epochDone;
 Na = initParams{1}.Na;
 
+%% Dot graph
+colors = ["r.", "b.", "g."];
+initTimeDot = {};
+% computationTimeDot = zeros(n, epochs*Na);
+% expCellsDot = zeros(n, epochs*Na);
+% totStepsDot = zeros(n, epochs*Na);
+% pathLengthDot = zeros(n, epochs*Na);
+
+for i=1:Na
+    initTimeDot{i} = zeros(n, epochs);
+    for j=1:n
+        for k=1:epochs
+            initTimeDot{i}(j, k) = infosAlgo{j}(k, i).initTime;
+        end
+    end
+end
+
+figure
+for i=1:Na
+    subplot(1, Na, i)
+    for j=1:n
+        plot(ones(1, epochs), initTimeDot{i}(j, :), colors(j))
+        hold on
+    end
+    grid on
+    legend(algos)
+end
+
+waitInput()
+
 %% Comparisons
 initTimes4Epoch = zeros(epochs, n);
 computationTimes4Epoch = zeros(epochs, n);
@@ -149,42 +179,77 @@ grid on;
 waitInput();
 
 %%
+colors = [
+    222/255, 104/255, 95/255;
+    87/255, 201/255, 161/255;
+    90/255, 87/255, 201/255;
+];
 
 figure
 subplot(1, 5, 1)
 boxplot(initTimes4Epoch)
+% add colors
+h = findobj(gca,'Tag','Box');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
 title("Initialization time")
 grid on;
 xlabel("Algorithm")
 ylabel("Time (s)")
+legend(algos)
 
 subplot(1, 5, 2)
 boxplot(computationTimes4Epoch)
+% add colors
+h = findobj(gca,'Tag','Box');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
 title("Running time")
 xlabel("Algorithm")
 ylabel("Time (s)")
 grid on;
+legend(algos)
 
 subplot(1, 5, 3)
 boxplot(expCells4Epoch)
+% add colors
+h = findobj(gca,'Tag','Box');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
 title("Explored cells")
 xlabel("Algorithm")
 ylabel("Number of cells")
 grid on;
+legend(algos)
 
 subplot(1, 5, 4)
 boxplot(totSteps4Epoch)
+% add colors
+h = findobj(gca,'Tag','Box');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
 title("Total algorithm steps")
 xlabel("Algorithm")
 ylabel("Number of steps")
 grid on;
+legend(algos)
 
 subplot(1, 5, 5)
 boxplot(pathLength4Epoch)
+% add colors
+h = findobj(gca,'Tag','Box');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
 title("Path length")
 xlabel("Algorithm")
 ylabel("Path length")
 grid on;
+legend(algos)
 
 waitInput();
 

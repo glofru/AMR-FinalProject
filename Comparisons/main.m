@@ -35,8 +35,7 @@ switch(typeOfInput)
         initParams = FileADAT.constByUser();
         
     case 2
-        inputPath = strcat(uigetdir('', 'Select Input Directory'), pathDelimiter);
-        [inputFile, inputPath] = uigetfile(strcat(inputPath, "\*.adat"), 'MultiSelect', 'off');
+        [inputFile, inputPath] = uigetfile(strcat(pwd, pathDelimiter, "*.adat"), 'MultiSelect', 'off');
         [initParams, ~] = loadDataFromADAT(inputPath, inputFile);
         
     case 3

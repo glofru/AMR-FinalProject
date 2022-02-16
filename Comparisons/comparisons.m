@@ -12,10 +12,8 @@ if ispc
 else
     pathDelimiter = "/";
 end
-inputPath = strcat(uigetdir('', 'Select Input Directory'), pathDelimiter);
 
-
-[initParams, infosAlgo] = loadDataFromADAT(inputPath);
+[initParams, infosAlgo] = loadDataFromADAT(pwd+pathDelimiter);
 
 
 %% HEATMAP

@@ -38,12 +38,14 @@ function saveDataOnFileADAT(outputPath, initParams, infosAlgo, outputFile)
             end
 
             old_e = appInitParams.epochDone;
+            oldEpochDone = initParams.epochDone;
             initParams.epochDone = initParams.epochDone + old_e;
             
             fid = fopen(pathAndFile, 'wt');
         else
             fid = fopen(pathAndFile, 'wt');
             old_e = 0;
+            oldEpochDone = initParams.epochDone;
             appInfosAlgo = [];
         end
 
@@ -79,6 +81,8 @@ function saveDataOnFileADAT(outputPath, initParams, infosAlgo, outputFile)
 
         % close the file
         fclose(fid);
+        
+        initParams.epochDone = oldEpochDone;
         
         disp(" ");
         disp("Saving done in: <strong>"+string(toc)+...

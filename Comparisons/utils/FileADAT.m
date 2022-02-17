@@ -8,6 +8,7 @@ classdef FileADAT < handle
         ALGO_DSL_V2 = 3;
         ALGO_FDS = 4;
         
+        ALGO_CUSTOM = 9;
         ALGO_ALL = 10;
     end
     
@@ -45,8 +46,16 @@ classdef FileADAT < handle
 
             if obj.typeAlgo == FileADAT.ALGO_ALL
                 obj.Na = 4;
+                obj.typeAlgo = [FileADAT.ALGO_DS, FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2, FileADAT.ALGO_FDS];
+            elseif obj.typeAlgo == FileADAT.ALGO_CUSTOM
+                obj.Na = double(input("Number of tries: "));
+                
+                for i=1:obj.Na
+                    obj.typeAlgo(i) = FileADAT.selectAlgoTypeRestricted();
+                end
             else
                 obj.Na = double(input("Number of tries: "));
+                obj.typeAlgo = ones(1, obj.Na) * obj.typeAlgo;
             end
             
             obj.ranges = zeros(1, obj.Na);
@@ -63,15 +72,17 @@ classdef FileADAT < handle
             
             obj.typeAlgo = FileADAT.selectAlgoType();
             
-            if obj.typeAlgo == FileADAT.ALGO_ALL
+            if obj.typeAlgo == FileADAT.ALGO_ALL || obj.typeAlgo == FileADAT.ALGO_CUSTOM
                 obj.Na = 4;
+                obj.typeAlgo = [FileADAT.ALGO_DS, FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2, FileADAT.ALGO_FDS];
             else
                 obj.Na = 3;
+                obj.typeAlgo = ones(1, obj.Na) * obj.typeAlgo;
             end
             
-            D1 = 50;
-            D2 = 50;
-            obj.percNumObs = 45;
+            D1 = 20;
+            D2 = 20;
+            obj.percNumObs = 20;
             obj.dim = [D1; D2];
             
             obj.Sstart = [1; 1];
@@ -79,13 +90,13 @@ classdef FileADAT < handle
             obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
             obj.ranges = ones(1, obj.Na) * 2;
-            obj.costs  = ones(1, obj.Na) * 0.5;
+            obj.costs  = ones(1, obj.Na) * 0.6;
         end
         
         function obj = getFromFile(fid)
             obj = FileADAT();
             
-            obj.typeAlgo = str2double(regexp(fgetl(fid),'\d*','match')');
+            obj.typeAlgo = str2double(regexp(fgetl(fid),'\d*','match'));
             % TODO check type
             
             fgetl(fid); % jump
@@ -116,7 +127,8 @@ classdef FileADAT < handle
                  "    2) D* Lite v1"+newline+...
                  "    3) D* Lite v2"+newline+...
                  "    4) Field D*"+newline+...
-                 "    5) All")
+                 "    5) Custom"+newline+...
+                 "    6) All")
             typeOfAlgo = input('search option: ');
             switch(typeOfAlgo)
                 case 1
@@ -128,7 +140,29 @@ classdef FileADAT < handle
                 case 4
                     at = FileADAT.ALGO_FDS;
                 case 5
+                    at = FileADAT.ALGO_CUSTOM;
+                case 6
                     at = FileADAT.ALGO_ALL;
+                otherwise
+                    error("Wrong input!");
+            end
+        end
+        function at = selectAlgoTypeRestricted()
+            disp("Which algorithm?"+newline+...
+                 "    1) D*"+newline+...
+                 "    2) D* Lite v1"+newline+...
+                 "    3) D* Lite v2"+newline+...
+                 "    4) Field D*")
+            typeOfAlgo = input('search option: ');
+            switch(typeOfAlgo)
+                case 1
+                    at = FileADAT.ALGO_DS;
+                case 2
+                    at = FileADAT.ALGO_DSL_V1;
+                case 3
+                    at = FileADAT.ALGO_DSL_V2;
+                case 4
+                    at = FileADAT.ALGO_FDS;
                 otherwise
                     error("Wrong input!");
             end
@@ -137,7 +171,7 @@ classdef FileADAT < handle
     
     methods
         function obj = FileADAT()
-            obj.typeAlgo = [FileADAT.ALGO_INIT_NO_ALGO];
+            obj.typeAlgo = FileADAT.ALGO_INIT_NO_ALGO;
             
             obj.dim = [];
             obj.percNumObs = 0;
@@ -172,7 +206,7 @@ classdef FileADAT < handle
         end
         
         function e = eq(obj, f)
-            e = (obj.typeAlgo == f.typeAlgo &&...
+            e = (all(obj.typeAlgo == f.typeAlgo) &&...
                 all(obj.dim == f.dim) &&...
                 obj.percNumObs == f.percNumObs &&...
                 all(obj.Sstart == f.Sstart) &&...
@@ -183,8 +217,8 @@ classdef FileADAT < handle
                 obj.Na == f.Na);
         end
 
-        function s = typeAlgoToStr(obj)
-            switch obj.typeAlgo
+        function s = typeAlgoToStr(obj, typeAlgo)
+            switch typeAlgo
                 case FileADAT.ALGO_DS
                     s = "D*";
                 case FileADAT.ALGO_DSL_V1

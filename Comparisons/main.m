@@ -55,19 +55,17 @@ infosAlgo(epoch, initParams.Na) = AlgoInfo();
 imgs = zeros(D1, D2, 3, initParams.Na);
 
 % import
-switch initParams.typeAlgo
-    case FileADAT.ALGO_DS
-        addpath('./DStar')
-    case {FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2}
-        addpath('./DStarLite')
-    case FileADAT.ALGO_FDS
-        addpath('./FieldDStar')
-    case FileADAT.ALGO_ALL
-        addpath('./DStar')
-        addpath('./DStarLite')
-        addpath('./FieldDStar')
-    otherwise
-        error("Wrong input!");
+for i=1:initParams.Na
+    switch initParams.typeAlgo(i)
+        case FileADAT.ALGO_DS
+            addpath('./DStar')
+        case {FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2}
+            addpath('./DStarLite')
+        case FileADAT.ALGO_FDS
+            addpath('./FieldDStar')
+        otherwise
+            error("Wrong input!");
+    end
 end
 
 for currEpoch=1:epoch
@@ -88,21 +86,18 @@ for currEpoch=1:epoch
             end
         end
         
-        if initParams.typeAlgo == FileADAT.ALGO_DS ||...
-                initParams.typeAlgo == FileADAT.ALGO_ALL
+        if any(initParams.typeAlgo == FileADAT.ALGO_DS)
             map1 = DMap(D1, D2, globalObstacles);
             map1.map(initParams.Sstart(1), initParams.Sstart(2)).state = MapState.START;
             map1.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = MapState.GOAL;
         end
-        if initParams.typeAlgo ==  FileADAT.ALGO_DSL_V1 ||...
-                initParams.typeAlgo == FileADAT.ALGO_DSL_V2 ||...
-                initParams.typeAlgo == FileADAT.ALGO_ALL
+        if any(initParams.typeAlgo == FileADAT.ALGO_DSL_V1) ||...
+                any(initParams.typeAlgo == FileADAT.ALGO_DSL_V2)
             map2 = DSLMap(D1, D2, globalObstacles, DSLMap.TYPE_KNOWN, 1); % TODO cost
             map2.map(initParams.Sstart(1), initParams.Sstart(2)).state = DSLState.START;
             map2.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = DSLState.GOAL;
         end
-        if initParams.typeAlgo == FileADAT.ALGO_FDS ||...
-                initParams.typeAlgo == FileADAT.ALGO_ALL
+        if any(initParams.typeAlgo == FileADAT.ALGO_FDS)
             map3 = FDMap(D1, D2, globalObstacles, FDMap.TYPE_KNOWN, 1); % TODO cost
             map3.map(initParams.Sstart(1), initParams.Sstart(2)).state = FDState.START;
             map3.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = FDState.GOAL;
@@ -115,29 +110,26 @@ for currEpoch=1:epoch
                 disp(newline+"### algorithm[<strong>"+num2str(i)+"</strong>] ###");
                 disp("Inizialization");
                 
-                if initParams.typeAlgo == FileADAT.ALGO_DS ||...
-                        initParams.typeAlgo == FileADAT.ALGO_ALL && i == 1
+                currTypeAlgo = initParams.typeAlgo(i);
+                if currTypeAlgo == FileADAT.ALGO_DS
                     tic
                     currAlgo = D_Star(map1, knownObstacles, initParams.Sstart, initParams.Sgoal,...
                         initParams.moves, initParams.ranges(i), initParams.costs(i));
                     tocTime = toc;
                         
-                elseif initParams.typeAlgo == FileADAT.ALGO_DSL_V1 ||...
-                        initParams.typeAlgo == FileADAT.ALGO_ALL && i == 2
+                elseif currTypeAlgo == FileADAT.ALGO_DSL_V1
                     tic
                     currAlgo = D_star_lite_v1(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
                         initParams.moves, initParams.ranges(i), initParams.costs(i));
                     tocTime = toc;
                         
-                elseif initParams.typeAlgo == FileADAT.ALGO_DSL_V2 ||...
-                        initParams.typeAlgo == FileADAT.ALGO_ALL && i == 3
+                elseif currTypeAlgo == FileADAT.ALGO_DSL_V2
                     tic
                     currAlgo = D_star_lite_v2(map2, knownObstacles, initParams.Sstart, initParams.Sgoal,...
                         initParams.moves, initParams.ranges(i), initParams.costs(i));
                     tocTime = toc;
                     
-                elseif initParams.typeAlgo == FileADAT.ALGO_FDS ||...
-                        initParams.typeAlgo == FileADAT.ALGO_ALL && i == 4
+                elseif currTypeAlgo == FileADAT.ALGO_FDS
                     tic
                     currAlgo = Field_D_star(map3, knownObstacles, initParams.Sstart, initParams.Sgoal,...
                         initParams.moves, initParams.ranges(i), initParams.costs(i));
@@ -177,39 +169,43 @@ disp("Terminated!")
 
 %% SAVE
 initParams.epochDone = initParams.epochDone + epoch;
- switch (typeOfInput)
-     case {1, 2}
-         if initParams.typeAlgo == FileADAT.ALGO_ALL
-             oldNa = initParams.Na;
-             initParams.Na = 1;
-             fileName = split(inputFile, ".");
-             pref = fileName(1);
-             suff = fileName(2);
-             for i=1:oldNa
-                 switch(i)
-                     case 1
-                         core = "_DS.";
-                         initParams.typeAlgo = FileADAT.ALGO_DS;
-                     case 2
-                         core = "_DSLV1.";
-                         initParams.typeAlgo = FileADAT.ALGO_DSL_V1;
-                     case 3
-                         core = "_DSLV2.";
-                         initParams.typeAlgo = FileADAT.ALGO_DSL_V2;
-                     case 4
-                         core = "_FDS.";
-                         initParams.typeAlgo = FileADAT.ALGO_FDS;
-                 end
-                 appInputFile = pref+core+suff;
-                 saveDataOnFileADAT(inputPath, initParams, infosAlgo(:, i), appInputFile);
-             end
-             initParams.Na = oldNa;
-             initParams.typeAlgo = FileADAT.ALGO_ALL;
-         else
-             saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
-         end
- end
- 
+switch (typeOfInput)
+    case {1, 2}
+        if any(initParams.typeAlgo(1) ~= initParams.typeAlgo)
+            oldNa = initParams.Na;
+            oldTypeAlgo = initParams.typeAlgo;
+
+            initParams.Na = 1;
+
+            fileName = split(inputFile, ".");
+            pref = fileName(1);
+            suff = fileName(2);
+            for i=1:oldNa
+                switch(oldTypeAlgo(i))
+                    case 1
+                        core = "_DS.";
+                        initParams.typeAlgo = FileADAT.ALGO_DS;
+                    case 2
+                        core = "_DSLV1.";
+                        initParams.typeAlgo = FileADAT.ALGO_DSL_V1;
+                    case 3
+                        core = "_DSLV2.";
+                        initParams.typeAlgo = FileADAT.ALGO_DSL_V2;
+                    case 4
+                        core = "_FDS.";
+                        initParams.typeAlgo = FileADAT.ALGO_FDS;
+                end
+                appInputFile = pref+core+suff;
+                saveDataOnFileADAT(inputPath, initParams, infosAlgo(:, i), appInputFile);
+            end
+        end
+        initParams.Na = oldNa;
+        initParams.typeAlgo = oldTypeAlgo;
+        saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
+    % end case
+end
+initParams.epochDone = epoch;
+
 %% RESULTS
 
 heatMap = zeros(initParams.Na, initParams.dim(1), initParams.dim(2));
@@ -233,7 +229,7 @@ for i=1:initParams.Na
     %heatMap(i, :, :) = 1/(heatMap(i,:, :)+1);
     imagesc(reshape(heatMap(i, :, :), [initParams.dim(1), initParams.dim(2)]))
     colorbar
-    title({initParams.typeAlgoToStr(), "Range="+num2str(initParams.ranges(i))+...
+    title({initParams.typeAlgoToStr(initParams.typeAlgo(i)), "Range="+num2str(initParams.ranges(i))+...
         " Cost="+num2str(costs(i))})
 end
 xlabel(["",...

@@ -29,6 +29,7 @@ function saveDataOnFileADAT(outputPath, initParams, infosAlgo, outputFile)
         % open the file
         pathAndFile = outputPath+outputFile;
 
+        fid = -1;
         if isfile(pathAndFile)
             [appInitParams, appInfosAlgo] = loadDataFromADAT(outputPath, outputFile);
 
@@ -84,7 +85,9 @@ function saveDataOnFileADAT(outputPath, initParams, infosAlgo, outputFile)
             "</strong> s");
         
     catch ME
-        fclose(fid);
+        if fid ~= -1
+            fclose(fid);
+        end
         rethrow(ME);
     end
 end

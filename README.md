@@ -1,4 +1,4 @@
-# 2021 AMR Final Project
+# 2022 AMR Final Project
 
 Final project for the course of Autonomous and Mobile Robotics 2020/2021.
 

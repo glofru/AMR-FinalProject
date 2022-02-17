@@ -196,7 +196,7 @@ title("Initialization time")
 grid on;
 xlabel("Algorithm")
 ylabel("Time (s)")
-legend(algos)
+legend(flip(algos))
 
 subplot(1, 5, 2)
 boxplot(computationTimes4Epoch)
@@ -209,7 +209,7 @@ title("Running time")
 xlabel("Algorithm")
 ylabel("Time (s)")
 grid on;
-legend(algos)
+legend(flip(algos))
 
 subplot(1, 5, 3)
 boxplot(expCells4Epoch)
@@ -222,7 +222,7 @@ title("Explored cells")
 xlabel("Algorithm")
 ylabel("Number of cells")
 grid on;
-legend(algos)
+legend(flip(algos))
 
 subplot(1, 5, 4)
 boxplot(totSteps4Epoch)
@@ -235,7 +235,7 @@ title("Total algorithm steps")
 xlabel("Algorithm")
 ylabel("Number of steps")
 grid on;
-legend(algos)
+legend(flip(algos))
 
 subplot(1, 5, 5)
 boxplot(pathLength4Epoch)
@@ -248,7 +248,7 @@ title("Path length")
 xlabel("Algorithm")
 ylabel("Path length")
 grid on;
-legend(algos)
+legend(flip(algos))
 
 waitInput();
 

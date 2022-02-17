@@ -37,7 +37,7 @@ for i=1:initParams.Na
     colormap('hot')
     imagesc(reshape(heatMap(i, :, :), [initParams.dim(1), initParams.dim(2)]))
     colorbar
-    title({initParams.typeAlgoToStr(), "Range="+num2str(initParams.ranges(i))+...
+    title({initParams.typeAlgoToStr(initParams.typeAlgo), "Range="+num2str(initParams.ranges(i))+...
         " Cost="+num2str(costs(i))})
 end
 xlabel(["",...
@@ -153,6 +153,7 @@ boxplot(initTimes4Epoch)
 title("Initialization time")
 grid on;
 xlabel("Algorithm")
+
 ylabel("Time (s)")
 
 subplot(1, 5, 2)

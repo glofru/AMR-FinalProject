@@ -58,7 +58,9 @@ function [initParams, infosAlgo] = loadDataFromADAT(inputPath, inputFile)
             "</strong> s");
         
     catch ME
-        fclose(fid);
+        if fid ~= -1
+            fclose(fid);
+        end
         rethrow(ME);
     end
 end

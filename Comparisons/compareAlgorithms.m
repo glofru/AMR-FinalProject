@@ -12,8 +12,7 @@ if ispc
 else
     pathDelimiter = "/";
 end
-inputPath = strcat(uigetdir('', 'Select Input Directory'), '\');
-[inputFiles, inputPath] = uigetfile(strcat(inputPath, "/*.adat"), 'MultiSelect', 'on');
+[inputFiles, inputPath] = uigetfile(strcat(pwd, pathDelimiter, "*.adat"), 'MultiSelect', 'on');
 
 n = size(inputFiles, 2);
 if ~iscellstr(inputFiles) || n <= 1
@@ -26,7 +25,7 @@ infosAlgo = {};
 algos = {};
 for i=1:n
     [initParams{i}, infosAlgo{i}] = loadDataFromADAT(inputPath, inputFiles{i});
-    algos{i} = initParams{i}.typeAlgoToStr();
+    algos{i} = initParams{i}.typeAlgoToStr(initParams{i}.typeAlgo);
 end
 
 epochs = initParams{1}.epochDone;

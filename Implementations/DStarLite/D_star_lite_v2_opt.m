@@ -247,7 +247,7 @@ classdef D_star_lite_v2_opt < handle
             %end
 
             while ~updateCells.isEmpty()
-                [u, k_old] = updateCells.pop();
+                [u, k_old] = updateCells.extract(1);
                 Cold = u.c(obj.currPos);
                 %obj.updateVertex(u);
                 %k = u.calcKey(obj.currPos, obj.km);
@@ -284,9 +284,23 @@ classdef D_star_lite_v2_opt < handle
             % scan graph
             isChanged = obj.updateMap();
             
+            nextStep = obj.currPos;
+            while ~isempty(nextStep) && nextStep.state ~= State.FUTUREPATH && nextStep.state ~= State.GOAL
+                oldNextStep = nextStep;
+                oldNextStep.state = State.FUTUREPATH;
+                [~, nextStep] = minVal(oldNextStep, obj.successor(oldNextStep));
+            end
+            
             if obj.plotVideo
                 obj.localMap.plot();
                 pause(0.01);
+            end
+            
+            nextStep = obj.currPos;
+            while ~isempty(nextStep) && nextStep.state ~= State.VISITED && nextStep.state ~= State.GOAL
+                oldNextStep = nextStep;
+                oldNextStep.state = State.VISITED;
+                [~, nextStep] = minVal(oldNextStep, obj.successor(oldNextStep));
             end
             
             % update graph

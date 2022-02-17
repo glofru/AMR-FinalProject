@@ -274,10 +274,24 @@ classdef Field_D_star < handle
 
             % scan graph
             isChanged = obj.updateMap();
+            
+            nextStep = obj.currPos;
+            while ~isempty(nextStep) && nextStep.state ~= State.FUTUREPATH && nextStep.state ~= State.GOAL
+                oldNextStep = nextStep;
+                oldNextStep.state = State.FUTUREPATH;
+                [~, nextStep] = minVal(oldNextStep, obj.successor(oldNextStep));
+            end
 
             if obj.plotVideo
                 obj.localMap.plot();
                 pause(0.01);
+            end
+            
+            nextStep = obj.currPos;
+            while ~isempty(nextStep) && nextStep.state ~= State.VISITED && nextStep.state ~= State.GOAL
+                oldNextStep = nextStep;
+                oldNextStep.state = State.VISITED;
+                [~, nextStep] = minVal(oldNextStep, obj.successor(oldNextStep));
             end
 
             % update graph

@@ -152,7 +152,7 @@ classdef Map < handle
 
             tmp = highlightedState;
             while size(tmp, 1) ~= 0 && tmp.state ~= MapState.GOAL
-                rgbImage(tmp.x, tmp.y, :) = MapState.PATH.getColor();
+                rgbImage(tmp.x, tmp.y, :) = [0.95, 0.95, 0];%MapState.PATH.getColor();
                 tmp = tmp.parent;
             end
             

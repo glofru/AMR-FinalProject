@@ -26,47 +26,97 @@ algorithmType = input('search algorithm: ');
 plotVideo = input("Plot video? [0=No/1=Yes] ");
 saveVideo = input("Save video? [0=No/1=Yes] ");
 
-D1 = 20;
-D2 = 20;
-numObs = round(D1*D2*0.25);
-dim = [D1; D2];
-Sstart = [1; 1];
-Sgoal = [D1; D2];
-
-range = 3;
+range = 2;
 cost = 1;
 
 moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
 execute = true;
 while execute
-
-    globalObstacles = zeros(2, numObs);
-    for i=1:numObs
-        x = round(mod(rand*(D1-3), D1))+2; % round(mod(rand*D1, D1))+1;
-        y = round(mod(rand*(D2-3), D1))+2; % round(mod(rand*D2, D2))+1;
-
-        % obstacles overlap, ok, not an error
-        if ~(all([x; y]==Sstart) || all([x; y]==Sgoal))
-            globalObstacles(:, i) = [x; y];
-        end
-    end
     
+    genRandom = input("Generate map at random? [0=No/1=Yes] ");
+    
+    if genRandom
+        D1 = 20;
+        D2 = 20;
+        numObs = round(D1*D2*0.25);
+        dim = [D1; D2];
+        Sstart = [1; 1];
+        Sgoal = [D1; D2];
+        
+        globalObstacles = zeros(2, numObs);
+        for i=1:numObs
+            x = round(mod(rand*(D1-3), D1))+2;
+            y = round(mod(rand*(D2-3), D1))+2;
+
+            % obstacles overlap, ok, not an error
+            if ~(all([x; y]==Sstart) || all([x; y]==Sgoal))
+                globalObstacles(:, i) = [x; y];
+            end
+        end
+
+    else
+        mMap = ['░░░░░░░░░░░░░░░░░░░░';
+                '░████████░░░░░░░░░░░';
+                '░█░░░░░░█░░░░░░░░░░░';
+                '░█░░░░░░█░░░░░░░░░░░';
+                '░█░░░░░░░░░░░░░░░░░░';
+                '░█░░░░░░█░░░░░░░░░░░';
+                '░█░░░░░░█░░░░░░░░░░░';
+                '░███░████░░░░░██████';
+                '░░░░░░░░░░░░░░█░░░░░';
+                '░░░░░░░░░░░░░░░░░░░░';
+                '░░░░░░░░░░░░░░░░░░░░';
+                '░░░░░░░░░░░░░░█░░░░░';
+                '░░░░░░░░░░░░░░██████';
+                '░░███░░███░░░░░░░░░░';
+                '░░█░░░░░░█░░░░░░░░░░';
+                '░░█░░░░░░█░░░░░░░░░░';
+                '░░█░░░░░░█░░░░░░░░░░';
+                '░░█░░░░░░█░░░░░░░░░░';
+                '░░███░░███░░░░░░░░░░';
+                '░░░░░░░░░░░░░░░░░░░░'];
+
+        globalObstacles = [];
+        [s1, s2] = size(mMap);
+        for i=1:s1
+            for j=1:s2
+                if mMap(i, j) == '█'
+                    globalObstacles(:, end+1) = [i; j];
+                end
+            end
+        end
+        
+        D1 = s1;
+        D2 = s2;
+        numObs = round(D1*D2*0.25);
+        dim = [D1; D2];
+        Sstart = [1; 1];
+        Sgoal = [D1; D2];
+    end
+
     switch algorithmType
         case 1
             addpath('./DStar')
+            nameAlgo = "DStar";
         case 2
             addpath('./DStarLite')
+            nameAlgo = "DStarLiteV1";
         case 3
             addpath('./DStarLite')
+            nameAlgo = "DStarLiteV1OPT";
         case 4
             addpath('./DStarLite')
+            nameAlgo = "DStarLiteV2";
         case 5
             addpath('./DStarLite')
+            nameAlgo = "DStarLiteV2OPT";
         case 6
             addpath('./FieldDStar')
+            nameAlgo = "FieldDStar";
         case 7
             addpath('./FieldDStar')
+            nameAlgo = "FieldDStarOPT";
         otherwise
             error("Wrong input!");
     end
@@ -83,13 +133,12 @@ while execute
     obstacles = [];
 
     if saveVideo
-        d = dir(strcat(pwd, pathDelimiter, "*.avi"));
-        fileNameVideo = strcat('myVideo', num2str(length(d)));
+        d = dir(strcat(pwd, pathDelimiter, nameAlgo, "_*.avi"));
+        fileNameVideo = strcat(nameAlgo, "_", num2str(length(d)));
         disp("Saving video on file: "+fileNameVideo)
         writerObj = VideoWriter(fileNameVideo);
         writerObj.FrameRate = 30;
         open(writerObj);
-        %figure('units','normalized','outerposition',[0 0 1 1])
     end
     
     switch algorithmType
@@ -144,17 +193,39 @@ while execute
         xlabel(['',newline,'\bf Press Enter to continue!'])
         waitInput();
     end
+    
+    %return
 
     if saveVideo
         tic
         while(~algorithm.isFinish())
             algorithm.step()
+            
+            if algorithmType == 1
+                frame = algorithm.localMap.buildImageMap(algorithm.currPos);
+                writeVideo(writerObj, frame);
+                writeVideo(writerObj, frame);
+                writeVideo(writerObj, frame);
+            else
+                nextStep = algorithm.currPos;
+                while ~isempty(nextStep) && nextStep.state ~= State.FUTUREPATH && nextStep.state ~= State.GOAL
+                    oldNextStep = nextStep;
+                    oldNextStep.state = State.FUTUREPATH;
+                    [~, nextStep] = minVal(oldNextStep, algorithm.successor(oldNextStep));
+                end
+            
+                frame = algorithm.localMap.buildImageMap();
+                writeVideo(writerObj, frame);
+                writeVideo(writerObj, frame);
+                writeVideo(writerObj, frame);
 
-            %frame = getframe(gcf);
-            frame = algorithm.localMap.buildImageMap();
-            writeVideo(writerObj, frame);
-            writeVideo(writerObj, frame);
-            writeVideo(writerObj, frame);
+                nextStep = algorithm.currPos;
+                while ~isempty(nextStep) && nextStep.state ~= State.VISITED && nextStep.state ~= State.GOAL
+                    oldNextStep = nextStep;
+                    oldNextStep.state = State.VISITED;
+                    [~, nextStep] = minVal(oldNextStep, algorithm.successor(oldNextStep));
+                end
+            end
         end
         disp('run terminated in: '+string(toc)+' s'+newline);
         close(writerObj);

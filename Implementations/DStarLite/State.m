@@ -13,6 +13,7 @@ classdef State < handle
 
         VISITED = "╬";
         PATH = "≡";
+        FUTUREPATH = "x";
         
         OPEN = "o";
     end
@@ -35,6 +36,37 @@ classdef State < handle
         
         % key pair
         k
+    end
+    
+    methods (Static)
+        % return the color of the state
+        function color = returnStateColor(state)
+            switch state
+                case State.OBSTACLE % "█"
+                    color = [0, 0, 0];
+                case State.UNKNOWN % "▓"
+                    color = [0.75, 0.75, 0.75];
+                case State.EMPTY % "░"
+                    color = [1, 1, 1];
+
+                case State.START % "ⓢ"
+                    color = [0.5, 0, 0.5];
+                case State.GOAL % "♛"
+                    color = [1, 0, 0];
+                case State.POSITION % "☺"
+                    color = [0, 0, 1];
+
+                case State.VISITED % "╬"
+                    color = [0, 1, 0];
+                case State.PATH % "≡"
+                    color = [1, 0, 0];
+                case State.FUTUREPATH % "x"
+                    color = [0.95, 0.95, 0];
+                    
+                case State.OPEN % "o"
+                    color = [0.5, 0.5, 0];
+            end
+        end
     end
 
     methods
@@ -90,35 +122,13 @@ classdef State < handle
         
         % check if 2 states are equal
         function e = eq(obj, s)
-            e = (obj.x == s.x && obj.y == s.y);
+            e =  (obj.x == s.x && obj.y == s.y);
         end
         
         
         % return the color of the state
         function color = getColor(obj)
-            switch obj.state
-                case State.OBSTACLE % "█"
-                    color = [0, 0, 0];
-                case State.UNKNOWN % "▓"
-                    color = [0.75, 0.75, 0.75];
-                case State.EMPTY % "░"
-                    color = [1, 1, 1];
-
-                case State.START % "ⓢ"
-                    color = [0.5, 0, 0.5];
-                case State.GOAL % "♛"
-                    color = [1, 0, 0];
-                case State.POSITION % "☺"
-                    color = [0, 0, 1];
-
-                case State.VISITED % "╬"
-                    color = [0, 1, 0];
-                case State.PATH % "≡"
-                    color = [1, 0, 0];
-                    
-                case State.OPEN % "o"
-                    color = [0.5, 0.5, 0];
-            end
+            color = State.returnStateColor(obj.state);
         end
     end
 end

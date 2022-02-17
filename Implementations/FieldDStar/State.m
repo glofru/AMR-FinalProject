@@ -13,6 +13,7 @@ classdef State < handle
 
         VISITED = "╬";
         PATH = "≡";
+        FUTUREPATH = "x";
         
         OPEN = "o";
     end
@@ -149,6 +150,8 @@ classdef State < handle
                     color = [1, 0, 0];
                 case State.POSITION % "☺"
                     color = [0, 0, 1];
+                case State.FUTUREPATH % "x"
+                    color = [0.95, 0.95, 0];
 
                 case State.VISITED % "╬"
                     color = [0, 1, 0];

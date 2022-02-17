@@ -210,7 +210,7 @@ initParams.epochDone = initParams.epochDone + epoch;
          end
  end
  
-%% RESOULTS
+%% RESULTS
 
 heatMap = zeros(initParams.Na, initParams.dim(1), initParams.dim(2));
 

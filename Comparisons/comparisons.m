@@ -17,6 +17,7 @@ end
 
 
 %% HEATMAP
+
 heatMap = zeros(initParams.Na, initParams.dim(1), initParams.dim(2));
 
 for e=1:initParams.epochDone
@@ -30,7 +31,6 @@ end
 
 figure
 num = ceil(sqrt(initParams.Na));
-
 costs = initParams.costs;
 for i=1:initParams.Na
     subplot(num, num, i)
@@ -45,6 +45,46 @@ xlabel(["",...
     ", num obstacles: "+initParams.percNumObs+"%",...
     "Start: ["+num2str(initParams.Sstart')+"], goal: ["+num2str(initParams.Sgoal')+"]",...
     "Epochs done: "+initParams.epochDone])
+sgtitle("Heatmap")
+
+
+figure
+num = ceil(sqrt(initParams.Na));
+costs = initParams.costs;
+for i=1:initParams.Na
+    subplot(num, num, i)
+    colormap('hot')
+    appHeatMap = 1/(heatMap(i,:, :)+1);
+    imagesc(reshape(appHeatMap, [initParams.dim(1), initParams.dim(2)]))
+    colorbar
+    title({initParams.typeAlgoToStr(initParams.typeAlgo(i)), "Range="+num2str(initParams.ranges(i))+...
+        " Cost="+num2str(costs(i))})
+end
+xlabel(["",...
+    "Map Size: "+initParams.dim(1)+"x"+initParams.dim(2)+...
+    ", num obstacles: "+initParams.percNumObs+"%",...
+    "Start: ["+num2str(initParams.Sstart')+"], goal: ["+num2str(initParams.Sgoal')+"]",...
+    "Epochs done: "+initParams.epochDone])
+sgtitle("Inverse Heatmap")
+
+figure
+num = ceil(sqrt(initParams.Na));
+costs = initParams.costs;
+for i=1:initParams.Na
+    subplot(num, num, i)
+    colormap('hot')
+    appHeatMap = (heatMap(1,:, :)>0);
+    imagesc(reshape(appHeatMap, [initParams.dim(1), initParams.dim(2)]))
+    colorbar
+    title({initParams.typeAlgoToStr(initParams.typeAlgo(i)), "Range="+num2str(initParams.ranges(i))+...
+        " Cost="+num2str(costs(i))})
+end
+xlabel(["",...
+    "Map Size: "+initParams.dim(1)+"x"+initParams.dim(2)+...
+    ", num obstacles: "+initParams.percNumObs+"%",...
+    "Start: ["+num2str(initParams.Sstart')+"], goal: ["+num2str(initParams.Sgoal')+"]",...
+    "Epochs done: "+initParams.epochDone])
+sgtitle("Traversed cells")
 
 waitInput();
 

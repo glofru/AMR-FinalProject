@@ -168,7 +168,7 @@ end
 disp("Terminated!")
 
 %% SAVE
-initParams.epochDone = initParams.epochDone + epoch;
+initParams.epochDone = epoch;
 switch (typeOfInput)
     case {1, 2}
         if any(initParams.typeAlgo(1) ~= initParams.typeAlgo)
@@ -204,7 +204,6 @@ switch (typeOfInput)
         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
     % end case
 end
-initParams.epochDone = epoch;
 
 %% RESULTS
 
@@ -221,12 +220,10 @@ end
 
 figure
 num = ceil(sqrt(initParams.Na));
-
 costs = initParams.costs;
 for i=1:initParams.Na
     subplot(num, num, i)
     colormap('hot')
-    %heatMap(i, :, :) = 1/(heatMap(i,:, :)+1);
     imagesc(reshape(heatMap(i, :, :), [initParams.dim(1), initParams.dim(2)]))
     colorbar
     title({initParams.typeAlgoToStr(initParams.typeAlgo(i)), "Range="+num2str(initParams.ranges(i))+...
@@ -237,6 +234,46 @@ xlabel(["",...
     ", num obstacles: "+initParams.percNumObs+"%",...
     "Start: ["+num2str(initParams.Sstart')+"], goal: ["+num2str(initParams.Sgoal')+"]",...
     "Epochs done: "+initParams.epochDone])
+sgtitle("Heatmap")
+
+
+figure
+num = ceil(sqrt(initParams.Na));
+costs = initParams.costs;
+for i=1:initParams.Na
+    subplot(num, num, i)
+    colormap('hot')
+    appHeatMap = 1/(heatMap(i,:, :)+1);
+    imagesc(reshape(appHeatMap, [initParams.dim(1), initParams.dim(2)]))
+    colorbar
+    title({initParams.typeAlgoToStr(initParams.typeAlgo(i)), "Range="+num2str(initParams.ranges(i))+...
+        " Cost="+num2str(costs(i))})
+end
+xlabel(["",...
+    "Map Size: "+initParams.dim(1)+"x"+initParams.dim(2)+...
+    ", num obstacles: "+initParams.percNumObs+"%",...
+    "Start: ["+num2str(initParams.Sstart')+"], goal: ["+num2str(initParams.Sgoal')+"]",...
+    "Epochs done: "+initParams.epochDone])
+sgtitle("Inverse Heatmap")
+
+figure
+num = ceil(sqrt(initParams.Na));
+costs = initParams.costs;
+for i=1:initParams.Na
+    subplot(num, num, i)
+    colormap('hot')
+    appHeatMap = (heatMap(1,:, :)>0);
+    imagesc(reshape(appHeatMap, [initParams.dim(1), initParams.dim(2)]))
+    colorbar
+    title({initParams.typeAlgoToStr(initParams.typeAlgo(i)), "Range="+num2str(initParams.ranges(i))+...
+        " Cost="+num2str(costs(i))})
+end
+xlabel(["",...
+    "Map Size: "+initParams.dim(1)+"x"+initParams.dim(2)+...
+    ", num obstacles: "+initParams.percNumObs+"%",...
+    "Start: ["+num2str(initParams.Sstart')+"], goal: ["+num2str(initParams.Sgoal')+"]",...
+    "Epochs done: "+initParams.epochDone])
+sgtitle("Traversed cells")
 
 
 

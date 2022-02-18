@@ -134,7 +134,7 @@ classdef D_Star < handle
             obj.currPos.state = MapState.CURPOS;
             
             if obj.plotVideo
-                obj.localMap.plot(obj.currPos);
+                obj.plot();
                 pause(0.01);
             end
         end
@@ -178,5 +178,13 @@ classdef D_Star < handle
             end
         end
         
+        function rgbImage = buildImageMap(obj)
+            rgbImage = obj.localMap.buildImageMap(obj.currPos);
+        end
+        
+        function plot(obj)
+            J = obj.buildImageMap();
+            imshow(J);
+        end
     end
 end

@@ -12,10 +12,9 @@ classdef State < handle
         POSITION = "☺";
 
         VISITED = "╬";
+        OPEN = "o";
         PATH = "≡";
         FUTUREPATH = "x";
-        
-        OPEN = "o";
     end
     
     properties
@@ -49,22 +48,21 @@ classdef State < handle
                 case State.EMPTY % "░"
                     color = [1, 1, 1];
 
-                case State.START % "ⓢ"
-                    color = [0.5, 0, 0.5];
-                case State.GOAL % "♛"
-                    color = [1, 0, 0];
-                case State.POSITION % "☺"
+                case State.START % "ⓢ" init pos
                     color = [0, 0, 1];
-
-                case State.VISITED % "╬"
-                    color = [0, 1, 0];
-                case State.PATH % "≡"
+                case State.GOAL % "♛" goal pos
                     color = [1, 0, 0];
-                case State.FUTUREPATH % "x"
-                    color = [0.95, 0.95, 0];
-                    
-                case State.OPEN % "o"
-                    color = [0.5, 0.5, 0];
+                case State.POSITION % "☺" curr pos
+                    color = [1, 1, 0];
+
+                case State.VISITED % "╬" inserd in the priority queue
+                    color = [0.2, 0.8, 0.2];
+                case State.OPEN % "o" cell opened in computeShortestPath
+                    color = [0.5, 0, 0.5];
+                case State.PATH % "≡" passed cell
+                    color = [1, 0, 0];
+                case State.FUTUREPATH % "x" future path cell
+                    color = [0.2, 0.6, 1];
             end
         end
     end

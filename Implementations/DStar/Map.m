@@ -152,7 +152,9 @@ classdef Map < handle
 
             tmp = highlightedState;
             while size(tmp, 1) ~= 0 && tmp.state ~= MapState.GOAL
-                rgbImage(tmp.x, tmp.y, :) = [0.95, 0.95, 0];%MapState.PATH.getColor();
+                if tmp.state ~= MapState.CURPOS
+                    rgbImage(tmp.x, tmp.y, :) = [0.2, 0.6, 1];
+                end
                 tmp = tmp.parent;
             end
             

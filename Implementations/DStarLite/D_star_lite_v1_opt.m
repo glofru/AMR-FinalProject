@@ -210,8 +210,8 @@ classdef D_star_lite_v1_opt < handle
                 
                 % TODO
                 if u.state == State.UNKNOWN || u.state == State.EMPTY || ...
-                        u.state == State.VISITED || u.state == State.OPEN
-                    u.state = State.START;
+                        u.state == State.VISITED || u.state == State.FUTUREPATH
+                    u.state = State.OPEN;
                 end
 
                 if (u.g > u.rhs)
@@ -313,34 +313,21 @@ classdef D_star_lite_v1_opt < handle
             % move to minPos
             obj.currPos.state = State.PATH; % TODO
             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
+            obj.currPos.state = State.POSITION; % TODO
 
             % scan graph
             isChanged = obj.updateMap();
-            
-            nextStep = obj.currPos;
-            while ~isempty(nextStep) && nextStep.state ~= State.FUTUREPATH && nextStep.state ~= State.GOAL
-                oldNextStep = nextStep;
-                oldNextStep.state = State.FUTUREPATH;
-                [~, nextStep] = minVal(oldNextStep, obj.successor(oldNextStep));
-            end
-            
-            if obj.plotVideo
-                obj.localMap.plot();
-                pause(0.01);
-            end
-            
-            nextStep = obj.currPos;
-            while ~isempty(nextStep) && nextStep.state ~= State.VISITED && nextStep.state ~= State.GOAL
-                oldNextStep = nextStep;
-                oldNextStep.state = State.VISITED;
-                [~, nextStep] = minVal(oldNextStep, obj.successor(oldNextStep));
-            end
             
             % update graph
             if isChanged
                 % TODO optimize
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
+            end
+            
+            if obj.plotVideo
+                obj.plot();
+                pause(0.01);
             end
         end
         
@@ -349,6 +336,34 @@ classdef D_star_lite_v1_opt < handle
             while(~isFinish(obj))
                 obj.step()
             end
+        end
+        
+        
+        % switch the cells on the shortest path to the goal from oldState
+        % to newState
+        function switchForFuturePath(obj, oldState, newState)
+            nextStep = obj.currPos;
+            while ~isempty(nextStep) && nextStep.state ~= newState && ~(nextStep == obj.goal)
+                if nextStep.state == oldState
+                    nextStep.state = newState;
+                end
+                [~, nextStep] = minVal(nextStep, obj.successor(nextStep));
+            end
+        end
+        
+        % generate the map image
+        function rgbImage = buildImageMap(obj)
+            obj.switchForFuturePath(State.OPEN, State.FUTUREPATH);
+            
+            rgbImage = obj.localMap.buildImageMap();
+            
+            obj.switchForFuturePath(State.FUTUREPATH, State.OPEN);
+        end
+        
+        % plot the map image
+        function plot(obj)
+            J = obj.buildImageMap();
+            imshow(J);
         end
     end
 end

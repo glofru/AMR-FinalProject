@@ -41,11 +41,11 @@ classdef MapState
                 case MapState.EMPTY % "░"
                     color= [1, 1, 1];
                 case MapState.START % "ⓢ"
-                    color = [0.5, 0, 0.5];
+                    color = [0, 0, 1];
                 case MapState.CURPOS % "a"
-                    color = [0.5, 0.5, 0];
+                    color = [1, 1, 0];
                 case MapState.GOAL % "♛"
-                    color = [0.5, 0, 0];
+                    color = [1, 0, 0];
                 case MapState.PATH % "≡"
                     color = [1, 0, 0];
                 otherwise

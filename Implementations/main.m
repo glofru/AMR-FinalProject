@@ -23,6 +23,32 @@ disp("Which search algorithm?"+newline+...
      "    7) Field D* optimized"+newline)
 algorithmType = input('search algorithm: ');
 
+switch algorithmType
+    case 1
+        addpath('./DStar')
+        nameAlgo = "DStar";
+    case 2
+        addpath('./DStarLite')
+        nameAlgo = "DStarLiteV1";
+    case 3
+        addpath('./DStarLite')
+        nameAlgo = "DStarLiteV1OPT";
+    case 4
+        addpath('./DStarLite')
+        nameAlgo = "DStarLiteV2";
+    case 5
+        addpath('./DStarLite')
+        nameAlgo = "DStarLiteV2OPT";
+    case 6
+        addpath('./FieldDStar')
+        nameAlgo = "FieldDStar";
+    case 7
+        addpath('./FieldDStar')
+        nameAlgo = "FieldDStarOPT";
+    otherwise
+        error("Wrong input!");
+end
+
 plotVideo = input("Plot video? [0=No/1=Yes] ");
 saveVideo = input("Save video? [0=No/1=Yes] ");
 
@@ -30,6 +56,8 @@ range = 2;
 cost = 1;
 
 moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
+
+%% EXECUTION
 
 execute = true;
 while execute
@@ -93,32 +121,6 @@ while execute
         dim = [D1; D2];
         Sstart = [1; 1];
         Sgoal = [D1; D2];
-    end
-
-    switch algorithmType
-        case 1
-            addpath('./DStar')
-            nameAlgo = "DStar";
-        case 2
-            addpath('./DStarLite')
-            nameAlgo = "DStarLiteV1";
-        case 3
-            addpath('./DStarLite')
-            nameAlgo = "DStarLiteV1OPT";
-        case 4
-            addpath('./DStarLite')
-            nameAlgo = "DStarLiteV2";
-        case 5
-            addpath('./DStarLite')
-            nameAlgo = "DStarLiteV2OPT";
-        case 6
-            addpath('./FieldDStar')
-            nameAlgo = "FieldDStar";
-        case 7
-            addpath('./FieldDStar')
-            nameAlgo = "FieldDStarOPT";
-        otherwise
-            error("Wrong input!");
     end
 
     if algorithmType == 1
@@ -201,31 +203,10 @@ while execute
         while(~algorithm.isFinish())
             algorithm.step()
             
-            if algorithmType == 1
-                frame = algorithm.localMap.buildImageMap(algorithm.currPos);
-                writeVideo(writerObj, frame);
-                writeVideo(writerObj, frame);
-                writeVideo(writerObj, frame);
-            else
-                nextStep = algorithm.currPos;
-                while ~isempty(nextStep) && nextStep.state ~= State.FUTUREPATH && nextStep.state ~= State.GOAL
-                    oldNextStep = nextStep;
-                    oldNextStep.state = State.FUTUREPATH;
-                    [~, nextStep] = minVal(oldNextStep, algorithm.successor(oldNextStep));
-                end
-            
-                frame = algorithm.localMap.buildImageMap();
-                writeVideo(writerObj, frame);
-                writeVideo(writerObj, frame);
-                writeVideo(writerObj, frame);
-
-                nextStep = algorithm.currPos;
-                while ~isempty(nextStep) && nextStep.state ~= State.VISITED && nextStep.state ~= State.GOAL
-                    oldNextStep = nextStep;
-                    oldNextStep.state = State.VISITED;
-                    [~, nextStep] = minVal(oldNextStep, algorithm.successor(oldNextStep));
-                end
-            end
+            frame = algorithm.buildImageMap();
+            writeVideo(writerObj, frame);
+            writeVideo(writerObj, frame);
+            writeVideo(writerObj, frame);
         end
         disp('run terminated in: '+string(toc)+' s'+newline);
         close(writerObj);
@@ -253,4 +234,22 @@ function waitInput()
     disp("PAUSE: press enter to continue");
     pause();
     disp("CONTINUE!!");
+end
+
+
+function imlegend(colorArr, labelsArr)
+% For instance if two legend entries are needed:
+% colorArr =
+%   Nx3 array of doubles. Each entry should be an RGB percentage value between 0 and 1
+%
+% labelsArr =
+%   1×N cell array
+%     {'First name here'}    {'Second name here'}    {'etc'}
+hold on;
+for ii = 1:length(labelsArr)
+  % Make a new legend entry for each label. 'color' contains a 0->255 RGB triplet
+  scatter([],[],1, colorArr(ii,:), 'filled', 'DisplayName', labelsArr{ii});
+end
+hold off;
+legend();
 end

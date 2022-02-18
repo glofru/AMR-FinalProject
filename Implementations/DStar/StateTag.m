@@ -11,9 +11,9 @@ classdef StateTag
                 case StateTag.NEW
                     c = [0, 0.4, 0.4];
                 case StateTag.OPEN
-                    c = [0, 1, 0];
+                    c = [0.2, 0.8, 0.2];
                 case StateTag.CLOSED
-                    c = [0, 0, 1];
+                    c = [0.5, 0, 0.5];
             end
         end
     end

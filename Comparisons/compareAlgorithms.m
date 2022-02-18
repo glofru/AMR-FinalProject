@@ -98,6 +98,7 @@ for i=1:epochs
     end
 end
 
+%%
 figure
 bar(initTimes4Epoch)
 title("Initialization times")

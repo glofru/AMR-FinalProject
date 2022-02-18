@@ -262,7 +262,7 @@ costs = initParams.costs;
 for i=1:initParams.Na
     subplot(num, num, i)
     colormap('hot')
-    appHeatMap = (heatMap(1,:, :)>0);
+    appHeatMap = (heatMap(i,:, :)>0);
     imagesc(reshape(appHeatMap, [initParams.dim(1), initParams.dim(2)]))
     colorbar
     title({initParams.typeAlgoToStr(initParams.typeAlgo(i)), "Range="+num2str(initParams.ranges(i))+...

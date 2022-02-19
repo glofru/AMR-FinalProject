@@ -61,7 +61,9 @@ classdef D_star_lite_v2 < handle
                 obstacles, DSLMap.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
+            obj.currPos.setPos(Sstart(1), Sstart(2), obj.cost);
             obj.goal = obj.localMap.map(Sgoal(1), Sgoal(2));
+            obj.goal.setPos(Sgoal(1), Sgoal(2), obj.cost);
             
             obj.goal.rhs = 0;
             obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos));
@@ -131,7 +133,12 @@ classdef D_star_lite_v2 < handle
                 y = u.y + m(2);
 
                 if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
-                    Lp(currI) = obj.localMap.map(x, y);
+                    state = obj.localMap.map(x, y);
+                    if isempty(state.cost)
+                        state.setPos(x, y, obj.cost);
+                        state.state = DSLState.VISITED;
+                    end
+                    Lp(currI) = state;
                     currI = currI+1;
                 end
             end
@@ -146,7 +153,12 @@ classdef D_star_lite_v2 < handle
                 y = u.y + m(2);
 
                 if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
-                    Ls(currI) = obj.localMap.map(x, y);
+                    state = obj.localMap.map(x, y);
+                    if isempty(state.cost)
+                        state.setPos(x, y, obj.cost);
+                        state.state = DSLState.VISITED;
+                    end
+                    Ls(currI) = state;
                     currI = currI+1;
                 end
             end
@@ -203,6 +215,9 @@ classdef D_star_lite_v2 < handle
             
             for o=obj.newObstacles
                 oState = obj.localMap.map(o(1), o(2));
+                if isempty(oState.cost)
+                    oState.setPos(o(1), o(2), obj.cost);
+                end
                 oState.g = inf;
                 oState.rhs = inf;
                 oState.k = oState.calcKey(obj.currPos);

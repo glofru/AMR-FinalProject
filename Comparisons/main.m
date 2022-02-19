@@ -199,9 +199,10 @@ switch (typeOfInput)
                 appInputFile = pref+core+suff;
                 saveDataOnFileADAT(inputPath, initParams, infosAlgo(:, i), appInputFile);
             end
+            initParams.Na = oldNa;
+            initParams.typeAlgo = oldTypeAlgo;
         end
-        initParams.Na = oldNa;
-        initParams.typeAlgo = oldTypeAlgo;
+        
         saveDataOnFileADAT(inputPath, initParams, infosAlgo, inputFile);
     % end case
 end

@@ -101,6 +101,7 @@ end
 %%
 figure
 bar(initTimes4Epoch)
+set(gca,'XTickLabel', algos)
 title("Initialization times")
 xlabel("Epoch")
 ylabel("Time (s)")
@@ -109,6 +110,7 @@ legend(algos);
 
 figure
 bar(computationTimes4Epoch)
+set(gca,'XTickLabel', algos)
 title("Running time")
 xlabel("Epoch")
 ylabel("Time (s)")
@@ -117,6 +119,7 @@ legend(algos);
 
 figure
 bar(expCells4Epoch)
+set(gca,'XTickLabel', algos)
 title("Explored cells")
 xlabel("Epoch")
 ylabel("Number of cells")
@@ -125,6 +128,7 @@ legend(algos);
 
 figure
 bar(totSteps4Epoch)
+set(gca,'XTickLabel', algos)
 title("Total algorithm steps")
 xlabel("Epoch")
 ylabel("Number of steps")
@@ -133,6 +137,7 @@ legend(algos);
 
 figure
 bar(pathLength4Epoch)
+set(gca,'XTickLabel', algos)
 title("Path length")
 xlabel("Epoch")
 ylabel("Path length")
@@ -143,6 +148,7 @@ legend(algos);
 figure
 subplot(1, 5, 1)
 bar(mean(initTimes4Epoch))
+set(gca,'XTickLabel', algos)
 title("Initialization time")
 grid on;
 xlabel("Algorithm")
@@ -150,6 +156,7 @@ ylabel("Time (s)")
 
 subplot(1, 5, 2)
 bar(mean(computationTimes4Epoch))
+set(gca,'XTickLabel', algos)
 title("Running time")
 xlabel("Algorithm")
 ylabel("Time (s)")
@@ -157,6 +164,7 @@ grid on;
 
 subplot(1, 5, 3)
 bar(mean(expCells4Epoch))
+set(gca,'XTickLabel', algos)
 title("Explored cells")
 xlabel("Algorithm")
 ylabel("Number of cells")
@@ -164,6 +172,7 @@ grid on;
 
 subplot(1, 5, 4)
 bar(mean(totSteps4Epoch))
+set(gca,'XTickLabel', algos)
 title("Total algorithm steps")
 xlabel("Algorithm")
 ylabel("Number of steps")
@@ -171,6 +180,7 @@ grid on;
 
 subplot(1, 5, 5)
 bar(mean(pathLength4Epoch))
+set(gca,'XTickLabel', algos)
 title("Path Length")
 xlabel("Algorithm")
 ylabel("Path length")
@@ -188,6 +198,7 @@ colors = [
 figure
 subplot(1, 5, 1)
 boxplot(initTimes4Epoch)
+set(gca,'XTickLabel', algos)
 % add colors
 h = findobj(gca,'Tag','Box');
 for j=1:length(h)
@@ -201,6 +212,7 @@ legend(flip(algos))
 
 subplot(1, 5, 2)
 boxplot(computationTimes4Epoch)
+set(gca,'XTickLabel', algos)
 % add colors
 h = findobj(gca,'Tag','Box');
 for j=1:length(h)
@@ -214,6 +226,7 @@ legend(flip(algos))
 
 subplot(1, 5, 3)
 boxplot(expCells4Epoch)
+set(gca,'XTickLabel', algos)
 % add colors
 h = findobj(gca,'Tag','Box');
 for j=1:length(h)
@@ -227,6 +240,7 @@ legend(flip(algos))
 
 subplot(1, 5, 4)
 boxplot(totSteps4Epoch)
+set(gca,'XTickLabel', algos)
 % add colors
 h = findobj(gca,'Tag','Box');
 for j=1:length(h)
@@ -240,6 +254,7 @@ legend(flip(algos))
 
 subplot(1, 5, 5)
 boxplot(pathLength4Epoch)
+set(gca,'XTickLabel', algos)
 % add colors
 h = findobj(gca,'Tag','Box');
 for j=1:length(h)

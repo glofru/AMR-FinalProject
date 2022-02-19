@@ -75,22 +75,25 @@ classdef FileADAT < handle
             if obj.typeAlgo == FileADAT.ALGO_ALL || obj.typeAlgo == FileADAT.ALGO_CUSTOM
                 obj.Na = 4;
                 obj.typeAlgo = [FileADAT.ALGO_DS, FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2, FileADAT.ALGO_FDS];
+                
+                obj.ranges = ones(1, obj.Na) * 2;
+                obj.costs  = ones(1, obj.Na) * 0.6;
             else
-                obj.Na = 3;
+                obj.Na = 4;
                 obj.typeAlgo = ones(1, obj.Na) * obj.typeAlgo;
+                
+                obj.ranges = ones(1, obj.Na) * 3;
+                obj.costs  = [0.3, 0.6, 1, 5];
             end
             
-            D1 = 20;
-            D2 = 20;
-            obj.percNumObs = 20;
+            D1 = 40;
+            D2 = 40;
+            obj.percNumObs = 40;
             obj.dim = [D1; D2];
             
             obj.Sstart = [1; 1];
             obj.Sgoal = [D1; D2];
             obj.moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
-
-            obj.ranges = ones(1, obj.Na) * 2;
-            obj.costs  = ones(1, obj.Na) * 0.6;
         end
         
         function obj = getFromFile(fid)

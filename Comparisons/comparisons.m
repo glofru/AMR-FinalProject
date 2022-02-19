@@ -37,7 +37,7 @@ for i=1:initParams.Na
     colormap('hot')
     imagesc(reshape(heatMap(i, :, :), [initParams.dim(1), initParams.dim(2)]))
     colorbar
-    title({initParams.typeAlgoToStr(initParams.typeAlgo), "Range="+num2str(initParams.ranges(i))+...
+    title({initParams.typeAlgoToStr(initParams.typeAlgo(i)), "Range="+num2str(initParams.ranges(i))+...
         " Cost="+num2str(costs(i))})
 end
 xlabel(["",...
@@ -105,6 +105,7 @@ for i=1:initParams.epochDone
     end
 end
 
+%%
 figure
 bar(initTimes4Epoch)
 title("Initialization times")

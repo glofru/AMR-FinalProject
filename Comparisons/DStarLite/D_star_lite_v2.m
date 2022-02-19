@@ -21,10 +21,6 @@ classdef D_star_lite_v2 < handle
         U;
         % set of new obstacles discovered
         newObstacles;
-        % previous state
-        Slast;
-        % km parameter
-        km;
         
         % max length of the final path
         maxLengthFinalPath;
@@ -42,14 +38,13 @@ classdef D_star_lite_v2 < handle
     end
     
     methods
-        % D_star_lite_v2 constructor
+        % D_star_lite_v1 constructor
         function obj = D_star_lite_v2(globalMap, obstacles, Sstart, Sgoal,...
                 moves, range, cost)
             % copy vals
             obj.globalMap = globalMap;
             obj.moves = moves;
             obj.U = DSLPriorityQueue();
-            obj.km = 0;
             obj.newObstacles = [];
             obj.range = range;
             obj.cost = cost;
@@ -66,11 +61,11 @@ classdef D_star_lite_v2 < handle
                 obstacles, DSLMap.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
-            obj.Slast = obj.currPos;
             obj.goal = obj.localMap.map(Sgoal(1), Sgoal(2));
             
             obj.goal.rhs = 0;
-            obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos, obj.km));
+            obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos));
+            obj.expCells = obj.expCells+1;
 
             % first scan
             obj.updateMap();
@@ -94,10 +89,11 @@ classdef D_star_lite_v2 < handle
                 isFin = false;
             end
         end
-
-
+        
+        
         % scan the map for new obstacles
-        function updateMap(obj)
+        function isChanged = updateMap(obj)
+            isChanged = false;
             is = obj.currPos.x;
             js = obj.currPos.y;
             
@@ -113,6 +109,8 @@ classdef D_star_lite_v2 < handle
                         state = obj.localMap.map(is+i, js+j);
                         if chr == DSLState.OBSTACLE
                             if state.state ~= chr
+                                isChanged = true;
+                                
                                 state.state = chr;
                                 new_obs = [newX; newY];
                                 obj.localMap.obstacles(:, end+1) = new_obs;
@@ -163,7 +161,7 @@ classdef D_star_lite_v2 < handle
             obj.U.removeIfPresent(u);
 
             if u.g ~= u.rhs
-                obj.U.insert(u, u.calcKey(obj.currPos, obj.km));
+                obj.U.insert(u, u.calcKey(obj.currPos));
                 obj.expCells = obj.expCells+1;
             end
         end
@@ -171,8 +169,8 @@ classdef D_star_lite_v2 < handle
         % compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
             while true
-                [u, Kold, pos] = obj.U.top();
-                if ~(min2(Kold, obj.currPos.calcKey(obj.currPos)) || ...
+                [u, k, pos] = obj.U.top();
+                if ~(min2(k, obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                     return
                 end
@@ -181,10 +179,7 @@ classdef D_star_lite_v2 < handle
                 
                 obj.U.removeIndex(pos);
 
-                if (Kold < u.calcKey(obj.currPos, obj.km))
-                    obj.U.insert(u, u.calcKey(obj.currPos, obj.km));
-                    obj.expCells = obj.expCells+1;
-                elseif (u.g > u.rhs)
+                if (u.g > u.rhs)
                     u.g = u.rhs;
                     pred = obj.predecessor(u);
                     for p=pred
@@ -204,19 +199,17 @@ classdef D_star_lite_v2 < handle
         % discovered
         function updateEdgesCost(obj)
             updateCells = DSLPriorityQueue();
-            updateCells.insert(obj.currPos, obj.currPos.calcKey(obj.currPos, obj.km));
+            updateCells.insert(obj.currPos, obj.currPos.calcKey(obj.currPos));
             
             for o=obj.newObstacles
                 oState = obj.localMap.map(o(1), o(2));
-
                 oState.g = inf;
                 oState.rhs = inf;
-                oState.k = oState.calcKey(obj.currPos, obj.km);
+                oState.k = oState.calcKey(obj.currPos);
                 
                 pred = obj.predecessor(oState);
-
                 for p=pred
-                    updateCells.insert(p, p.calcKey(obj.currPos, obj.km));
+                    updateCells.insert(p, p.calcKey(obj.currPos));
                 end
             end
             obj.newObstacles = [];
@@ -229,17 +222,16 @@ classdef D_star_lite_v2 < handle
             while ~updateCells.isEmpty()
                 [s, k_old] = updateCells.extract(1);
                 obj.updateVertex(s);
-                k = s.calcKey(obj.currPos, obj.km);
+                k = s.calcKey(obj.currPos);
                 if ~(k == k_old)
                     pred = obj.predecessor(s);
 
                     for p=pred
-                        updateCells.insert(p, p.calcKey(obj.currPos, obj.km));
+                        updateCells.insert(p, p.calcKey(obj.currPos));
                     end
                 end
             end
         end
-        
         
         % return the set of successor states of the state u
         function Ls = successor2(obj, u)
@@ -256,29 +248,26 @@ classdef D_star_lite_v2 < handle
             end
         end
         
+        
         % compute one step from the current position
         function step(obj)
             obj.pathLength = obj.pathLength+1;
             
             % move to minPos
-            obj.currPos.state = DSLState.PATH; % TODO
-            [~, nextState] = minVal(obj.currPos, obj.successor2(obj.currPos));
+            [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
 
             % scan graph
-            obj.updateMap();
+            isChanged = obj.updateMap();
 
             %obj.localMap.plot();
-            %pause(0.25); % because otherwise matlab doesn't update the plot
+            %pause(0.1); % because otherwise matlab doesn't update the plot
 
             % update graph
-            if nextState.state == DSLState.OBSTACLE
+            if isChanged
                 % TODO optimize
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
             end
-            
-            obj.currPos.state = DSLState.PATH; % TODO
-            [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
             
             obj.expCellsList = [obj.expCellsList, obj.expCells];
             obj.totStepsList = [obj.totStepsList, obj.totSteps];
@@ -297,7 +286,7 @@ classdef D_star_lite_v2 < handle
                 finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
             end
             
-            if dimensionPath >= obj.maxLengthFinalPath % never happened
+            if dimensionPath >= obj.maxLengthFinalPath  % never happened
                 disp("loop")
                 error("loop")
             end

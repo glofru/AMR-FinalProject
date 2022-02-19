@@ -158,8 +158,9 @@ for currEpoch=1:epoch
                 infosAlgo(currEpoch, i).pathLength = currAlgo.pathLength;
             end
             break
-        catch
-                disp(newline+" ### Map not valid: obstacles make the goal unreachable ### "+newline)
+        catch ME
+            disp(ME)
+            disp(newline+" ### Map not valid: obstacles make the goal unreachable ### "+newline)
         end
     end
     
@@ -168,7 +169,7 @@ end
 disp("Terminated!")
 
 %% SAVE
-initParams.epochDone = epoch;
+initParams.epochDone = currEpoch;
 switch (typeOfInput)
     case {1, 2}
         if any(initParams.typeAlgo(1) ~= initParams.typeAlgo)

@@ -37,14 +37,24 @@ classdef DSLState < handle
 
     methods
         % DSLState constructor
-        function obj = DSLState(x, y, state, cost)
-            obj.x = x;
-            obj.y = y;
-            obj.state = state;
-            obj.cost = cost;
-            
+%         function obj = DSLState(x, y, state, cost)
+%             obj.x = x;
+%             obj.y = y;
+%             obj.state = state;
+%             obj.cost = cost;
+%             
+%             obj.g = Inf;
+%             obj.rhs = Inf;
+%         end
+        function obj = DSLState()
+            obj.state = DSLState.UNKNOWN;
             obj.g = Inf;
             obj.rhs = Inf;
+        end
+        function setPos(obj, x, y, cost)
+            obj.x = x;
+            obj.y = y;
+            obj.cost = cost;
         end
         
         

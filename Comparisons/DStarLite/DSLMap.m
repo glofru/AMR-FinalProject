@@ -27,14 +27,16 @@ classdef DSLMap < handle
     
     methods(Access=private)
         function init_map(obj, chr)
-            obj.map = DSLState.empty(1, 0);
-            for i=1:obj.row
-                tmp = DSLState.empty(0, 1);
-                for j=1:obj.col
-                    tmp(j) = DSLState(i, j, chr, obj.cost);
-                end
-                obj.map = [obj.map; tmp];
-            end
+            obj.map = DSLState();
+            obj.map(obj.row, obj.col) = DSLState();
+%             obj.map = DSLState.empty(1, 0);
+%             for i=1:obj.row
+%                 tmp = DSLState.empty(0, 1);
+%                 for j=1:obj.col
+%                     tmp(j) = DSLState(i, j, chr, obj.cost);
+%                 end
+%                 obj.map = [obj.map; tmp];
+%             end
         end
     end
 

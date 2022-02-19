@@ -22,7 +22,7 @@ classdef D_star_lite_v1 < handle
         % set of new obstacles discovered
         newObstacles;
         
-        
+        % if true plot map
         plotVideo;
     end
     
@@ -45,7 +45,7 @@ classdef D_star_lite_v1 < handle
                 range = 1;
                 % cost of a step
                 cost = 1;
-                
+                % if true plot map
                 plotVideo = 0;
             end
             % copy vals
@@ -72,7 +72,6 @@ classdef D_star_lite_v1 < handle
             % first scan
             obj.updateMap();
             
-            % TODO optimize
             % compute first path
             obj.computeShortestPath();
         end
@@ -137,7 +136,6 @@ classdef D_star_lite_v1 < handle
 
                 obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
                 if  obj_pos.state ~= State.OBSTACLE
-                    % TODO ottimizzare
                     if ~isAlredyIn(Lp, obj_pos)
                         Lp(currI) = obj_pos;
                         currI = currI+1;
@@ -159,7 +157,6 @@ classdef D_star_lite_v1 < handle
 
                 obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
                 if obj_pos.state ~= State.OBSTACLE
-                    % TODO ottimizzare
                     if ~isAlredyIn(Ls, obj_pos)
                         Ls(currI) = obj_pos;
                         currI = currI+1;
@@ -194,7 +191,6 @@ classdef D_star_lite_v1 < handle
 %                 end
                 u = obj.U.pop();
                 
-                % TODO
                 if u.state == State.UNKNOWN || u.state == State.EMPTY || ...
                         u.state == State.VISITED || u.state == State.FUTUREPATH
                     u.state = State.OPEN;
@@ -257,16 +253,15 @@ classdef D_star_lite_v1 < handle
         % compute one step from the current position
         function step(obj)
             % move to minPos
-            obj.currPos.state = State.PATH; % TODO
+            obj.currPos.state = State.PATH;
             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
-            obj.currPos.state = State.POSITION; % TODO
+            obj.currPos.state = State.POSITION;
 
             % scan graph
             isChanged = obj.updateMap();
 
             % update graph
             if isChanged
-                % TODO optimize
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
             end

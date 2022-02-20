@@ -1,41 +1,56 @@
 classdef D_star_lite_v2_opt < handle
     properties
+        % Map having global knowledge
         globalMap;
-        
+        % Map having local knowledge
         localMap;
+        % Current position
         currPos;
+        % Goal position
         goal;
+        % Set of moves that the algorithm can do
         moves;
+        % Range of the scan
         range;
+        % Cost of a step
         cost;
-        
+        % Priority queue
         U;
+        % Set of obstacles
         obstacles;
+        % Set of new obstacles discovered
         newObstacles;
-        
+
         Slast;
         km;
         
-        
+        % Utility to generate the video
         plotVideo;
     end
     
     methods
+        % D_star_lite_v2_opt constructor
         function obj = D_star_lite_v2_opt(globalMap, obstacles, Sstart, Sgoal,...
                 moves, range, cost, plotVideo)
             arguments
+                % Map having global knowledge
                 globalMap
+                % Set of obstacles known
                 obstacles
+                % Start position
                 Sstart
+                % Goal position
                 Sgoal
+                % Set of moves that the algorithm can do
                 moves
-                
+                % Range of the scan
                 range = 1;
+                % Cost of a step
                 cost = 1;
                 
                 plotVideo = 0;
             end
-            % copy vals
+
             obj.globalMap = globalMap;
             obj.moves = moves;
             obj.U = PriorityQueue();
@@ -46,6 +61,7 @@ classdef D_star_lite_v2_opt < handle
             obj.cost = cost;
             obj.plotVideo = plotVideo;
             
+            % Map initialization
             obj.localMap = Map(obj.globalMap.row, obj.globalMap.col,...
                 obj.obstacles, Map.TYPE_UNKNOWN, cost);
             
@@ -60,14 +76,12 @@ classdef D_star_lite_v2_opt < handle
             %*********************OPTIMIZATION********************
             obj.U.insert(obj.goal, [obj.currPos.h(obj.goal), 0]);
 
-            % first scan
+            % First scan and path computation
             obj.updateMap();
-            
-            % TODO optimize
-            % compute first path
             obj.computeShortestPath();
         end
 
+        % Scan the map for new obstacles
         function isChanged = updateMap(obj)
             isChanged = false;
             
@@ -98,6 +112,7 @@ classdef D_star_lite_v2_opt < handle
             obj.currPos.state = State.POSITION;
         end
         
+        % Check if the algorithm is finished
         function isFin = isFinish(obj)
             if obj.currPos == obj.goal
                 disp("Goal reached!");
@@ -110,7 +125,7 @@ classdef D_star_lite_v2_opt < handle
             end
         end
         
-        
+        % Set of predecessor states of the state u
         function Lp = predecessor(obj, u)
             Lp = State.empty(length(obj.moves), 0);
             currI = 1;
@@ -132,6 +147,7 @@ classdef D_star_lite_v2_opt < handle
             end
         end
         
+        % Set of successor states of the state u
         function Ls = successor(obj, u)
             Ls = State.empty(length(obj.moves), 0);
             currI = 1;
@@ -154,6 +170,7 @@ classdef D_star_lite_v2_opt < handle
         end
         
         %*******************OPTIMIZATION*******************
+        % Update vertex u
         function updateVertex(obj, u)
 %             if u.g ~= u.rhs
 %                 obj.U.insert(u, u.calcKey(obj.currPos, obj.km));
@@ -176,6 +193,7 @@ classdef D_star_lite_v2_opt < handle
         %*******************FINISH OPTIMIZATION*************
         
         %*******************OPTIMIZATION*******************
+        % Compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos, obj.km)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
@@ -218,8 +236,10 @@ classdef D_star_lite_v2_opt < handle
                 end
             end
         end
-         %*******************FINISH OPTIMIZATION*************
-
+        %*******************FINISH OPTIMIZATION*************
+        
+        % Update the cost of all the cells needed when new obstacles are
+        % discovered
         function updateEdgesCost(obj)
             % updato tutti i predecessori degli ostacoli nuovi
             % li metto in una lista e estraggo il più vicino al goal
@@ -275,6 +295,7 @@ classdef D_star_lite_v2_opt < handle
             end
         end
         
+        % Takes a step from the current position
         function step(obj)
 
             %move to minPos
@@ -300,6 +321,7 @@ classdef D_star_lite_v2_opt < handle
             end
         end
         
+        % Run the algorithm until it reaches the end
         function run(obj)
             while(~isFinish(obj))
                 obj.step()
@@ -307,7 +329,7 @@ classdef D_star_lite_v2_opt < handle
         end
         
         
-        % switch the cells on the shortest path to the goal from oldState
+        % Switch the cells on the shortest path to the goal from oldState
         % to newState
         function switchForFuturePath(obj, oldState, newState)
             nextStep = obj.currPos;
@@ -319,7 +341,7 @@ classdef D_star_lite_v2_opt < handle
             end
         end
         
-        % generate the map image
+        % Generate the map image
         function rgbImage = buildImageMap(obj)
             obj.switchForFuturePath(State.OPEN, State.FUTUREPATH);
             
@@ -328,7 +350,7 @@ classdef D_star_lite_v2_opt < handle
             obj.switchForFuturePath(State.FUTUREPATH, State.OPEN);
         end
         
-        % plot the map image
+        % Plot the map image
         function plot(obj)
             J = obj.buildImageMap();
             imshow(J);

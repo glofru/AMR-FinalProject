@@ -1,6 +1,6 @@
 classdef Field_D_star < handle
-    %
-    %
+    % Optimized implementation of Field D* from the paper:
+    % "Field D*: An Interpolation-based Path Planner and Replanner"
     
     properties
         % Map having global knowledge
@@ -61,7 +61,9 @@ classdef Field_D_star < handle
                 obstacles, FDMap.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
+            obj.currPos.setPos(Sstart(1), Sstart(2), obj.cost);
             obj.goal = obj.localMap.map(Sgoal(1), Sgoal(2));
+            obj.goal.setPos(Sgoal(1), Sgoal(2), obj.cost);
             
             obj.goal.rhs = 0;
             obj.OPEN.insert(obj.goal, obj.goal.calcKey(obj.currPos));
@@ -70,7 +72,6 @@ classdef Field_D_star < handle
             % first scan
             obj.updateMap();
             
-            % TODO optimize
             % compute first path
             obj.computeShortestPath();
             
@@ -105,10 +106,11 @@ classdef Field_D_star < handle
                     if obj.localMap.isInside(newX, newY)
                         chr = obj.globalMap.map(newX, newY).state;
                         
-                        state = obj.localMap.map(is+i, js+j);
+                        state = obj.localMap.map(newX, newY);
                         if chr == FDState.OBSTACLE
                             if state.state ~= chr
                                 state.state = chr;
+                                state.k = state.calcKey(obj.currPos);
                                 new_obs = [newX; newY];
                                 obj.localMap.obstacles(:, end+1) = new_obs;
                                 obj.newObstacles(:, end+1) = new_obs;
@@ -128,7 +130,12 @@ classdef Field_D_star < handle
                 y = u.y + m(2);
 
                 if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
-                    Lp(currI) = obj.localMap.map(x, y);
+                    state = obj.localMap.map(x, y);
+                    if isempty(state.cost)
+                        state.setPos(x, y, obj.cost);
+                        state.state = DSLState.VISITED;
+                    end
+                    Lp(currI) = state;
                     currI = currI+1;
                 end
             end
@@ -143,7 +150,12 @@ classdef Field_D_star < handle
                 y = u.y + m(2);
 
                 if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
-                    Ls(currI) = obj.localMap.map(x, y);
+                    state = obj.localMap.map(x, y);
+                    if isempty(state.cost)
+                        state.setPos(x, y, obj.cost);
+                        state.state = DSLState.VISITED;
+                    end
+                    Ls(currI) = state;
                     currI = currI+1;
                 end
             end
@@ -214,10 +226,9 @@ classdef Field_D_star < handle
 
             for o=obj.newObstacles
                 oState = obj.localMap.map(o(1), o(2));
-
-                oState.g = inf;
-                oState.rhs = inf;
-                oState.k = oState.calcKey(obj.currPos);
+                if isempty(oState.cost)
+                    oState.setPos(o(1), o(2), obj.cost);
+                end
                 
                 pred = obj.predecessor(oState);
                 for p=pred
@@ -255,7 +266,12 @@ classdef Field_D_star < handle
                 y = u.y + m(2);
 
                 if obj.localMap.isInside(x, y)
-                    Ls(currI) = obj.localMap.map(x, y);
+                    state = obj.localMap.map(x, y);
+                    if isempty(state.cost)
+                        state.setPos(x, y, obj.cost);
+                        state.state = DSLState.VISITED;
+                    end
+                    Ls(currI) = state;
                     currI = currI+1;
                 end
             end
@@ -275,14 +291,14 @@ classdef Field_D_star < handle
             %pause(0.01); % because otherwise matlab doesn't update the plot
 
             % update graph
-            if nextState.state == FDState.OBSTACLE %isChanged
-                % TODO optimize
+            if nextState.state == FDState.OBSTACLE
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
+                
+                [~, nextState] = minVal(obj.currPos, obj.successor(obj.currPos));
             end
-            
-            obj.currPos.state = FDState.PATH; % TODO
-            [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
+            obj.currPos = nextState;
+            obj.currPos.state = FDState.PATH;
             
             obj.expCellsList = [obj.expCellsList, obj.expCells];
             obj.totStepsList = [obj.totStepsList, obj.totSteps];

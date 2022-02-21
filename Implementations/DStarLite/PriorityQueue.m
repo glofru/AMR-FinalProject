@@ -40,6 +40,14 @@ classdef PriorityQueue < handle
             end
         end
         
+        % check if the queue has vertex s and remove it
+        function removeIfPresent(obj, s)
+            pos = obj.find(s);
+            if pos ~= -1
+                obj.removeIndex(pos);
+            end
+        end
+        
         
         % insert in the queue vertex s with value k
         % if already exists change priority of s from k (old) to k
@@ -47,16 +55,6 @@ classdef PriorityQueue < handle
             s.k = k;
             obj.queue(end+1) = s;
                 
-            % TODO
-            if s.state == State.UNKNOWN || s.state == State.EMPTY
-                s.state = State.VISITED;
-            end
-        end
-        
-        function update(obj, s, k)
-            s.k = k;
-            
-            % TODO
             if s.state == State.UNKNOWN || s.state == State.EMPTY
                 s.state = State.VISITED;
             end
@@ -68,23 +66,32 @@ classdef PriorityQueue < handle
             obj.queue(pos) = [];
         end
         
+        % remove from the queue vertex in position pos
+        function removeIndex(obj, pos)
+            obj.queue(pos) = [];
+        end
+        
         % return a vertex with the smallest priority k
         % optional minV
-        function [minS, minV] = top(obj)
+        function [minS, minV, pos] = top(obj)
             minV = [inf, inf];
             minS = [];
+            pos = -1;
+            curPos = 1;
             for elem=obj.queue
                 if isempty(minV) || min2(elem.k, minV)
                     minV = elem.k;
                     minS = elem;
+                    pos=curPos;
                 end
+                curPos = curPos +1;
             end
         end
         
         % return the smallest priority k of all vertices
         % if empty return [+inf, +inf]
         function minV = topKey(obj)
-            minV = [inf, inf]; % [];
+            minV = [inf, inf];
             for elem=obj.queue
                 if isempty(minV) || min2(elem.k, minV)
                     minV = elem.k;
@@ -95,15 +102,26 @@ classdef PriorityQueue < handle
         % delete from the queue the vertex with the smallest priority k
         % and return it, optional k
         function [s, k] = pop(obj)
-            [s, k] = top(obj);
-            obj.remove(s);
+            k = [Inf, Inf];
+            s = [];
+            pos = -1;
+            curPos = 1;
+            for elem=obj.queue
+                if min2(elem.k, k)
+                    k = elem.k;
+                    s = elem;
+                    pos=curPos;
+                end
+                curPos = curPos +1;
+            end
+            obj.queue(pos) = [];
         end
         
         % pop the element in position pos
         function [s, k] = extract(obj, pos)
             s = obj.queue(pos);
             k = s.k;
-            obj.remove(s);
+            obj.queue(pos) = [];
         end
         
         

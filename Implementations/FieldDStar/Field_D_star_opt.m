@@ -1,6 +1,6 @@
 classdef Field_D_star_opt < handle
-    %
-    %
+    % Optimized implementation of Field D* from the paper:
+    % "Field D*: An Interpolation-based Path Planner and Replanner"
     
     properties
         % Map having global knowledge
@@ -22,7 +22,7 @@ classdef Field_D_star_opt < handle
         % set of new obstacles discovered
         newObstacles;
         
-        
+        % if true plot map
         plotVideo;
     end
     
@@ -30,24 +30,6 @@ classdef Field_D_star_opt < handle
         % Field_D_star_opt constructor
         function obj = Field_D_star_opt(globalMap, obstacles, Sstart, Sgoal,...
                 moves, range, cost, plotVideo)
-            arguments
-                % Map having global knowledge
-                globalMap
-                % set of obstacles known
-                obstacles
-                % start position
-                Sstart
-                % goal position
-                Sgoal
-                % set of moves that the algorithm can do
-                moves
-                % range of the scan
-                range = 1;
-                % cost of a step
-                cost = 1;
-                
-                plotVideo = 0;
-            end
             % copy vals
             obj.globalMap = globalMap;
             obj.moves = moves;
@@ -72,7 +54,6 @@ classdef Field_D_star_opt < handle
             % first scan
             obj.updateMap();
             
-            % TODO optimize
             % compute first path
             obj.computeShortestPath();
         end
@@ -103,16 +84,21 @@ classdef Field_D_star_opt < handle
 
             for i=-r:r
                 for j=-r:r
-                    if obj.localMap.isInside(is+i, js+j)
-                        chr = obj.globalMap.map(is+i, js+j).state;
+                    newX = is+i;
+                    newY = js+j;
+                    if obj.localMap.isInside(newX, newY)
+                        chr = obj.globalMap.map(newX, newY).state;
                         
+                        state = obj.localMap.map(newX, newY);
                         if chr == State.OBSTACLE
-                            obj.localMap.map(is+i, js+j).state = chr;
-                            
-                            new_obs = [is+i, js+j];
-                            if ~isAlredyIn(obj.localMap.obstacles, new_obs')
-                                obj.localMap.obstacles(:, end+1) = new_obs';
-                                obj.newObstacles(:, end+1) = new_obs';
+                            if state.state ~= chr
+                                state.state = chr;
+                                state.g = inf;
+                                state.rhs = inf;
+                                state.k = state.calcKey(obj.currPos, obj.km);
+                                new_obs = [newX; newY];
+                                obj.localMap.obstacles(:, end+1) = new_obs;
+                                obj.newObstacles(:, end+1) = new_obs;
                                 isChanged = true;
                             end
                         end
@@ -127,19 +113,12 @@ classdef Field_D_star_opt < handle
             Lp = State.empty(length(obj.moves), 0);
             currI = 1;
             for m=obj.moves
-                pred_pos = [u.x; u.y]+m;
+                x = u.x + m(1);
+                y = u.y + m(2);
 
-                if ~obj.localMap.isInside(pred_pos(1), pred_pos(2))
-                    continue
-                end
-
-                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                if  obj_pos.state ~= State.OBSTACLE
-                    % TODO ottimizzare
-                    if ~isAlredyIn(Lp, obj_pos)
-                        Lp(currI) = obj_pos;
-                        currI = currI+1;
-                    end
+                if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
+                    Lp(currI) = obj.localMap.map(x, y);
+                    currI = currI+1;
                 end
             end
         end
@@ -149,32 +128,18 @@ classdef Field_D_star_opt < handle
             Ls = State.empty(length(obj.moves), 0);
             currI = 1;
             for m=obj.moves
-                pred_pos = [u.x; u.y]+m;
+                x = u.x + m(1);
+                y = u.y + m(2);
 
-                if ~obj.localMap.isInside(pred_pos(1), pred_pos(2))
-                    continue
-                end
-
-                obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
-                if obj_pos.state ~= State.OBSTACLE
-                    % TODO ottimizzare
-                    if ~isAlredyIn(Ls, obj_pos)
-                        Ls(currI) = obj_pos;
-                        currI = currI+1;
-                    end
+                if obj.localMap.isInside(x, y) && ~obj.localMap.isObstacle(x, y)
+                    Ls(currI) = obj.localMap.map(x, y);
+                    currI = currI+1;
                 end
             end
         end
         
-        
         % update vertex u
         function updateNode(obj, s)
-%             if s.g ~= s.rhs
-%                 obj.OPEN.insert(s, s.calcKey(obj.currPos));
-%             elseif obj.OPEN.has(s)
-%                 obj.OPEN.remove(s);
-%             end
-
             if s ~= obj.goal
                 minV = inf;
                 connbrs = obj.successor(s);
@@ -190,15 +155,14 @@ classdef Field_D_star_opt < handle
                 s.rhs = minV;
             end
 
-            if obj.OPEN.has(s)
-                obj.OPEN.remove(s);
-            end
+            obj.U.removeIfPresent(u);
 
             if s.g ~= s.rhs
                 obj.OPEN.insert(s, s.calcKey(obj.currPos));
             end
         end
         
+        % return Counter ClockWise neighbor
         function s = ccknbr(obj, s1, s2)
             x = s2.x - s1.x;
             y = s2.y - s1.y;
@@ -223,6 +187,8 @@ classdef Field_D_star_opt < handle
                 end
             end
         end
+        
+        % return ClockWise neighbor
         function s = cknbr(obj, s1, s2)
             x = s2.x - s1.x;
             y = s2.y - s1.y;
@@ -250,17 +216,13 @@ classdef Field_D_star_opt < handle
         
         % compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
-            while (min2(obj.OPEN.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
+            while true
+                [s, k] = obj.OPEN.top();
+                if ~(min2(k, obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
+                    return
+                end
                 
-%                 if obj.plotVideo
-%                     obj.localMap.plot();
-%                     pause(0.01);
-%                 end
-                
-                s = obj.OPEN.top();
-                
-                % TODO
                 if s.state == State.UNKNOWN || s.state == State.EMPTY || ...
                         s.state == State.VISITED || s.state == State.FUTUREPATH
                     s.state = State.OPEN;
@@ -323,11 +285,10 @@ classdef Field_D_star_opt < handle
         % discovered
         function updateEdgesCost(obj)
             updateCells = PriorityQueue();
+            updateCells.insert(obj.currPos, obj.currPos.calcKey(obj.currPos));
+            
             for o=obj.newObstacles
                 oState = obj.localMap.map(o(1), o(2));
-
-                oState.g = inf;
-                oState.rhs = inf;
                 pred = obj.predecessor(oState);
 
                 for p=pred
@@ -366,16 +327,15 @@ classdef Field_D_star_opt < handle
         % compute one step from the current position
         function step(obj)
             %move to minPos
-            obj.currPos.state = State.PATH; % TODO
+            obj.currPos.state = State.PATH;
             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
-            obj.currPos.state = State.POSITION; % TODO
+            obj.currPos.state = State.POSITION;
             
             % scan graph
             isChanged = obj.updateMap();
             
             % update graph
             if isChanged
-                % TODO optimize
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
             end

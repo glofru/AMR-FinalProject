@@ -1,4 +1,7 @@
 classdef D_Star < handle
+    % Implementation of D* from the paper:
+    % "Optimal and Efficient Path Planning for Partially-Known Environments"
+    
     properties
         globalMap;
 

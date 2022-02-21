@@ -1,6 +1,6 @@
 classdef D_star_lite_v1 < handle
-    %
-    %
+    % Implementation of D* lite v1 from the paper:
+    % "Fast Replanning for Navigation in Unknown Terrain"
     
     properties
         % Map having global knowledge
@@ -112,6 +112,7 @@ classdef D_star_lite_v1 < handle
                             if ~isAlredyIn(obj.localMap.obstacles, new_obs)
                                 state.g = inf;
                                 state.rhs = inf;
+                                state.k = state.calcKey(obj.currPos);
                                 obj.localMap.obstacles(:, end+1) = new_obs;
                                 obj.newObstacles(:, end+1) = new_obs;
                                 isChanged = true;
@@ -184,11 +185,6 @@ classdef D_star_lite_v1 < handle
         function computeShortestPath(obj)
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
-                
-%                 if obj.plotVideo
-%                     obj.localMap.plot();
-%                     pause(0.01);
-%                 end
                 u = obj.U.pop();
                 
                 if u.state == State.UNKNOWN || u.state == State.EMPTY || ...
@@ -216,14 +212,17 @@ classdef D_star_lite_v1 < handle
         % discovered
         function updateEdgesCost(obj)
             updateCells = PriorityQueue();
-            updateCells.insert(obj.currPos, obj.currPos.calcKey(obj.currPos))
+            updateCells.insert(obj.currPos, obj.currPos.calcKey(obj.currPos));
+            
             for o=obj.newObstacles
                 oState = obj.localMap.map(o(1), o(2));
-                updateCells.insert(oState, oState.calcKey(obj.currPos))
+                updateCells.insert(oState, oState.calcKey(obj.currPos));
                 pred = obj.predecessor(oState);
 
                 for p=pred
-                    updateCells.insert(p, p.calcKey(obj.currPos));
+                    if ~updateCells.has(p)
+                        updateCells.insert(p, p.calcKey(obj.currPos));
+                    end
                 end
             end
             obj.newObstacles = [];

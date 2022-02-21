@@ -1,6 +1,6 @@
 classdef D_star_lite_v1 < handle
-    %
-    %
+    % Optimized implementation of D* lite v1 from the paper:
+    % "Fast Replanning for Navigation in Unknown Terrain"
     
     properties
         % Map having global knowledge
@@ -72,7 +72,6 @@ classdef D_star_lite_v1 < handle
             % first scan
             obj.updateMap();
             
-            % TODO optimize
             % compute first path
             obj.computeShortestPath();
             
@@ -107,10 +106,13 @@ classdef D_star_lite_v1 < handle
                     if obj.localMap.isInside(newX, newY)
                         chr = obj.globalMap.map(newX, newY).state;
                         
-                        state = obj.localMap.map(is+i, js+j);
+                        state = obj.localMap.map(newX, newY);
                         if chr == DSLState.OBSTACLE
                             if state.state ~= chr
                                 state.state = chr;
+                                state.g = Inf;
+                                state.rhs = Inf;
+                                state.k = state.calcKey(obj.currPos);
                                 new_obs = [newX; newY];
                                 obj.localMap.obstacles(:, end+1) = new_obs;
                                 obj.newObstacles(:, end+1) = new_obs;
@@ -219,9 +221,6 @@ classdef D_star_lite_v1 < handle
                 if isempty(oState.cost)
                     oState.setPos(o(1), o(2), obj.cost);
                 end
-                oState.g = inf;
-                oState.rhs = inf;
-                oState.k = oState.calcKey(obj.currPos);
                 
                 pred = obj.predecessor(oState);
                 for p=pred
@@ -258,7 +257,12 @@ classdef D_star_lite_v1 < handle
                 y = u.y + m(2);
 
                 if obj.localMap.isInside(x, y)
-                    Ls(currI) = obj.localMap.map(x, y);
+                    state = obj.localMap.map(x, y);
+                    if isempty(state.cost)
+                        state.setPos(x, y, obj.cost);
+                        state.state = DSLState.VISITED;
+                    end
+                    Ls(currI) = state;
                     currI = currI+1;
                 end
             end
@@ -280,14 +284,13 @@ classdef D_star_lite_v1 < handle
 
             % update graph
             if nextState.state == DSLState.OBSTACLE
-                % TODO optimize
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
                 
                 [~, nextState] = minVal(obj.currPos, obj.successor(obj.currPos));
             end
             obj.currPos = nextState;
-            obj.currPos.state = DSLState.PATH; % TODO
+            obj.currPos.state = DSLState.PATH;
             
             obj.expCellsList = [obj.expCellsList, obj.expCells];
             obj.totStepsList = [obj.totStepsList, obj.totSteps];

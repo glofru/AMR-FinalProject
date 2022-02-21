@@ -2,11 +2,6 @@ classdef DSLMap < handle
     %
     %
     
-    properties(Constant) % enumeration
-        TYPE_KNOWN = 1;
-        TYPE_UNKNOWN = 2;
-    end
-    
     properties
         % num of map's rows
         row
@@ -26,35 +21,20 @@ classdef DSLMap < handle
     end
     
     methods(Access=private)
-        function init_map(obj, chr)
+        function init_map(obj)
             obj.map = DSLState();
             obj.map(obj.row, obj.col) = DSLState();
-%             obj.map = DSLState.empty(1, 0);
-%             for i=1:obj.row
-%                 tmp = DSLState.empty(0, 1);
-%                 for j=1:obj.col
-%                     tmp(j) = DSLState(i, j, chr, obj.cost);
-%                 end
-%                 obj.map = [obj.map; tmp];
-%             end
         end
     end
 
     methods
         % DSLMap constructor
-        function obj = DSLMap(row, col, obstacles, type, cost)
+        function obj = DSLMap(row, col, obstacles, cost)
             obj.row = row;
             obj.col = col;
             obj.cost = cost;
             
-            switch type
-                case DSLMap.TYPE_KNOWN
-                    obj.init_map(DSLState.EMPTY);
-                case DSLMap.TYPE_UNKNOWN
-                    obj.init_map(DSLState.UNKNOWN);
-                otherwise
-                    error("Wrong Map Type!")
-            end
+            obj.init_map();
             
             obj.obstacles = obstacles;
             for point = obj.obstacles

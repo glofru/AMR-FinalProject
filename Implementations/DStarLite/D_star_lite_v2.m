@@ -1,6 +1,6 @@
 classdef D_star_lite_v2 < handle
-    %
-    %
+    % Implementation of D* lite v2 from the paper:
+    % "Fast Replanning for Navigation in Unknown Terrain"
     
     properties
         % Map having global knowledge
@@ -26,7 +26,7 @@ classdef D_star_lite_v2 < handle
         % km parameter
         km;
         
-        
+        % if true plot map
         plotVideo;
     end
     
@@ -49,7 +49,7 @@ classdef D_star_lite_v2 < handle
                 range = 1;
                 % cost of a step
                 cost = 1;
-                
+                % if true plot map
                 plotVideo = 0;
             end
             % copy vals
@@ -78,7 +78,6 @@ classdef D_star_lite_v2 < handle
             % first scan
             obj.updateMap();
             
-            % TODO optimize
             % compute first path
             obj.computeShortestPath();
         end
@@ -113,10 +112,14 @@ classdef D_star_lite_v2 < handle
                         chr = obj.globalMap.map(is+i, js+j).state;
                             
                         if chr == State.OBSTACLE
-                            obj.localMap.map(is+i, js+j).state = chr;
+                            state = obj.localMap.map(is+i, js+j);
+                            state.state = chr;
 
                             new_obs = [is+i; js+j];
                             if ~isAlredyIn(obj.localMap.obstacles, new_obs)
+                                state.g = inf;
+                                state.rhs = inf;
+                                state.k = state.calcKey(obj.currPos, obj.km);
                                 obj.localMap.obstacles(:, end+1) = new_obs;
                                 obj.newObstacles(:, end+1) = new_obs;
                                 isChanged = true;
@@ -141,7 +144,6 @@ classdef D_star_lite_v2 < handle
 
                 obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
                 if  obj_pos.state ~= State.OBSTACLE
-                    % TODO ottimizzare
                     if ~isAlredyIn(Lp, obj_pos)
                         Lp(currI) = obj_pos;
                         currI = currI+1;
@@ -163,7 +165,6 @@ classdef D_star_lite_v2 < handle
 
                 obj_pos = obj.localMap.map(pred_pos(1), pred_pos(2));
                 if obj_pos.state ~= State.OBSTACLE
-                    % TODO ottimizzare
                     if ~isAlredyIn(Ls, obj_pos)
                         Ls(currI) = obj_pos;
                         currI = currI+1;
@@ -192,14 +193,8 @@ classdef D_star_lite_v2 < handle
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos, obj.km)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                 
-%                 if obj.plotVideo
-%                     obj.localMap.plot();
-%                     pause(0.01);
-%                 end
-                
                 [u, Kold] = obj.U.pop();
                 
-                % TODO
                 if u.state == State.UNKNOWN || u.state == State.EMPTY || ...
                         u.state == State.VISITED || u.state == State.FUTUREPATH
                     u.state = State.OPEN;
@@ -227,11 +222,11 @@ classdef D_star_lite_v2 < handle
         % discovered
         function updateEdgesCost(obj)
             updateCells = PriorityQueue();
+            updateCells.insert(obj.currPos, obj.currPos.calcKey(obj.currPos, obj.km));
+            
             for o=obj.newObstacles
                 oState = obj.localMap.map(o(1), o(2));
-
-                oState.g = inf;
-                oState.rhs = inf;
+                updateCells.insert(oState, oState.calcKey(obj.currPos, obj.km));
                 pred = obj.predecessor(oState);
 
                 for p=pred
@@ -267,9 +262,9 @@ classdef D_star_lite_v2 < handle
         % compute one step from the current position
         function step(obj)
             % move to minPos
-            obj.currPos.state = State.PATH; % TODO
+            obj.currPos.state = State.PATH;
             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
-            obj.currPos.state = State.POSITION; % TODO
+            obj.currPos.state = State.POSITION;
             
             % scan graph
             isChanged = obj.updateMap();

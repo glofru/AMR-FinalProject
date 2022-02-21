@@ -1,6 +1,6 @@
 classdef D_star_lite_v1_opt < handle
-    %
-    %
+    % Optimized implementation of D* lite v1 from the paper:
+    % "Fast Replanning for Navigation in Unknown Terrain"
     
     properties
         % Map having global knowledge
@@ -22,12 +22,12 @@ classdef D_star_lite_v1_opt < handle
         % set of new obstacles discovered
         newObstacles;
         
-        
+        % if true plot map
         plotVideo;
     end
     
     methods
-        % D_star_lite_v1 constructor
+        % D_star_lite_v1_opt constructor
         function obj = D_star_lite_v1_opt(globalMap, obstacles, Sstart, Sgoal,...
                 moves, range, cost, plotVideo)
             % copy vals
@@ -44,7 +44,9 @@ classdef D_star_lite_v1_opt < handle
                 obstacles, Map.TYPE_UNKNOWN, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
+            obj.currPos.state = State.POSITION;
             obj.goal = obj.localMap.map(Sgoal(1), Sgoal(2));
+            obj.goal.state = State.GOAL;
             
             obj.goal.rhs = 0;
             obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos));
@@ -52,7 +54,6 @@ classdef D_star_lite_v1_opt < handle
             % first scan
             obj.updateMap();
             
-            % TODO optimize
             % compute first path
             obj.computeShortestPath2();
             
@@ -74,7 +75,6 @@ classdef D_star_lite_v1_opt < handle
                 
                 obj.U.remove(u);
                 
-                % TODO
                 if u.state == State.UNKNOWN || u.state == State.EMPTY || ...
                         u.state == State.VISITED || u.state == State.OPEN
                     u.state = State.START;
@@ -100,10 +100,10 @@ classdef D_star_lite_v1_opt < handle
         % check if the algorithm is finished
         function isFin = isFinish(obj)
             if obj.currPos == obj.goal
-                disp("goal reach")
+                disp("Goal reached!");
                 isFin = true;
             elseif obj.currPos.g == inf
-                disp("Path not found")
+                disp("No possible path!");
                 isFin = true;
             else
                 isFin = false;
@@ -127,13 +127,13 @@ classdef D_star_lite_v1_opt < handle
                     if obj.localMap.isInside(newX, newY)
                         chr = obj.globalMap.map(newX, newY).state;
                         
-                        state = obj.localMap.map(is+i, js+j);
+                        state = obj.localMap.map(newX, newY);
                         if chr == State.OBSTACLE
                             if state.state ~= chr
                                 state.state = chr;
-%                                 state.g = Inf;
-%                                 state.rhs = Inf;
-%                                 state.k = state.calcKey(obj.currPos);
+                                state.g = Inf;
+                                state.rhs = Inf;
+                                state.k = state.calcKey(obj.currPos);
                                 new_obs = [newX; newY];
                                 obj.localMap.obstacles(:, end+1) = new_obs;
                                 obj.newObstacles(:, end+1) = new_obs;
@@ -182,9 +182,7 @@ classdef D_star_lite_v1_opt < handle
                 [u.rhs, ~] = minVal(u, obj.successor(u));
             end
 
-            if obj.U.has(u)
-                obj.U.remove(u);
-            end
+            obj.U.removeIfPresent(u);
 
             if u.g ~= u.rhs
                 obj.U.insert(u, u.calcKey(obj.currPos));
@@ -194,21 +192,13 @@ classdef D_star_lite_v1_opt < handle
         % compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
             while true
-                [u, k] = obj.U.top();
+                [u, k, pos] = obj.U.top();
                 if ~(min2(k, obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                     return
                 end
-                u.state = State.OPEN;
+                obj.U.removeIndex(pos);
                 
-%                 if obj.plotVideo
-%                     obj.localMap.plot();
-%                     pause(0.01);
-%                 end
-                
-                obj.U.remove(u);
-                
-                % TODO
                 if u.state == State.UNKNOWN || u.state == State.EMPTY || ...
                         u.state == State.VISITED || u.state == State.FUTUREPATH
                     u.state = State.OPEN;
@@ -234,14 +224,10 @@ classdef D_star_lite_v1_opt < handle
         % discovered
         function updateEdgesCost(obj)
             updateCells = PriorityQueue();
-            
-             updateCells.insert(obj.currPos, obj.currPos.calcKey(obj.currPos));
+            updateCells.insert(obj.currPos, obj.currPos.calcKey(obj.currPos));
             
             for o=obj.newObstacles
                 oState = obj.localMap.map(o(1), o(2));
-                oState.g = inf;
-                oState.rhs = inf;
-                oState.k = oState.calcKey(obj.currPos);
 %                 
 % %                 updateCells.insert(oState, oState.calcKey(obj.currPos))
 % %                 pred = obj.predecessor(oState);
@@ -289,7 +275,7 @@ classdef D_star_lite_v1_opt < handle
         % compute one step from the current position
         function step(obj)
 %             % move to minPos
-%             obj.currPos.state = State.PATH; % TODO
+%             obj.currPos.state = State.PATH;
 %             [~, nextState] = minVal(obj.currPos, obj.successor2(obj.currPos));
 % 
 %             % scan graph
@@ -300,30 +286,30 @@ classdef D_star_lite_v1_opt < handle
 % 
 %             % update graph
 %             if nextState.state == State.OBSTACLE %isChanged
-%                 % TODO optimize
 %                 obj.updateEdgesCost();
 %                 obj.computeShortestPath();
 %             end
 %             
-%             obj.currPos.state = State.PATH; % TODO
+%             obj.currPos.state = State.PATH;
 %             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
             
 
 
             % move to minPos
-            obj.currPos.state = State.PATH; % TODO
+            obj.currPos.state = State.PATH;
             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
-            obj.currPos.state = State.POSITION; % TODO
+            obj.currPos.state = State.POSITION;
 
             % scan graph
             isChanged = obj.updateMap();
             
             % update graph
             if isChanged
-                % TODO optimize
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
             end
+            
+            
             
             if obj.plotVideo
                 obj.plot();

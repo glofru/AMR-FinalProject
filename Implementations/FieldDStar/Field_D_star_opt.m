@@ -7,22 +7,22 @@ classdef Field_D_star_opt < handle
         globalMap;
         % Map having local knowledge
         localMap;
-        % current position
+        % Current position
         currPos;
-        % goal position
+        % Goal position
         goal;
-        % set of moves that the algorithm can do
+        % Set of moves that the algorithm can do
         moves;
-        % range of the scan
+        % Range of the scan
         range;
-        % cost of a step
+        % Cost of a step
         cost;
-        % priority queue
+        % Priority queue
         OPEN;
-        % set of new obstacles discovered
+        % Set of new obstacles discovered
         newObstacles;
         
-        % if true plot map
+        % Utility to generate the video
         plotVideo;
     end
     
@@ -39,7 +39,7 @@ classdef Field_D_star_opt < handle
             obj.cost = cost;
             obj.plotVideo = plotVideo;
             
-            % inizialize map
+            % Map initialization
             obj.localMap = Map(obj.globalMap.row, obj.globalMap.col,...
                 obstacles, Map.TYPE_UNKNOWN, cost);
             
@@ -51,15 +51,14 @@ classdef Field_D_star_opt < handle
             obj.goal.rhs = 0;
             obj.OPEN.insert(obj.goal, obj.goal.calcKey(obj.currPos));
 
-            % first scan
+            % First scan and path computation
             obj.updateMap();
             
             % compute first path
             obj.computeShortestPath();
         end
         
-        
-        % check if the algorithm is finished
+        % Check if the algorithm is finished
         function isFin = isFinish(obj)
             if obj.currPos == obj.goal
                 disp("Goal reached!");
@@ -71,9 +70,8 @@ classdef Field_D_star_opt < handle
                 isFin = false;
             end
         end
-
         
-        % scan the map for new obstacles
+        % Scan the map for new obstacles
         function isChanged = updateMap(obj)
             isChanged = false;
             
@@ -108,7 +106,7 @@ classdef Field_D_star_opt < handle
             obj.currPos.state = State.POSITION;
         end
         
-        % return the set of predecessor states of the state u
+        % Set of predecessor states of the state u
         function Lp = predecessor(obj, u)
             Lp = State.empty(length(obj.moves), 0);
             currI = 1;
@@ -123,7 +121,7 @@ classdef Field_D_star_opt < handle
             end
         end
         
-        % return the set of successor states of the state u
+        % Set of successor states of the state u
         function Ls = successor(obj, u)
             Ls = State.empty(length(obj.moves), 0);
             currI = 1;
@@ -138,7 +136,8 @@ classdef Field_D_star_opt < handle
             end
         end
         
-        % update vertex u
+        
+        % Update vertex u
         function updateNode(obj, s)
             if s ~= obj.goal
                 minV = inf;
@@ -214,7 +213,7 @@ classdef Field_D_star_opt < handle
             end
         end
         
-        % compute the shortest path from the goal to the current position
+        % Compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
             while true
                 [s, k] = obj.OPEN.top();
@@ -281,7 +280,7 @@ classdef Field_D_star_opt < handle
             end
         end
 
-        % update the cost of all the cells needed when new obstacles are
+        % Update the cost of all the cells needed when new obstacles are
         % discovered
         function updateEdgesCost(obj)
             updateCells = PriorityQueue();
@@ -324,7 +323,7 @@ classdef Field_D_star_opt < handle
         end
         
         
-        % compute one step from the current position
+        % Takes a step from the current position
         function step(obj)
             %move to minPos
             obj.currPos.state = State.PATH;
@@ -346,7 +345,7 @@ classdef Field_D_star_opt < handle
             end
         end
         
-        % run the algorithm until reach the end
+        % Run the algorithm until it reaches the end
         function run(obj)
             while(~isFinish(obj))
                 obj.step()
@@ -354,7 +353,7 @@ classdef Field_D_star_opt < handle
         end
         
         
-        % switch the cells on the shortest path to the goal from oldState
+        % Switch the cells on the shortest path to the goal from oldState
         % to newState
         function switchForFuturePath(obj, oldState, newState)
             nextStep = obj.currPos;
@@ -366,7 +365,7 @@ classdef Field_D_star_opt < handle
             end
         end
         
-        % generate the map image
+        % Generate the map image
         function rgbImage = buildImageMap(obj)
             obj.switchForFuturePath(State.OPEN, State.FUTUREPATH);
             
@@ -375,7 +374,7 @@ classdef Field_D_star_opt < handle
             obj.switchForFuturePath(State.FUTUREPATH, State.OPEN);
         end
         
-        % plot the map image
+        % Plot the map image
         function plot(obj)
             J = obj.buildImageMap();
             imshow(J);

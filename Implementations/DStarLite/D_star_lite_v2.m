@@ -7,26 +7,27 @@ classdef D_star_lite_v2 < handle
         globalMap;
         % Map having local knowledge
         localMap;
-        % current position
+        % Current position
         currPos;
-        % goal position
+        % Goal position
         goal;
-        % set of moves that the algorithm can do
+        % Set of moves that the algorithm can do
         moves;
-        % range of the scan
+        % Range of the scan
         range;
-        % cost of a step
+        % Cost of a step
         cost;
-        % priority queue
+        % Priority queue
         U;
-        % set of new obstacles discovered
+        % Set of obstacles
+        obstacles;
+        % Set of new obstacles discovered
         newObstacles;
-        % previous state
+
         Slast;
-        % km parameter
         km;
         
-        % if true plot map
+        % Utility to generate the video
         plotVideo;
     end
     
@@ -37,22 +38,22 @@ classdef D_star_lite_v2 < handle
             arguments
                 % Map having global knowledge
                 globalMap
-                % set of obstacles known
+                % Set of obstacles known
                 obstacles
-                % start position
+                % Start position
                 Sstart
-                % goal position
+                % Goal position
                 Sgoal
-                % set of moves that the algorithm can do
+                % Set of moves that the algorithm can do
                 moves
-                % range of the scan
+                % Range of the scan
                 range = 1;
-                % cost of a step
+                % Cost of a step
                 cost = 1;
                 % if true plot map
                 plotVideo = 0;
             end
-            % copy vals
+            
             obj.globalMap = globalMap;
             obj.moves = moves;
             obj.U = PriorityQueue();
@@ -62,7 +63,7 @@ classdef D_star_lite_v2 < handle
             obj.cost = cost;
             obj.plotVideo = plotVideo;
             
-            % inizialize map
+            % Map initialization
             obj.localMap = Map(obj.globalMap.row, obj.globalMap.col,...
                 obstacles, Map.TYPE_UNKNOWN, cost);
             
@@ -75,15 +76,14 @@ classdef D_star_lite_v2 < handle
             obj.goal.rhs = 0;
             obj.U.insert(obj.goal, obj.goal.calcKey(obj.currPos, obj.km));
 
-            % first scan
+            % First scan and path computation
             obj.updateMap();
             
             % compute first path
             obj.computeShortestPath();
         end
         
-        
-        % check if the algorithm is finished
+        % Check if the algorithm is finished
         function isFin = isFinish(obj)
             if obj.currPos == obj.goal
                 disp("Goal reached!");
@@ -96,8 +96,7 @@ classdef D_star_lite_v2 < handle
             end
         end
         
-        
-        % scan the map for new obstacles
+        % Scan the map for new obstacles
         function isChanged = updateMap(obj)
             isChanged = false;
             
@@ -131,7 +130,7 @@ classdef D_star_lite_v2 < handle
             obj.currPos.state = State.POSITION;
         end
         
-        % return the set of predecessor states of the state u
+        % Set of predecessor states of the state u
         function Lp = predecessor(obj, u)
             Lp = State.empty(length(obj.moves), 0);
             currI = 1;
@@ -152,7 +151,7 @@ classdef D_star_lite_v2 < handle
             end
         end
         
-        % return the set of successor states of the state u
+        % Set of successor states of the state u
         function Ls = successor(obj, u)
             Ls = State.empty(length(obj.moves), 0);
             currI = 1;
@@ -173,7 +172,7 @@ classdef D_star_lite_v2 < handle
             end
         end
         
-        % update vertex u
+        % Update vertex u
         function updateVertex(obj, u)
             if u ~= obj.goal
                 [u.rhs, ~] = minVal(u, obj.successor(u));
@@ -188,7 +187,7 @@ classdef D_star_lite_v2 < handle
             end
         end
         
-        % compute the shortest path from the goal to the current position
+        % Compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos, obj.km)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
@@ -218,7 +217,7 @@ classdef D_star_lite_v2 < handle
             end
         end
 
-        % update the cost of all the cells needed when new obstacles are
+        % Update the cost of all the cells needed when new obstacles are
         % discovered
         function updateEdgesCost(obj)
             updateCells = PriorityQueue();
@@ -259,7 +258,7 @@ classdef D_star_lite_v2 < handle
         end
         
         
-        % compute one step from the current position
+        % Takes a step from the current position
         function step(obj)
             % move to minPos
             obj.currPos.state = State.PATH;
@@ -284,7 +283,7 @@ classdef D_star_lite_v2 < handle
             end
         end
         
-        % run the algorithm until reach the end
+        % Run the algorithm until it reaches the end
         function run(obj)
             while(~isFinish(obj))
                 obj.step()
@@ -292,7 +291,7 @@ classdef D_star_lite_v2 < handle
         end
         
         
-        % switch the cells on the shortest path to the goal from oldState
+        % Switch the cells on the shortest path to the goal from oldState
         % to newState
         function switchForFuturePath(obj, oldState, newState)
             nextStep = obj.currPos;
@@ -304,7 +303,7 @@ classdef D_star_lite_v2 < handle
             end
         end
         
-        % generate the map image
+        % Generate the map image
         function rgbImage = buildImageMap(obj)
             obj.switchForFuturePath(State.OPEN, State.FUTUREPATH);
             
@@ -313,7 +312,7 @@ classdef D_star_lite_v2 < handle
             obj.switchForFuturePath(State.FUTUREPATH, State.OPEN);
         end
         
-        % plot the map image
+        % Plot the map image
         function plot(obj)
             J = obj.buildImageMap();
             imshow(J);

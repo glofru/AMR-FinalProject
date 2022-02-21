@@ -26,7 +26,7 @@ classdef D_star_lite_v2_opt < handle
         % km parameter
         km;
         
-        % if true plot map
+        % Utility to generate the video
         plotVideo;
     end
     

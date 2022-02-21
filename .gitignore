@@ -1,5 +1,6 @@
 **/.DS_Store
 
+### File format ###
 **.asv
 **.avi
 **.png
@@ -24,6 +25,3 @@ Differential-Drive-Robot-main/matlab_simulation/planners/*
 !Differential-Drive-Robot-main/matlab_simulation/planners/FieldDStar/
 
 ### Comparisons ###
-
-
-Comparisons2

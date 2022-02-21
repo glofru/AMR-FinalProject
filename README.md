@@ -1,4 +1,7 @@
 # 2022 AMR Final Project
+<p align="center">
+    <img src="./READMEimages/title.png" style="width: 750px;"></img>
+</p>
 
 Final project for the course of Autonomous and Mobile Robotics 2020/2021.
 
@@ -45,3 +48,17 @@ for any doubt or clarification contact us on:
 ## 🎞️ Snapshots
 
 👷 WIP 👷
+
+<p align="center">
+    <img src="./READMEimages/envTestGlobalMap.png" style="width: 300px; height: 300px"></img>
+    <br>
+    Global Map
+</p>
+
+<p align="center">
+    <img src="./READMEimages/envTestDS.gif" style="width: 300px; height: 300px"></img>
+    <img src="./READMEimages/envTestDSLV1.gif" style="width: 300px; height: 300px"></img>
+    <img src="./READMEimages/envTestFDS.gif" style="width: 300px; height: 300px"></img>
+    <br>
+    D*, D* Lite v1 and Field D*
+</p>

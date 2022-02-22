@@ -82,21 +82,19 @@ classdef D_star_lite_v1_opt < handle
         % Compute the shortest path from the goal to the current position
         function computeShortestPath2(obj)
             while true
-                [u, k] = obj.U.top();
+                [u, k, pos] = obj.U.top();
                 if ~(min2(k, obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                     return
                 end
-                u.state = State.OPEN;
-%                 obj.localMap.plot(); % comment for fast plot
-%                 pause(0.01)
-                
-                obj.U.remove(u);
+                obj.U.removeIndex(pos);
                 
                 if u.state == State.UNKNOWN || u.state == State.EMPTY || ...
-                        u.state == State.VISITED || u.state == State.OPEN
-                    u.state = State.START;
+                        u.state == State.VISITED || u.state == State.FUTUREPATH
+                    u.state = State.OPEN;
                 end
+%                 obj.localMap.plot(); % comment for fast plot
+%                 pause(0.01)
 
                 if (u.g > u.rhs)
                     u.g = u.rhs;

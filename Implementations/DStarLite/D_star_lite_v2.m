@@ -78,8 +78,6 @@ classdef D_star_lite_v2 < handle
 
             % First scan and path computation
             obj.updateMap();
-            
-            % compute first path
             obj.computeShortestPath();
         end
         

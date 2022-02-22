@@ -93,7 +93,7 @@ classdef Field_D_star_opt < handle
                                 state.state = chr;
                                 state.g = inf;
                                 state.rhs = inf;
-                                state.k = state.calcKey(obj.currPos, obj.km);
+                                state.k = state.calcKey(obj.currPos);
                                 new_obs = [newX; newY];
                                 obj.localMap.obstacles(:, end+1) = new_obs;
                                 obj.newObstacles(:, end+1) = new_obs;
@@ -154,7 +154,7 @@ classdef Field_D_star_opt < handle
                 s.rhs = minV;
             end
 
-            obj.U.removeIfPresent(u);
+            obj.OPEN.removeIfPresent(s);
 
             if s.g ~= s.rhs
                 obj.OPEN.insert(s, s.calcKey(obj.currPos));
@@ -288,6 +288,7 @@ classdef Field_D_star_opt < handle
             
             for o=obj.newObstacles
                 oState = obj.localMap.map(o(1), o(2));
+                updateCells.insert(oState, oState.calcKey(obj.currPos));
                 pred = obj.predecessor(oState);
 
                 for p=pred
@@ -304,7 +305,7 @@ classdef Field_D_star_opt < handle
             %end
 
             while ~updateCells.isEmpty()
-                [s, ~] = updateCells.pop();
+                [s, ~] = updateCells.extract(1);
                 
                 if ~(s == obj.goal)
                     minV = inf;

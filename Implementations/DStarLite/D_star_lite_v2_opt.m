@@ -147,8 +147,8 @@ classdef D_star_lite_v2_opt < handle
         function updateVertex(obj, u)
             if u.g ~= u.rhs
                 obj.U.insert(u, u.calcKey(obj.currPos, obj.km));
-            elseif u.g == u.rhs && obj.U.has(u)
-                obj.U.remove(u);
+            elseif u.g == u.rhs
+                obj.U.removeIfPresent(u);
             end
 %             
 %             if u ~= obj.goal
@@ -165,7 +165,7 @@ classdef D_star_lite_v2_opt < handle
         % compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
             while true
-                [u, Kold] = obj.U.top();
+                [u, Kold, pos] = obj.U.top();
                 if ~(min2(Kold, obj.currPos.calcKey(obj.currPos, obj.km)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
                     return
@@ -181,7 +181,7 @@ classdef D_star_lite_v2_opt < handle
                     obj.U.insert(u, Knew);
                 elseif (u.g > u.rhs)
                     u.g = u.rhs;
-                    obj.U.remove(u);
+                    obj.U.removeIndex(pos);
                     
                     for p=obj.predecessor(u)
                         p.rhs = min(p.rhs, u.c(p) + u.g);

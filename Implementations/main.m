@@ -52,8 +52,8 @@ end
 plotVideo = input("Plot video? [0=No/1=Yes] ");
 saveVideo = input("Save video? [0=No/1=Yes] ");
 
-range = 2;
-cost = 1;
+range = 3;
+cost = 1.5;
 
 moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 
@@ -193,6 +193,7 @@ while execute
         algorithm.localMap.plot();
         title(ax2, "Algorithm Initial Map")
         xlabel(['',newline,'\bf Press Enter to continue!'])
+        plotLegend();
         waitInput();
     end
     
@@ -216,6 +217,10 @@ while execute
         disp('run terminated in: '+string(toc)+' s'+newline);
     end
     
+    if plotVideo
+        plotLegend();
+    end
+    
     execute = input("Another map? [0=No/1=Yes] ");
     try
         if execute ~= 0 && execute ~= 1
@@ -236,20 +241,19 @@ function waitInput()
     disp("CONTINUE!!");
 end
 
+function plotLegend()
+    colorArr = [[0, 0, 0]; [0.75, 0.75, 0.75];...
+                [0, 0, 1]; [1, 0, 0]; [1, 1, 0];...
+                [0.2, 0.8, 0.2]; [0.5, 0, 0.5]; [1, 0, 0]; [0.2, 0.6, 1]];
+    labelsArr = ["OBSTACLE"; "UNKNOWN";...
+        "START"; "GOAL"; "POSITION";...
+        "VISITED"; "OPEN"; "PATH"; "FUTUREPATH"];
+    hold on;
+    for ii = 1:length(labelsArr)
+      scatter([],[],1, colorArr(ii, :), 'filled', 'DisplayName', labelsArr{ii});
+    end
+    hold off;
+    legend();
+end
 
-function imlegend(colorArr, labelsArr)
-% For instance if two legend entries are needed:
-% colorArr =
-%   Nx3 array of doubles. Each entry should be an RGB percentage value between 0 and 1
-%
-% labelsArr =
-%   1×N cell array
-%     {'First name here'}    {'Second name here'}    {'etc'}
-hold on;
-for ii = 1:length(labelsArr)
-  % Make a new legend entry for each label. 'color' contains a 0->255 RGB triplet
-  scatter([],[],1, colorArr(ii,:), 'filled', 'DisplayName', labelsArr{ii});
-end
-hold off;
-legend();
-end
+

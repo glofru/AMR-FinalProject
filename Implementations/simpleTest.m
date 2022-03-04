@@ -20,29 +20,48 @@ function simpleTest()
         disp('Connected to remote API server');
             
         % Now try to retrieve data in a blocking fashion (i.e. a service call):
-        [res,objs]=sim.simxGetObjects(clientID, sim.sim_handle_all, sim.simx_opmode_blocking);
+        [res, objs]=sim.simxGetObjects(clientID, sim.sim_handle_all, sim.simx_opmode_blocking);
         if (res==sim.simx_return_ok)
-            fprintf('Number of objects in the scene: %d\n',length(objs));
+            fprintf('Number of objects in the scene: %d\n', length(objs));
         else
-            fprintf('Remote API function call returned with error code: %d\n',res);
+            fprintf('Remote API function call returned with error code: %d\n', res);
         end
+
+%         [res, ~, ~, ~, ~] = sim.simxCallScriptFunction(clientID, 'differential_drive', sim.sim_scripttype_childscript, 'setMotorVelocity_cb', [], [1, 0.1], [], [], sim.simx_opmode_blocking);
+%         if res == sim.simx_return_ok
+%             disp("Pare funzionare")
+%         else
+%             disp("Non funziona")
+%         end
+
 
         [res, jointLeftHandle] = sim.simxGetObjectHandle(clientID, 'joint_left', sim.simx_opmode_blocking);
         if res == sim.simx_return_ok
-            sim.simxAddStatusbarMessage(clientID, 'Join left taken', sim.simx_opmode_oneshot);
+            sim.simxAddStatusbarMessage(clientID, 'Join left taken', sim.simx_opmode_blocking);
+            sim.simxSetJointTargetVelocity(clientID, jointLeftHandle, 20, sim.simx_opmode_blocking);
 
-            pause(2);
+            pause(5);
+            sim.simxSetJointPosition(clientID, jointLeftHandle, 90*pi/180, sim.simx_opmode_blocking);
+            pause(5);
 
-            sim.simxSetJointPosition(clientID, jointLeftHandle, 90*pi/180, sim.simx_opmode_oneshot);
-    
-            pause(2);
-            
-            sim.simxSetJointPosition(clientID, jointLeftHandle, 45, sim.simx_opmode_oneshot);
-    
-            pause(2);
+            sim.simxSetJointPosition(clientID, jointLeftHandle, 45*pi/180, sim.simx_opmode_blocking);
+            pause(5);
         else
             fprint("Impossible to get left joint")
         end
+% 
+%         [res, ddrHandle] = sim.simxGetObjectHandle(clientID, 'differential_drive', sim.simx_opmode_blocking);
+%         if res == sim.simx_return_ok
+%             sim.simxAddStatusbarMessage(clientID, 'DDR taken', sim.simx_opmode_blocking);
+% 
+%             pause(2);
+% 
+%             sim.simxSetJointPosition(clientID, ddrHandle, 5, sim.simx_opmode_blocking);
+%     
+%             pause(2);
+%         else
+%             fprint("Impossible to get differential drive robot")
+%         end
     
         % Now retrieve streaming data (i.e. in a non-blocking fashion):
         %t=clock;

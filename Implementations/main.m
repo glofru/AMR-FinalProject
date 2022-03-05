@@ -132,6 +132,10 @@ while execute
         map.map(Sstart(1), Sstart(2)).state = State.START;
         map.map(Sgoal(1), Sgoal(2)).state = State.GOAL;
     end
+
+    % create pgm file to export the map into CoppeliaSim
+    convert_obstacle_to_pgm(map, "map.pgm")
+
     obstacles = [];
 
     if saveVideo

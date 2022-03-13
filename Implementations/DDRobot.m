@@ -11,6 +11,11 @@ classdef DDRobot
 
         jointLeftHandle;
         jointRightHandle;
+
+%         r = 0.04;
+%         d = 0.16;
+        r = 0.045;
+        d = 0.16;
     end
     
     methods
@@ -47,12 +52,12 @@ classdef DDRobot
             obj.sim.simxStopSimulation(obj.clientID, obj.sim.simx_opmode_blocking);
         end
 
-        function setRightJointVelocity(obj, velocity)
-            obj.setJointVelocity(obj.jointRightHandle, velocity);
-        end
+        function setControlInput(obj, v, w)
+            wR = v / obj.r + w * obj.d / (2 * obj.r);
+            wL = v / obj.r - w * obj.d / (2 * obj.r);
 
-        function setLeftJointVelocity(obj, velocity)
-            obj.setJointVelocity(obj.jointLeftHandle, velocity);
+            obj.setRightJointVelocity(wR);
+            obj.setLeftJointVelocity(wL);
         end
 
         function finish(obj)
@@ -63,6 +68,14 @@ classdef DDRobot
     end
 
     methods (Access = private)
+        function setRightJointVelocity(obj, velocity)
+            obj.setJointVelocity(obj.jointRightHandle, velocity);
+        end
+
+        function setLeftJointVelocity(obj, velocity)
+            obj.setJointVelocity(obj.jointLeftHandle, velocity);
+        end
+
         function setJointVelocity(obj, joint, velocity)
             obj.sim.simxSetJointTargetVelocity( ...
                 obj.clientID, ...

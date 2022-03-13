@@ -1,4 +1,9 @@
 function [outputArg1,outputArg2] = input_output_linearization(image,state_robot,path,scale,goal,dt)
+ddr = DDRobot();
+ddr.stopSimulation();
+pause(1);
+ddr.startSimulation();
+
 %grey to rgb mab
 rgbImage = cat(3, image, image, image);
 %START
@@ -36,7 +41,11 @@ for d = 2:size_path(1)-1
     u2_io = k1*(near_node(2) - y2) + y_vel;
     v = cos(state_robot(3))*u1_io + sin(state_robot(3))*u2_io;
     w = -sin(state_robot(3))*u1_io/0.02 + cos(state_robot(3))*u2_io/0.02;
+
+    disp(v);
+    disp(w);
     
+    ddr.setControlInput(-v, w);
     
     %integration
     state_robot(1) = state_robot(1) + v*cos(state_robot(3))*dt;
@@ -65,8 +74,5 @@ outputArg1 = rgbImage;
 outputArg2 = real_robot;
 end
 
-function sim = initRemoteCoppeliaConnection()
-    sim = remApi('remoteApi'); % using the prototype file (remoteApiProto.m)
-    sim.simxFinish(-1); % just in case, close all opened connections
-    clientID=sim.simxStart('127.0.0.1', 19999, true, true, 5000, 5);
+ddr.setControlInput(0, 0);
 end

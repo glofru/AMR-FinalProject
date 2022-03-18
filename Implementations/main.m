@@ -21,7 +21,8 @@ disp("Which search algorithm?"+newline+...
      "    5) D*Lite v2 optimized"+newline+...
      "    6) Field D*"+newline+...
      "    7) Field D* optimized"+newline)
-algorithmType = input('search algorithm: ');
+% algorithmType = input('search algorithm: ');
+algorithmType = 1;
 
 switch algorithmType
     case 1
@@ -49,8 +50,10 @@ switch algorithmType
         error("Wrong input!");
 end
 
-plotVideo = input("Plot video? [0=No/1=Yes] ");
-saveVideo = input("Save video? [0=No/1=Yes] ");
+% plotVideo = input("Plot video? [0=No/1=Yes] ");
+% saveVideo = input("Save video? [0=No/1=Yes] ");
+plotVideo = 0;
+saveVideo = 0;
 
 range = 3;
 cost = 1.5;
@@ -62,7 +65,8 @@ moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 execute = true;
 while execute
     
-    genRandom = input("Generate map at random? [0=No/1=Yes] ");
+%     genRandom = input("Generate map at random? [0=No/1=Yes] ");
+    genRandom = 1;
     
     if genRandom
         D1 = 20;
@@ -132,6 +136,10 @@ while execute
         map.map(Sstart(1), Sstart(2)).state = State.START;
         map.map(Sgoal(1), Sgoal(2)).state = State.GOAL;
     end
+
+    % create pgm file to export the map into CoppeliaSim
+    convert_obstacle_to_pgm(map, "map.pgm")
+
     obstacles = [];
 
     if saveVideo
@@ -213,12 +221,38 @@ while execute
         close(writerObj);
     else
         tic
-        algorithm.run();
+        path = algorithm.run();
+
         disp('run terminated in: '+string(toc)+' s'+newline);
     end
     
     if plotVideo
         plotLegend();
+    end
+
+    coppeliaSimulation = true;
+    if coppeliaSimulation
+        %interpolation (linear, makima, spline, etc)
+        size_path = size(path);
+        interpolation_dt = 0.1; %it will generate 10 new points every 1 original point
+        xq = 0:interpolation_dt:size_path(1);
+        path_x = fliplr(interp1(path(:,1),xq,'makima'));
+        path_y = fliplr(interp1(path(:,2),xq,'makima'));
+        path_theta = fliplr(interp1(path(:,3),xq,'makima'));
+        path_v = fliplr(interp1(path(:,5),xq,'makima'));
+        path_w = fliplr(interp1(path(:,6),xq,'makima'));
+        path = [path_x' path_y' path_theta' path_theta' path_v' path_w'];
+        size_path = size(path);
+
+        image = imread('map.pgm');
+        state_robot = [Sstart(1) + 0.1, Sstart(2) - 0.1, 0.8, 0, 0, 0];
+        scale = 1;
+        dt = 0.05;
+        [rgbImage,real_robot] = input_output_linearization(image, state_robot, path, scale, Sgoal, dt);
+
+        %plotting
+        figure(); plot(path(:,1),path(:,2)); hold on; plot(real_robot(:,1),real_robot(:,2))
+        figure(); J = imresize(rgbImage, 5); imshow(J);
     end
     
     execute = input("Another map? [0=No/1=Yes] ");

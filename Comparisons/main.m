@@ -48,7 +48,7 @@ end
 %% MAIN
 D1 = initParams.dim(1);
 D2 = initParams.dim(2);
-numObs = round(D1*D2*(initParams.percNumObs/100));
+numObs = round(D1 * D2 * (initParams.percNumObs/100));
 epoch = double(input("How many epochs: "));
 
 infosAlgo(epoch, initParams.Na) = AlgoInfo();

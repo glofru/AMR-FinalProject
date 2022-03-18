@@ -144,7 +144,8 @@ classdef D_Star < handle
         end
 
         % Takes a step from the current position
-        function step(obj)
+        function path = step(obj)
+            path = State.empty();
             obj.updateMap()
 
             obj.currPos.state = MapState.PATH;
@@ -163,6 +164,7 @@ classdef D_Star < handle
 
             % goes forward
             obj.currPos = obj.currPos.parent;
+            path = obj.currPos;
             obj.currPos.state = MapState.CURPOS;
             
             if obj.plotVideo
@@ -172,10 +174,17 @@ classdef D_Star < handle
         end
 
         % Run the algorithm until it reaches the end
-        function run(obj)
+        function path = run(obj)
+            path = ones(100, 6);
+            steps = 0;
             while(~isFinish(obj))
-                obj.step()
+                p = obj.step();
+                if ~isempty(p)
+                    steps = steps + 1;
+                    path(steps, 1:2) = [p.x, p.y]; % * obj.resolution;
+                end
             end
+            path = path(1:steps, :);
         end
 
         % Compute the shortest path from the goal to the current position

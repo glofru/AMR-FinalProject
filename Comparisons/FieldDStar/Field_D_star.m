@@ -58,7 +58,7 @@ classdef Field_D_star < handle
             
             % inizialize map
             obj.localMap = FDMap(obj.globalMap.row, obj.globalMap.col,...
-                obstacles, FDMap.TYPE_UNKNOWN, cost);
+                obstacles, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
             obj.currPos.setPos(Sstart(1), Sstart(2), obj.cost);

@@ -63,7 +63,7 @@ classdef D_star_lite_v2 < handle
             
             % inizialize map
             obj.localMap = DSLMap(obj.globalMap.row, obj.globalMap.col,...
-                obstacles, DSLMap.TYPE_UNKNOWN, cost);
+                obstacles, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
             obj.currPos.setPos(Sstart(1), Sstart(2), obj.cost);

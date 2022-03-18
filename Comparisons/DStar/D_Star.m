@@ -3,28 +3,40 @@ classdef D_Star < handle
     % "Optimal and Efficient Path Planning for Partially-Known Environments"
     
     properties
+        % Map having global knowledge
         globalMap;
-
+        % Map having local knowledge
         localMap;
+        % Current position
         currPos;
+        % Goal position
         goal;
+        % Set of moves that the algorithm can do
         moves;
-
+        % Range of the scan
         range;
+        % Cost of a step
         cost;
-
+        % List of open states
         open_list;
 
-        % performance metrics
-        expCells;
-        expCellsList;
-        totSteps;
-        totStepsList;
-        pathLength;
+        % max length of the final path
         maxLengthFinalPath;
+        
+        % number of explored cell added to the priority queue
+        expCells; % for each insert +1
+        % number of explored cell added to the priority queue for each step
+        expCellsList;
+        % number of explored cell during computeShortestPath
+        totSteps; % for each cell popped from computeShortestPath +1
+        % number of explored cell during computeShortestPath for each step
+        totStepsList;
+        % number of steps
+        pathLength; % for each step +1
     end
 
     methods
+        % D_Star constructor
         function obj = D_Star(globalMap, obstacles, Sstart, Sgoal,...
                 moves, range, cost)
             obj.globalMap = globalMap;
@@ -59,6 +71,7 @@ classdef D_Star < handle
             obj.totStepsList(end+1) = obj.totSteps;
         end
 
+        % States are processed according to the D* paper
         function process_state(obj)
             X = obj.open_list.min_state();
             if isempty(X)
@@ -117,6 +130,7 @@ classdef D_Star < handle
             end
         end
 
+        % Cost is changed and the algorithm is run again
         function modify_cost(obj, state)
             if state.tag == StateTag.CLOSED
                 obj.open_list.insert(state, state.cost(state.parent))
@@ -130,10 +144,12 @@ classdef D_Star < handle
             end
         end
 
+        % Check if the algorithm is finished
         function f = isFinish(obj)
             f = obj.currPos == obj.goal;
         end
 
+        % Takes a step from the current position
         function state = step(obj)
             state = 1;
 
@@ -162,8 +178,13 @@ classdef D_Star < handle
 
             % goes forward
             obj.currPos = obj.currPos.parent;
+            
+            obj.currPos.state = MapState.PATH;
+            obj.plot();
+            pause(0.01);
         end
 
+        % Run the algorithm until it reaches the end
         function finalPath = run(obj)
             finalPath = zeros(obj.maxLengthFinalPath, 2);
             dimensionPath = 1;
@@ -181,6 +202,7 @@ classdef D_Star < handle
             finalPath = finalPath(1:dimensionPath, :);
         end
 
+        % Compute the shortest path from the goal to the current position
         function computeShortestPath(obj)
             while obj.currPos.tag ~= StateTag.CLOSED && ~obj.open_list.isEmpty()
                 obj.totSteps = obj.totSteps + 1;
@@ -188,6 +210,7 @@ classdef D_Star < handle
             end
         end
 
+        % Scan the map for new obstacles
         function updateMap(obj)
             is = obj.currPos.x;
             js = obj.currPos.y;
@@ -214,6 +237,15 @@ classdef D_Star < handle
                 end
             end
         end
+        
+        
+        
+        % Plot the map image
+        function plot(obj)
+            J = obj.localMap.buildImageMap(obj.currPos);
+            imshow(J);
+        end
+        
         
     end
 end

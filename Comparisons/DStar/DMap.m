@@ -128,7 +128,7 @@ classdef DMap < handle
         end
 
         % generate the map image
-        function rgbImage = buildImageMap(obj)
+        function rgbImage = buildImageMap(obj, highlightedState)
             rgbImage = zeros(obj.row, obj.col, 3) + 255;
 
             for i = 1:obj.row
@@ -146,6 +146,16 @@ classdef DMap < handle
                     end
                 end
             end
+            
+            tmp = highlightedState;
+            while size(tmp, 1) ~= 0 && tmp.state ~= MapState.GOAL
+                if tmp.state ~= MapState.CURPOS
+                    rgbImage(tmp.x, tmp.y, :) = [0.2, 0.6, 1];
+                end
+                tmp = tmp.parent;
+            end
+            
+            rgbImage = imresize(rgbImage , 100, 'nearest');
         end
 
 

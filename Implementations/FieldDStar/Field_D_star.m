@@ -282,9 +282,12 @@ classdef Field_D_star < handle
         end
         
         % Run the algorithm until it reaches the end
-        function run(obj)
+        function final_path = run(obj)
+            
+            final_path = obj.currPos;
             while(~isFinish(obj))
-                obj.step()
+                obj.step();
+                final_path(end+1) = obj.currPos;
             end
         end
         

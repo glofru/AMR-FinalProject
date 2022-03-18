@@ -12,7 +12,9 @@ classdef DSLState < handle
         POSITION = "☺";
 
         VISITED = "╬";
+        OPEN = "o";
         PATH = "≡";
+        FUTUREPATH = "x";
     end
     
     properties
@@ -33,6 +35,36 @@ classdef DSLState < handle
         
         % key pair
         k
+    end
+    
+    methods (Static)
+        % return the color of the state
+        function color = returnStateColor(state)
+            switch state
+                case DSLState.OBSTACLE % "█"
+                    color = [0, 0, 0];
+                case DSLState.UNKNOWN % "▓"
+                    color = [0.75, 0.75, 0.75];
+                case DSLState.EMPTY % "░"
+                    color = [1, 1, 1];
+
+                case DSLState.START % "ⓢ" init pos
+                    color = [0, 0, 1];
+                case DSLState.GOAL % "♛" goal pos
+                    color = [1, 0, 0];
+                case DSLState.POSITION % "☺" curr pos
+                    color = [1, 1, 0];
+
+                case DSLState.VISITED % "╬" inserd in the priority queue
+                    color = [0.2, 0.8, 0.2];
+                case DSLState.OPEN % "o" cell opened in computeShortestPath
+                    color = [0.5, 0, 0.5];
+                case DSLState.PATH % "≡" passed cell
+                    color = [1, 0, 0];
+                case DSLState.FUTUREPATH % "x" future path cell
+                    color = [0.2, 0.6, 1];
+            end
+        end
     end
 
     methods
@@ -85,26 +117,7 @@ classdef DSLState < handle
         
         % return the color of the state
         function color = getColor(obj)
-            switch obj.state
-                case DSLState.OBSTACLE % "█"
-                    color = [0, 0, 0];
-                case DSLState.UNKNOWN % "▓"
-                    color = [255, 120, 120];
-                case DSLState.EMPTY % "░"
-                    color = [255, 255, 255];
-
-                case DSLState.START % "ⓢ"
-                    color = [120, 0, 120];
-                case DSLState.GOAL % "♛"
-                    color = [255, 0, 0];
-                case DSLState.POSITION % "☺"
-                    color = [0, 0, 255];
-
-                case DSLState.VISITED % "╬"
-                    color = [0, 255, 0];
-                case DSLState.PATH % "≡"
-                    color = [255, 0, 0];
-            end
+            color = DSLState.returnStateColor(obj.state);
         end
     end
 end

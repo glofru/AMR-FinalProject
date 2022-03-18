@@ -86,15 +86,15 @@ classdef D_star_lite_v1 < handle
             
             D1 = obj.sizeX;
             D2 = obj.sizeY;
-            for i=1:round(D1*D2/4)
-                x = round(mod(rand*D1, D1))+1;
-                y = round(mod(rand*D2, D2))+1;
-
-                % obstacles overlap, ok, not an error
-                if ~(all([x, y]==obj.start) || all([x, y]==obj.goal))
-                    map(x, y) = 0;
-                end
-            end
+%             for i=1:round(D1*D2/4)
+%                 x = round(mod(rand*D1, D1))+1;
+%                 y = round(mod(rand*D2, D2))+1;
+% 
+%                 % obstacles overlap, ok, not an error
+%                 if ~(all([x, y]==obj.start) || all([x, y]==obj.goal))
+%                     map(x, y) = 0;
+%                 end
+%             end
             
             % copy vals
             obj.globalMap = map;

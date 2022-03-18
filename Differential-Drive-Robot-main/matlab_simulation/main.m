@@ -8,7 +8,7 @@ restoredefaultpath
 addpath(genpath('./controllers'))
 addpath(genpath('./maps'))
 
-image = imread('simple_walls_map.pgm');
+image = imread('map_2.pgm');
 imageNorm = double(image)/255;
 imageOccupancy = 1 - imageNorm;
 map = occupancyMap(imageOccupancy,20);
@@ -17,11 +17,11 @@ scale = 1/resolution;
 
 
 %x y theta x_dot y_dot theta_dot
-state_robot = [1 1 0 0 0 0];
+state_robot = [0.05 0.05 0 0 0 0];
 dt = 0.1;
 limit = [3, 3];
 %goal = [2,1];
-goal = [0.5, 2.5];
+goal = [1, 1];
 map_limit = [3, 3];
 max_iteration = 1000;
 v_max = 10;
@@ -49,7 +49,8 @@ disp("Which search algorithm?"+newline+...
      "    5) D*Lite v1"+newline+...
      "    6) D*Lite v2"+newline+...
      "    7) Field D*"+newline)
-algorithm = input('search algorithm: ');
+% algorithm = input('search algorithm: ');
+algorithm = 5;
 
 range = 2;
 cost = 1;

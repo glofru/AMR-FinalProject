@@ -218,7 +218,7 @@ classdef D_star_lite_v1 < handle
         function computeShortestPath(obj)
             while (min2(obj.U.topKey(), obj.currPos.calcKey(obj.currPos)) || ...
                     obj.currPos.rhs ~= obj.currPos.g)
-                obj.localMap.plot();
+%                 obj.localMap.plot();
                 %pause(0.1)
                 u = obj.U.pop();
                 
@@ -306,7 +306,7 @@ classdef D_star_lite_v1 < handle
                 % scan graph
                 isChanged = obj.updateMap();
                 
-                obj.localMap.plot();
+%                 obj.localMap.plot();
 
                 % update graph
                 if isChanged

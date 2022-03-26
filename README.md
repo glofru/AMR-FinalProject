@@ -8,7 +8,7 @@ Final project for the course of Autonomous and Mobile Robotics 2020/2021.
 >Student: Alessandro Lambertini Mat: `1938390`;
 >
 >Student: Denise Landini Mat: `1938388`;
->>
+>
 >Student: Gianluca Lofrumento Mat: `1956579`;
 
 ## 📝 Assignment

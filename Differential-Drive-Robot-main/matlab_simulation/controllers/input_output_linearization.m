@@ -2,7 +2,7 @@ function [outputArg1,outputArg2] = input_output_linearization(image,state_robot,
 addpath(genpath('./ddrobot'))
 
 ddr = DDRobot();
-ddr.stopSimulation();
+ddr.stopSimulation();  % reset the environment
 pause(1);
 ddr.startSimulation();
 
@@ -44,9 +44,12 @@ for d = 2:size_path(1)-1
     v = cos(state_robot(3))*u1_io + sin(state_robot(3))*u2_io;
     w = -sin(state_robot(3))*u1_io/0.02 + cos(state_robot(3))*u2_io/0.02;
 
+    disp(["V: " v " W: " w])
+
     % DDRobot
     ddr.setControlInput(v, w);
-    
+
+    pause(dt)
     
     %integration
     state_robot(1) = state_robot(1) + v*cos(state_robot(3))*dt;

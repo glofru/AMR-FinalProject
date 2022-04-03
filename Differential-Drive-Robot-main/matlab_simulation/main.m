@@ -95,16 +95,22 @@ switch algorithm
         error("Invalid algorithm choice");
 end
 
+scaling = 4;
+
+path = path * scaling;
+state_robot = state_robot * scaling;
+
 %initial state control
-state_robot(1) = state_robot(1);% + 0.1;
-state_robot(2) = state_robot(2);% - 0.1;
-state_robot(3) = state_robot(3);% + 0.8;
+% state_robot(1) = state_robot(1);% + 0.1;
+% state_robot(2) = state_robot(2);% - 0.1;
+% state_robot(3) = state_robot(3);% + 0.8;
 
 %interpolation (linear, makima, spline, etc)
 size_path = size(path);
 interpolation_dt = 0.1; %it will generate 10 new points every 1 original point
 xq = 0:interpolation_dt:size_path(1);
 path_x = interp1(path(:,1),xq,'makima');
+path_x(1) = path_x(2);
 path_y = interp1(path(:,2),xq,'makima');
 path_theta = interp1(path(:,3),xq,'makima');
 path_v = interp1(path(:,5),xq,'makima');

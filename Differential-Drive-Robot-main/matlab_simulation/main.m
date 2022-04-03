@@ -18,14 +18,12 @@ scale = 1/resolution;
 
 %x y theta x_dot y_dot theta_dot
 state_robot = [0.05 0.05 0 0 0 0];
-dt = 0.1;
+dt = 0.05;
 limit = [3, 3];
 %goal = [2,1];
 goal = [1, 1];
 map_limit = [3, 3];
 max_iteration = 1000;
-v_max = 10;
-w_max = 10;
 
 %LQR if needed
 A = [1 dt; 0 1];
@@ -97,33 +95,20 @@ switch algorithm
         error("Invalid algorithm choice");
 end
 
-
-
 %initial state control
 state_robot(1) = state_robot(1);% + 0.1;
 state_robot(2) = state_robot(2);% - 0.1;
 state_robot(3) = state_robot(3);% + 0.8;
 
-
-%save path before spline
-path_x = fliplr(path(:,1)');
-path_y = fliplr(path(:,2)');
-path_theta = fliplr(path(:,3)');
-path_v = fliplr(path(:,5)');
-path_w = fliplr(path(:,6)');
-old_path = [path_x' path_y' path_theta' path_theta' path_v' path_w'];
-%old_path = path;
-%size_path = size(old_path);
-
 %interpolation (linear, makima, spline, etc)
 size_path = size(path);
 interpolation_dt = 0.1; %it will generate 10 new points every 1 original point
 xq = 0:interpolation_dt:size_path(1);
-path_x = fliplr(interp1(path(:,1),xq,'makima'));
-path_y = fliplr(interp1(path(:,2),xq,'makima'));
-path_theta = fliplr(interp1(path(:,3),xq,'makima'));
-path_v = fliplr(interp1(path(:,5),xq,'makima'));
-path_w = fliplr(interp1(path(:,6),xq,'makima'));
+path_x = interp1(path(:,1),xq,'makima');
+path_y = interp1(path(:,2),xq,'makima');
+path_theta = interp1(path(:,3),xq,'makima');
+path_v = interp1(path(:,5),xq,'makima');
+path_w = interp1(path(:,6),xq,'makima');
 path = [path_x' path_y' path_theta' path_theta' path_v' path_w'];
 size_path = size(path);
 

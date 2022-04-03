@@ -56,8 +56,8 @@ classdef DDRobot
             wR = v / obj.r + w * obj.d / (2 * obj.r);
             wL = v / obj.r - w * obj.d / (2 * obj.r);
 
-            obj.setRightJointVelocity(wR);
-            obj.setLeftJointVelocity(wL);
+            obj.setRightJointVelocity(-wR);
+            obj.setLeftJointVelocity(-wL);
         end
 
         function finish(obj)
@@ -81,7 +81,7 @@ classdef DDRobot
                 obj.clientID, ...
                 joint, ...
                 velocity, ...
-                obj.sim.simx_opmode_blocking ...
+                obj.sim.simx_opmode_oneshot ...
             );
         end
     end

@@ -84,6 +84,30 @@ classdef D_star_lite_v1 < handle
                end
             end
             
+            for obs=obstacles
+                x = obs(1);
+                y = obs(2);
+                for i=-1:1
+                    for j=-1:1
+                        if x + i > 0 && y + j > 0
+                            if x + i < obj.sizeX && y + j < obj.sizeY
+                                map(x+i, y+j) = 0;
+                            end
+                        end
+                    end
+                end
+                
+            end
+            
+            obstacles = [];
+            for i = 1:obj.sizeX
+               for j = 1:obj.sizeY
+                  if(map(i,j) < 250) 
+                      obstacles = [obstacles, [i; j]];
+                  end
+               end
+            end
+            
             D1 = obj.sizeX;
             D2 = obj.sizeY;
 %             for i=1:round(D1*D2/4)

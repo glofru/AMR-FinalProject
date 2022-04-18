@@ -8,6 +8,7 @@
 **.jpg
 **.adat
 # **.pgm
+**.mp4
 
 ### Implementation ###
 
@@ -31,3 +32,4 @@ Differential-Drive-Robot-main/matlab_simulation/planners/*
 !Differential-Drive-Robot-main/matlab_simulation/controllers/
 
 ### Comparisons ###
+

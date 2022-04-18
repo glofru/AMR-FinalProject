@@ -62,3 +62,9 @@ for any doubt or clarification contact us on:
     <br>
     D*, D* Lite v1 and Field D*
 </p>
+
+<p align="center">
+    <img src="./READMEimages/testCoppeliaSim.gif" style="width: 700px; height: 350px"></img>
+    <br>
+    Simulation on CopeliaSim
+</p>

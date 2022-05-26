@@ -48,7 +48,7 @@ classdef FileADAT < handle
                 obj.Na = 4;
                 obj.typeAlgo = [FileADAT.ALGO_DS, FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2, FileADAT.ALGO_FDS];
             elseif obj.typeAlgo == FileADAT.ALGO_CUSTOM
-                obj.Na = double(input("Number of tries: "));
+                obj.Na = double(input("Number of algorithms: "));
                 
                 for i=1:obj.Na
                     obj.typeAlgo(i) = FileADAT.selectAlgoTypeRestricted();
@@ -73,8 +73,16 @@ classdef FileADAT < handle
             obj.typeAlgo = FileADAT.selectAlgoType();
             
             if obj.typeAlgo == FileADAT.ALGO_ALL || obj.typeAlgo == FileADAT.ALGO_CUSTOM
-                obj.Na = 4;
-                obj.typeAlgo = [FileADAT.ALGO_DS, FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2, FileADAT.ALGO_FDS];
+                if obj.typeAlgo == FileADAT.ALGO_CUSTOM
+                    obj.Na = double(input("Number of algorithms: "));
+                
+                    for i=1:obj.Na
+                        obj.typeAlgo(i) = FileADAT.selectAlgoTypeRestricted();
+                    end
+                else
+                    obj.Na = 4;
+                    obj.typeAlgo = [FileADAT.ALGO_DS, FileADAT.ALGO_DSL_V1, FileADAT.ALGO_DSL_V2, FileADAT.ALGO_FDS];
+                end
                 
                 obj.ranges = ones(1, obj.Na) * 2;
                 obj.costs  = ones(1, obj.Na) * 0.6;

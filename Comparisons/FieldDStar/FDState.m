@@ -105,6 +105,12 @@ classdef FDState < handle
                 end
             end
         end
+
+        function setPos(obj, x, y, cost)
+            obj.x = x;
+            obj.y = y;
+            obj.cost = cost;
+        end
         
         
         % check if 2 states are equal

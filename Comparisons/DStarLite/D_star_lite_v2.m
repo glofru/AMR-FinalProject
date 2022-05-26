@@ -39,6 +39,10 @@ classdef D_star_lite_v2 < handle
         totStepsList;
         % number of steps
         pathLength; % for each step +1
+        % replanning time
+        replanningTime = 0;
+        % number of replanning occurencies
+        replanningOccurencies = 0;
     end
     
     methods
@@ -289,6 +293,8 @@ classdef D_star_lite_v2 < handle
 
             % update graph
             if nextState.state == DSLState.OBSTACLE
+                tic
+
                 obj.km = obj.km + h(obj.Slast, obj.currPos);
                 obj.Slast = obj.currPos;
                
@@ -296,6 +302,9 @@ classdef D_star_lite_v2 < handle
                 obj.computeShortestPath();
                 
                 [~, nextState] = minVal(obj.currPos, obj.successor(obj.currPos));
+
+                obj.replanningTime = obj.replanningTime + toc;
+                obj.replanningOccurencies = obj.replanningOccurencies + 1;
             end
             obj.currPos = nextState;
             obj.currPos.state = DSLState.PATH;
@@ -305,7 +314,7 @@ classdef D_star_lite_v2 < handle
         end
         
         % run the algorithm until reach the end
-        function finalPath = run(obj)
+        function [finalPath, averageReplanningTime] = run(obj)
             finalPath = zeros(obj.maxLengthFinalPath, 2);
             dimensionPath = 1;
             finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
@@ -323,6 +332,7 @@ classdef D_star_lite_v2 < handle
             end
             
             finalPath = finalPath(1:dimensionPath, :);
+            averageReplanningTime = obj.replanningTime / obj.replanningOccurencies;
         end
     end
 end

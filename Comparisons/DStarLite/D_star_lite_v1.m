@@ -114,9 +114,6 @@ classdef D_star_lite_v1 < handle
                         if chr == DSLState.OBSTACLE
                             if state.state ~= chr
                                 state.state = chr;
-                                state.g = Inf;
-                                state.rhs = Inf;
-                                state.k = state.calcKey(obj.currPos);
                                 new_obs = [newX; newY];
                                 obj.localMap.obstacles(:, end+1) = new_obs;
                                 obj.newObstacles(:, end+1) = new_obs;
@@ -225,6 +222,9 @@ classdef D_star_lite_v1 < handle
                 if isempty(oState.cost)
                     oState.setPos(o(1), o(2), obj.cost);
                 end
+                oState.g = Inf;
+                oState.rhs = Inf;
+                oState.k = oState.calcKey(obj.currPos);
                 
                 pred = obj.predecessor(oState);
                 for p=pred

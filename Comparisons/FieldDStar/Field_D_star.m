@@ -35,6 +35,10 @@ classdef Field_D_star < handle
         totStepsList;
         % number of steps
         pathLength; % for each step +1
+        % replanning time
+        replanningTime = 0;
+        % number of replanning occurencies
+        replanningOccurencies = 0;
     end
     
     methods
@@ -292,10 +296,15 @@ classdef Field_D_star < handle
 
             % update graph
             if nextState.state == FDState.OBSTACLE
+                tic
+
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
                 
                 [~, nextState] = minVal(obj.currPos, obj.successor(obj.currPos));
+
+                obj.replanningTime = obj.replanningTime + toc;
+                obj.replanningOccurencies = obj.replanningOccurencies + 1;
             end
             obj.currPos = nextState;
             obj.currPos.state = FDState.PATH;
@@ -305,7 +314,7 @@ classdef Field_D_star < handle
         end
         
         % run the algorithm until reach the end
-        function finalPath = run(obj)
+        function [finalPath, averageReplanningTime] = run(obj)
             finalPath = zeros(obj.maxLengthFinalPath, 2);
             dimensionPath = 1;
             finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
@@ -323,6 +332,7 @@ classdef Field_D_star < handle
             end
             
             finalPath = finalPath(1:dimensionPath, :);
+            averageReplanningTime = obj.replanningTime / obj.replanningOccurencies;
         end
     end
 end

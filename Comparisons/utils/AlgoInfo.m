@@ -1,7 +1,7 @@
 classdef AlgoInfo < handle
     properties
         initTime;
-        computationTime;
+        replanningTime;
         
         finalPath;
         
@@ -16,7 +16,7 @@ classdef AlgoInfo < handle
         function obj = createFromStruct(s)
             obj = AlgoInfo();
             obj.initTime = s.initTime;
-            obj.computationTime = s.computationTime;
+            obj.replanningTime = s.replanningTime;
             obj.finalPath = s.finalPath;
             obj.expCells = s.expCells;
             obj.expCellsList = s.expCellsList;
@@ -29,7 +29,7 @@ classdef AlgoInfo < handle
     methods
         function obj = AlgoInfo()
             obj.initTime = 0;
-            obj.computationTime = 0;
+            obj.replanningTime = 0;
             obj.finalPath = [];
             obj.expCells = 0;
             obj.expCellsList = [];

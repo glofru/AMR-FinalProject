@@ -33,6 +33,10 @@ classdef D_Star < handle
         totStepsList;
         % number of steps
         pathLength; % for each step +1
+        % replanning time
+        replanningTime = 0;
+        % number of replanning occurencies
+        replanningOccurencies = 0;
     end
 
     methods
@@ -166,7 +170,12 @@ classdef D_Star < handle
 
             % update graph
             if obj.currPos.parent.state == MapState.OBSTACLE
+                tic;
                 obj.modify_cost(obj.currPos)
+                
+                obj.replanningTime = obj.replanningTime + toc;
+                obj.replanningOccurencies = obj.replanningOccurencies + 1;
+
                 state = 0;
                 return
             end
@@ -180,12 +189,12 @@ classdef D_Star < handle
             obj.currPos = obj.currPos.parent;
             
             obj.currPos.state = MapState.PATH;
-            obj.plot();
+%             obj.plot();
             pause(0.01);
         end
 
         % Run the algorithm until it reaches the end
-        function finalPath = run(obj)
+        function [finalPath, averageReplanningTime] = run(obj)
             finalPath = zeros(obj.maxLengthFinalPath, 2);
             dimensionPath = 1;
             finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
@@ -200,6 +209,7 @@ classdef D_Star < handle
             end
 
             finalPath = finalPath(1:dimensionPath, :);
+            averageReplanningTime = obj.replanningTime / obj.replanningOccurencies;
         end
 
         % Compute the shortest path from the goal to the current position

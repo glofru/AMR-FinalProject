@@ -35,6 +35,10 @@ classdef D_star_lite_v1 < handle
         totStepsList;
         % number of steps
         pathLength; % for each step +1
+        % replanning time
+        replanningTime = 0;
+        % number of replanning occurencies
+        replanningOccurencies = 0;
     end
     
     methods
@@ -58,7 +62,7 @@ classdef D_star_lite_v1 < handle
             
             % inizialize map
             obj.localMap = DSLMap(obj.globalMap.row, obj.globalMap.col,...
-                obstacles, DSLMap.TYPE_UNKNOWN, cost);
+                obstacles, cost);
             
             obj.currPos = obj.localMap.map(Sstart(1), Sstart(2));
             obj.currPos.setPos(Sstart(1), Sstart(2), obj.cost);
@@ -284,10 +288,15 @@ classdef D_star_lite_v1 < handle
 
             % update graph
             if nextState.state == DSLState.OBSTACLE
+                tic
+
                 obj.updateEdgesCost();
                 obj.computeShortestPath();
                 
                 [~, nextState] = minVal(obj.currPos, obj.successor(obj.currPos));
+
+                obj.replanningTime = obj.replanningTime + toc;
+                obj.replanningOccurencies = obj.replanningOccurencies + 1;
             end
             obj.currPos = nextState;
             obj.currPos.state = DSLState.PATH;
@@ -321,7 +330,7 @@ classdef D_star_lite_v1 < handle
         end
         
         % run the algorithm until reach the end
-        function finalPath = run(obj)
+        function [finalPath, averageReplanningTime] = run(obj)
             finalPath = zeros(obj.maxLengthFinalPath, 2);
             dimensionPath = 1;
             finalPath(dimensionPath, :) = [obj.currPos.x, obj.currPos.y];
@@ -336,9 +345,11 @@ classdef D_star_lite_v1 < handle
             if dimensionPath >= obj.maxLengthFinalPath  % never happened
                 disp("loop")
                 error("loop")
+                % TODO: this is called WTF
             end
             
             finalPath = finalPath(1:dimensionPath, :);
+            averageReplanningTime = obj.replanningTime / obj.replanningOccurencies;
         end
     end
 end

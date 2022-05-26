@@ -93,7 +93,7 @@ for currEpoch=1:epoch
         end
         if any(initParams.typeAlgo == FileADAT.ALGO_DSL_V1) ||...
                 any(initParams.typeAlgo == FileADAT.ALGO_DSL_V2)
-            map2 = DSLMap(D1, D2, globalObstacles, DSLMap.TYPE_KNOWN, 1); % TODO cost
+            map2 = DSLMap(D1, D2, globalObstacles, 1); % TODO cost
             map2.map(initParams.Sstart(1), initParams.Sstart(2)).state = DSLState.START;
             map2.map(initParams.Sgoal(1), initParams.Sgoal(2)).state = DSLState.GOAL;
         end
@@ -143,13 +143,11 @@ for currEpoch=1:epoch
                     "</strong> s");
                 
                 disp("Execution");
-                tic
-                finalPath = currAlgo.run();
-                tocTime = toc;
-                infosAlgo(currEpoch, i).computationTime = tocTime;
+                [finalPath, averageReplanningTime]= currAlgo.run();
+
+                infosAlgo(currEpoch, i).replanningTime = averageReplanningTime;
                 infosAlgo(currEpoch, i).finalPath = finalPath;
-                disp("└──-Execution terminated in: <strong>"+string(tocTime)+...
-                    "</strong> s");
+                disp("└──-Execution terminated");
                 
                 infosAlgo(currEpoch, i).expCells = currAlgo.expCells;
                 infosAlgo(currEpoch, i).expCellsList = currAlgo.expCellsList;
@@ -280,7 +278,7 @@ sgtitle("Traversed cells")
 
 
 initTimes4Epoch = zeros(initParams.epochDone, initParams.Na);
-computationTimes4Epoch = zeros(initParams.epochDone, initParams.Na);
+replanningTimes4Epoch = zeros(initParams.epochDone, initParams.Na);
 expCells4Epoch = zeros(initParams.epochDone, initParams.Na);
 totSteps4Epoch = zeros(initParams.epochDone, initParams.Na);
 pathLength4Epoch = zeros(initParams.epochDone, initParams.Na);
@@ -288,7 +286,7 @@ pathLength4Epoch = zeros(initParams.epochDone, initParams.Na);
 for i=1:initParams.epochDone
     for j=1:initParams.Na
         initTimes4Epoch(i, j) = infosAlgo(i, j).initTime;
-        computationTimes4Epoch(i, j) = infosAlgo(i, j).computationTime;
+        replanningTimes4Epoch(i, j) = infosAlgo(i, j).replanningTime;
         expCells4Epoch(i, j) = infosAlgo(i, j).expCells;
         totSteps4Epoch(i, j) = infosAlgo(i, j).totSteps;
         pathLength4Epoch(i, j) = infosAlgo(i, j).pathLength;
@@ -303,8 +301,8 @@ grid on;
 xlabel("Algorithm")
 ylabel("Time (s)")
 subplot(1, 5, 2)
-boxplot(computationTimes4Epoch)
-title("Running time")
+boxplot(replanningTimes4Epoch)
+title("Replanning time")
 xlabel("Algorithm")
 ylabel("Time (s)")
 grid on;

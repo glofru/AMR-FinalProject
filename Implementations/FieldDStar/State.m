@@ -120,15 +120,15 @@ classdef State < handle
         % b is the traversal cost of the bottom cell
         function vs = computeCost(obj, sa, sb)
             if (obj.x ~= sa.x && obj.y ~= sa.y)
-                s1 = sa;
-                s2 = sb;
-            else
                 s1 = sb;
                 s2 = sa;
+            else
+                s1 = sa;
+                s2 = sb;
             end
             
-            c = obj.c(sa);
-            b = obj.c(sb);
+            c = obj.c(s1);
+            b = obj.c(s2);
             
             if (min(c,b) == inf)
                 vs = inf;

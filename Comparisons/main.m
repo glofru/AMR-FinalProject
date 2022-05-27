@@ -283,6 +283,7 @@ replanningTimes4Epoch = zeros(initParams.epochDone, initParams.Na);
 expCells4Epoch = zeros(initParams.epochDone, initParams.Na);
 totSteps4Epoch = zeros(initParams.epochDone, initParams.Na);
 pathLength4Epoch = zeros(initParams.epochDone, initParams.Na);
+continuousPathLenght4Epoch = zeros(initParams.epochDone, initParams.Na);
 
 for i=1:initParams.epochDone
     for j=1:initParams.Na
@@ -291,6 +292,7 @@ for i=1:initParams.epochDone
         expCells4Epoch(i, j) = infosAlgo(i, j).expCells;
         totSteps4Epoch(i, j) = infosAlgo(i, j).totSteps;
         pathLength4Epoch(i, j) = infosAlgo(i, j).pathLength;
+        continuousPathLenght4Epoch(i, j) = infosAlgo(i, j).continuousPathLenght;
     end
 end
  
@@ -324,6 +326,14 @@ boxplot(pathLength4Epoch)
 title("Path length")
 xlabel("Algorithm")
 ylabel("Path length")
+grid on;
+
+figure
+subplot(1, 1, 1)
+boxplot(continuousPathLenght4Epoch)
+title("continuous Path Lenght")
+xlabel("Algorithm")
+ylabel("continuous Path Lenght")
 grid on;
 
 %% FUNCTIONS %%

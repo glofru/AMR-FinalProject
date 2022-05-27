@@ -3,6 +3,8 @@ classdef Field_D_star < handle
     % "Field D*: An Interpolation-based Path Planner and Replanner"
     
     properties
+        g_diff = 0;
+        
         % Map having global knowledge
         globalMap;
         % Map having local knowledge
@@ -263,8 +265,12 @@ classdef Field_D_star < handle
         function step(obj)
             %move to minPos
             obj.currPos.state = State.PATH;
+            old_g = obj.currPos.g;
             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
             obj.currPos.state = State.POSITION;
+            obj.g_diff = obj.g_diff + old_g - obj.currPos.g;
+            
+            
             
             % scan graph
             isChanged = obj.updateMap();

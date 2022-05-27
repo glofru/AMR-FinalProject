@@ -3,6 +3,8 @@ classdef D_star_lite_v1 < handle
     % "Fast Replanning for Navigation in Unknown Terrain"
     
     properties
+        g_diff = 0;
+        
         % Map having global knowledge
         globalMap;
         % Map having local knowledge
@@ -251,8 +253,10 @@ classdef D_star_lite_v1 < handle
         function step(obj)
             % move to minPos
             obj.currPos.state = State.PATH;
+            old_g = obj.currPos.g;
             [~, obj.currPos] = minVal(obj.currPos, obj.successor(obj.currPos));
             obj.currPos.state = State.POSITION;
+            obj.g_diff = obj.g_diff + old_g - obj.currPos.g;
 
             % scan graph
             isChanged = obj.updateMap();
@@ -270,9 +274,12 @@ classdef D_star_lite_v1 < handle
         end
         
         % Run the algorithm until it reaches the end
-        function run(obj)
+        function final_path = run(obj)
+            
+            final_path = obj.currPos;
             while(~isFinish(obj))
                 obj.step()
+                final_path(end+1) = obj.currPos;
             end
         end
         

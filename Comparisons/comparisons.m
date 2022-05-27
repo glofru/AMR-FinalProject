@@ -94,6 +94,7 @@ computationTimes4Epoch = zeros(initParams.epochDone, initParams.Na);
 expCells4Epoch = zeros(initParams.epochDone, initParams.Na);
 totSteps4Epoch = zeros(initParams.epochDone, initParams.Na);
 pathLength4Epoch = zeros(initParams.epochDone, initParams.Na);
+continuousPathLenght4Epoch = zeros(initParams.epochDone, initParams.Na);
 
 for i=1:initParams.epochDone
     for j=1:initParams.Na
@@ -102,6 +103,7 @@ for i=1:initParams.epochDone
         expCells4Epoch(i, j) = infosAlgo(i, j).expCells;
         totSteps4Epoch(i, j) = infosAlgo(i, j).totSteps;
         pathLength4Epoch(i, j) = infosAlgo(i, j).pathLength;
+        continuousPathLenght4Epoch(i, j) = infosAlgo(i, j).continuousPathLenght;
     end
 end
 
@@ -226,6 +228,23 @@ ylabel("Path length")
 grid on;
 
 waitInput();
+
+%%
+
+figure
+subplot(1, 1, 1)
+boxplot(continuousPathLenght4Epoch)
+set(gca,'XTickLabel', algos)
+% add colors
+h = findobj(gca,'Tag','Box');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+title("Path length")
+xlabel("Algorithm")
+ylabel("Path length")
+grid on;
+legend(flip(algos))
 
 %% FUNCTIONS %%
 

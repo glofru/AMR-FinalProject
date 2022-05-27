@@ -67,6 +67,7 @@ computationTimes4Epoch = zeros(epochs, n);
 expCells4Epoch = zeros(epochs, n);
 totSteps4Epoch = zeros(epochs, n);
 pathLength4Epoch = zeros(epochs, n);
+continuousPathLenght4Epoch = zeros(epochs, n);
 
 
 for i=1:epochs
@@ -79,22 +80,25 @@ for i=1:epochs
         pathLength = 0;
         for k=1:Na
             initTime = initTime + infosAlgo{j}(i, k).initTime;
-            computationTime = computationTime + infosAlgo{j}(i, k).computationTime;
+            computationTime = computationTime + infosAlgo{j}(i, k).replanningTime;
             expCells = expCells + infosAlgo{j}(i, k).expCells;
             totSteps = totSteps + infosAlgo{j}(i, k).totSteps;
             pathLength = pathLength + infosAlgo{j}(i, k).pathLength;
+            continuousPathLenght = continuousPathLenght + infosAlgo{j}(i, k).continuousPathLenght;
         end
         initTime = initTime / Na;
         computationTime = computationTime / Na;
         expCells = expCells / Na;
         totSteps = totSteps / Na;
         pathLength = pathLength / Na;
+        continuousPathLenght = continuousPathLenght / Na;
 
         initTimes4Epoch(i, j) = initTime;
         computationTimes4Epoch(i, j) = computationTime;
         expCells4Epoch(i, j) = expCells;
         totSteps4Epoch(i, j) = totSteps;
         pathLength4Epoch(i, j) = pathLength;
+        continuousPathLenght4Epoch(i, j) = continuousPathLenght;
     end
 end
 
@@ -267,6 +271,23 @@ grid on;
 legend(flip(algos))
 
 waitInput();
+
+%%
+
+figure
+subplot(1, 1, 1)
+boxplot(continuousPathLenght4Epoch)
+set(gca,'XTickLabel', algos)
+% add colors
+h = findobj(gca,'Tag','Box');
+for j=1:length(h)
+    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
+end
+title("Path length")
+xlabel("Algorithm")
+ylabel("Path length")
+grid on;
+legend(flip(algos))
 
 %% FUNCTIONS %%
 

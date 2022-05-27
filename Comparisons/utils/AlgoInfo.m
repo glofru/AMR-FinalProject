@@ -10,7 +10,7 @@ classdef AlgoInfo < handle
         totSteps;
         totStepsList;
         pathLength;
-        continuousPathLenght
+        continuousPathLength
     end
     
     methods(Static)
@@ -24,7 +24,7 @@ classdef AlgoInfo < handle
             obj.totSteps = s.totSteps;
             obj.totStepsList = s.totStepsList;
             obj.pathLength = s.pathLength;
-            obj.continuousPathLenght = s.continuousPathLenght;
+            obj.continuousPathLength = s.continuousPathLength;
        end
     end
     
@@ -38,7 +38,7 @@ classdef AlgoInfo < handle
             obj.totSteps = 0;
             obj.totStepsList = [];
             obj.pathLength = 0;
-            obj.continuousPathLenght = 0;
+            obj.continuousPathLength = 0;
         end
     end
 end

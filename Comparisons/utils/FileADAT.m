@@ -125,7 +125,7 @@ classdef FileADAT < handle
             obj.costs = str2double(regexp(fgetl(fid),'\d+\.?\d*','match'));
             
             obj.Na = str2double(regexp(fgetl(fid),'\d*','match'));
-            % TODO check lenght ranges costs and Na
+            % TODO check length ranges costs and Na
             
             obj.epochDone = str2double(regexp(fgetl(fid),'\d*','match'));
             

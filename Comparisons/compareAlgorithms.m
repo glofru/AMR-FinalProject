@@ -67,7 +67,7 @@ computationTimes4Epoch = zeros(epochs, n);
 expCells4Epoch = zeros(epochs, n);
 totSteps4Epoch = zeros(epochs, n);
 pathLength4Epoch = zeros(epochs, n);
-continuousPathLenght4Epoch = zeros(epochs, n);
+continuousPathLength4Epoch = zeros(epochs, n);
 
 
 for i=1:epochs
@@ -84,21 +84,21 @@ for i=1:epochs
             expCells = expCells + infosAlgo{j}(i, k).expCells;
             totSteps = totSteps + infosAlgo{j}(i, k).totSteps;
             pathLength = pathLength + infosAlgo{j}(i, k).pathLength;
-            continuousPathLenght = continuousPathLenght + infosAlgo{j}(i, k).continuousPathLenght;
+            continuousPathLength = continuousPathLength + infosAlgo{j}(i, k).continuousPathLength;
         end
         initTime = initTime / Na;
         computationTime = computationTime / Na;
         expCells = expCells / Na;
         totSteps = totSteps / Na;
         pathLength = pathLength / Na;
-        continuousPathLenght = continuousPathLenght / Na;
+        continuousPathLength = continuousPathLength / Na;
 
         initTimes4Epoch(i, j) = initTime;
         computationTimes4Epoch(i, j) = computationTime;
         expCells4Epoch(i, j) = expCells;
         totSteps4Epoch(i, j) = totSteps;
         pathLength4Epoch(i, j) = pathLength;
-        continuousPathLenght4Epoch(i, j) = continuousPathLenght;
+        continuousPathLength4Epoch(i, j) = continuousPathLength;
     end
 end
 
@@ -276,7 +276,7 @@ waitInput();
 
 figure
 subplot(1, 1, 1)
-boxplot(continuousPathLenght4Epoch)
+boxplot(continuousPathLength4Epoch)
 set(gca,'XTickLabel', algos)
 % add colors
 h = findobj(gca,'Tag','Box');

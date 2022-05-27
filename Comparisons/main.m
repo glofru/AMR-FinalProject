@@ -154,7 +154,7 @@ for currEpoch=1:epoch
                 infosAlgo(currEpoch, i).totSteps = currAlgo.totSteps;
                 infosAlgo(currEpoch, i).totStepsList = currAlgo.totStepsList;
                 infosAlgo(currEpoch, i).pathLength = currAlgo.pathLength;
-                infosAlgo(currEpoch, i).continuousPathLenght = currAlgo.continuousPathLenght;
+                infosAlgo(currEpoch, i).continuousPathLength = currAlgo.continuousPathLength;
             end
             break
         catch ME

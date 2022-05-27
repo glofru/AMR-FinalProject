@@ -39,6 +39,8 @@ classdef Field_D_star < handle
         replanningTime = 0;
         % number of replanning occurencies
         replanningOccurencies = 0;
+
+        continuousPathLength = 0;
     end
     
     methods
@@ -306,9 +308,13 @@ classdef Field_D_star < handle
                 obj.replanningTime = obj.replanningTime + toc;
                 obj.replanningOccurencies = obj.replanningOccurencies + 1;
             end
+            obj.continuousPathLength = obj.continuousPathLength + obj.currPos.g;
+
             obj.currPos = nextState;
             obj.currPos.state = FDState.PATH;
             
+            obj.continuousPathLength = obj.continuousPathLength - obj.currPos.g;
+
             obj.expCellsList = [obj.expCellsList, obj.expCells];
             obj.totStepsList = [obj.totStepsList, obj.totSteps];
         end

@@ -37,6 +37,8 @@ classdef D_Star < handle
         replanningTime = 0;
         % number of replanning occurencies
         replanningOccurencies = 0;
+
+        continuousPathLength = 0;
     end
 
     methods
@@ -185,8 +187,12 @@ classdef D_Star < handle
             obj.totStepsList(end+1) = obj.totSteps;
             obj.expCellsList(end+1) = obj.expCells;
 
+            obj.continuousPathLength = obj.continuousPathLength + obj.currPos.g;
+
             % goes forward
             obj.currPos = obj.currPos.parent;
+
+            obj.continuousPathLength = obj.continuousPathLength - obj.currPos.g;
             
             obj.currPos.state = MapState.PATH;
 %             obj.plot();

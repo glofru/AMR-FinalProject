@@ -292,7 +292,7 @@ for i=1:initParams.epochDone
         expCells4Epoch(i, j) = infosAlgo(i, j).expCells;
         totSteps4Epoch(i, j) = infosAlgo(i, j).totSteps;
         pathLength4Epoch(i, j) = infosAlgo(i, j).pathLength;
-        continuousPathLenght4Epoch(i, j) = infosAlgo(i, j).continuousPathLenght;
+        continuousPathLenght4Epoch(i, j) = infosAlgo(i, j).continuousPathLength;
     end
 end
  

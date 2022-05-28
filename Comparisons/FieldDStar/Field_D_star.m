@@ -308,12 +308,12 @@ classdef Field_D_star < handle
                 obj.replanningTime = obj.replanningTime + toc;
                 obj.replanningOccurencies = obj.replanningOccurencies + 1;
             end
-            obj.continuousPathLength = obj.continuousPathLength + obj.currPos.g;
+            obj.continuousPathLength = obj.continuousPathLength + obj.currPos.g / obj.cost;
 
             obj.currPos = nextState;
             obj.currPos.state = FDState.PATH;
             
-            obj.continuousPathLength = obj.continuousPathLength - obj.currPos.g;
+            obj.continuousPathLength = obj.continuousPathLength - obj.currPos.g / obj.cost;
 
             obj.expCellsList = [obj.expCellsList, obj.expCells];
             obj.totStepsList = [obj.totStepsList, obj.totSteps];

@@ -26,12 +26,15 @@ classdef Field_D_star < handle
         
         % Utility to generate the video
         plotVideo;
+        saveVideo;
+        
+        writerObj;
     end
     
     methods
         % Field_D_star constructor
         function obj = Field_D_star(globalMap, obstacles, Sstart, Sgoal,...
-                moves, range, cost, plotVideo)
+                moves, range, cost, plotVideo, saveVideo, writerObj)
             arguments
                 % Map having global knowledge
                 globalMap
@@ -49,6 +52,9 @@ classdef Field_D_star < handle
                 cost = 1;
                 % if true plot map
                 plotVideo = 0;
+                saveVideo = 0;
+                
+                writerObj = 0;
             end
             obj.globalMap = globalMap;
             obj.moves = moves;
@@ -57,6 +63,9 @@ classdef Field_D_star < handle
             obj.range = range;
             obj.cost = cost;
             obj.plotVideo = plotVideo;
+            obj.saveVideo = saveVideo;
+            
+            obj.writerObj = writerObj;
             
             % Map initialization
             obj.localMap = Map(obj.globalMap.row, obj.globalMap.col,...
@@ -75,6 +84,11 @@ classdef Field_D_star < handle
             
             % compute first path
             obj.computeShortestPath();
+            
+            if obj.plotVideo
+                obj.plot();
+                pause(0.01);
+            end
         end
         
         
@@ -202,6 +216,15 @@ classdef Field_D_star < handle
                 if s.state == State.UNKNOWN || s.state == State.EMPTY || ...
                         s.state == State.VISITED || s.state == State.FUTUREPATH
                     s.state = State.OPEN;
+                end
+                
+                if obj.saveVideo
+                    frame = obj.buildImageMap();
+                    writeVideo(obj.writerObj, frame);
+                    writeVideo(obj.writerObj, frame);
+                    writeVideo(obj.writerObj, frame);
+                    writeVideo(obj.writerObj, frame);
+                    writeVideo(obj.writerObj, frame);
                 end
 
                 if (s.g > s.rhs)

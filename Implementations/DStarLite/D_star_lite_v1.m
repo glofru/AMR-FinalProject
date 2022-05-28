@@ -26,12 +26,15 @@ classdef D_star_lite_v1 < handle
         
         % Utility to generate the video
         plotVideo;
+        saveVideo;
+        
+        writerObj;
     end
     
     methods
         % D_star_lite_v1 constructor
         function obj = D_star_lite_v1(globalMap, obstacles, Sstart, Sgoal,...
-                moves, range, cost, plotVideo)
+                moves, range, cost, plotVideo, saveVideo, writerObj)
             arguments
                 % Map having global knowledge
                 globalMap
@@ -49,6 +52,9 @@ classdef D_star_lite_v1 < handle
                 cost = 1;
                 
                 plotVideo = 0;
+                saveVideo = 0;
+                
+                writerObj = 0;
             end
 
             obj.globalMap = globalMap;
@@ -58,6 +64,9 @@ classdef D_star_lite_v1 < handle
             obj.range = range;
             obj.cost = cost;
             obj.plotVideo = plotVideo;
+            obj.saveVideo = saveVideo;
+            
+            obj.writerObj = writerObj;
             
             % Map initialization
             obj.localMap = Map(obj.globalMap.row, obj.globalMap.col,...
@@ -190,6 +199,15 @@ classdef D_star_lite_v1 < handle
                 if u.state == State.UNKNOWN || u.state == State.EMPTY || ...
                         u.state == State.VISITED || u.state == State.FUTUREPATH
                     u.state = State.OPEN;
+                end
+                
+                if obj.saveVideo
+                    frame = obj.buildImageMap();
+                    writeVideo(obj.writerObj, frame);
+                    writeVideo(obj.writerObj, frame);
+                    writeVideo(obj.writerObj, frame);
+                    writeVideo(obj.writerObj, frame);
+                    writeVideo(obj.writerObj, frame);
                 end
 
                 if (u.g > u.rhs)

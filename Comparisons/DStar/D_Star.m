@@ -187,12 +187,12 @@ classdef D_Star < handle
             obj.totStepsList(end+1) = obj.totSteps;
             obj.expCellsList(end+1) = obj.expCells;
 
-            obj.continuousPathLength = obj.continuousPathLength + obj.currPos.g;
+            obj.continuousPathLength = obj.continuousPathLength + obj.currPos.h;
 
             % goes forward
             obj.currPos = obj.currPos.parent;
 
-            obj.continuousPathLength = obj.continuousPathLength - obj.currPos.g;
+            obj.continuousPathLength = obj.continuousPathLength - obj.currPos.h;
             
             obj.currPos.state = MapState.PATH;
 %             obj.plot();

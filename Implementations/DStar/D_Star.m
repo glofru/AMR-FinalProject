@@ -24,12 +24,15 @@ classdef D_Star < handle
         
         % Utility to generate the video
         plotVideo;
+        saveVideo;
+        
+        writerObj;
     end
 
     methods
         % D_Star constructor
         function obj = D_Star(globalMap, obstacles, Sstart, Sgoal,...
-                moves, range, cost, plotVideo)
+                moves, range, cost, plotVideo, saveVideo, writerObj)
             arguments
                 % Map having global knowledge
                 globalMap
@@ -47,12 +50,18 @@ classdef D_Star < handle
                 cost = 1;
                 
                 plotVideo = 0;
+                saveVideo = 0;
+                
+                writerObj = 0;
             end
             obj.globalMap = globalMap;
             obj.moves = moves;
             obj.range = range;
             obj.cost = cost;
             obj.plotVideo = plotVideo;
+            obj.saveVideo = saveVideo;
+            
+            obj.writerObj = writerObj;
 
 
             % Map initialization
@@ -68,6 +77,15 @@ classdef D_Star < handle
             % First scan and path computation
             obj.updateMap();
             obj.computeShortestPath();
+            
+            if obj.saveVideo
+                frame = obj.buildImageMap();
+                writeVideo(obj.writerObj, frame);
+                writeVideo(obj.writerObj, frame);
+                writeVideo(obj.writerObj, frame);
+                writeVideo(obj.writerObj, frame);
+                writeVideo(obj.writerObj, frame);
+            end
         end
         
         % States are processed according to the D* paper
@@ -83,6 +101,12 @@ classdef D_Star < handle
 %                 obj.localMap.plot();
 %                 pause(0.01);
 %             end
+            if obj.saveVideo
+                frame = obj.localMap.buildImageMap();
+                writeVideo(obj.writerObj, frame);
+                writeVideo(obj.writerObj, frame);
+                writeVideo(obj.writerObj, frame);
+            end
             
             succ = obj.localMap.neighbors(X, obj.moves);
             if Kold < X.h
@@ -222,9 +246,14 @@ classdef D_Star < handle
             end
         end
         
+        % Generate the map image
+        function rgbImage = buildImageMap(obj)
+            rgbImage = obj.localMap.buildImageMap(obj.currPos);
+        end
+        
         % Plot the map image
         function plot(obj)
-            J = obj.localMap.buildImageMap(obj.currPos);
+            J = obj.buildImageMap();
             imshow(J);
         end
     end

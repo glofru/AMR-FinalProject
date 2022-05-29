@@ -197,19 +197,10 @@ end
 % waitInput();
 
 %%
-colors = [
-    222/255, 104/255, 95/255;
-    87/255, 201/255, 161/255;
-    90/255, 87/255, 201/255;
-];
 
 figure
 subplot(1, 5, 1)
 boxplot(initTimes4Epoch)
-h = findobj(gca,'Tag','Box');
-for j=1:length(h)
-    patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
-end
 title("Initialization time")
 grid on;
 xlabel("Algorithm")
@@ -218,7 +209,7 @@ ylabel("Time (s)")
 
 subplot(1, 5, 2)
 boxplot(computationTimes4Epoch)
-title("Running time")
+title("Replanning time")
 xlabel("Algorithm")
 ylabel("Time (s)")
 grid on;

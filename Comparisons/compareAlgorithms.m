@@ -233,7 +233,7 @@ h = findobj(gca,'Tag','Box');
 for j=1:length(h)
     patch(get(h(j),'XData'),get(h(j),'YData'),colors(j,:),'FaceAlpha',.5);
 end
-title("Running time")
+title("Replanning time")
 xlabel("Algorithm")
 ylabel("Time (s)")
 grid on;

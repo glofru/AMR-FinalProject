@@ -56,11 +56,22 @@ for any doubt or clarification contact us on:
 </p>
 
 <p align="center">
-    <img src="./READMEimages/envTestDS.gif" style="width: 300px; height: 300px"></img>
-    <img src="./READMEimages/envTestDSLV1.gif" style="width: 300px; height: 300px"></img>
-    <img src="./READMEimages/envTestFDS.gif" style="width: 300px; height: 300px"></img>
+    <img src="./READMEimages/envTestDS_planning.gif" width="300px" height="300px"></img>
+    <img src="./READMEimages/envTestDS.gif" width="300px" height="300px"></img>
     <br>
-    D*, D* Lite v1 and Field D*
+    D* planning and execution.
+</p>
+<p align="center">
+    <img src="./READMEimages/envTestDSLV1_planning.gif" width="300px" height="300px"></img>
+    <img src="./READMEimages/envTestDSLV1.gif" width="300px" height="300px"></img>
+    <br>
+    D* Lite v1 planning and execution.
+</p>
+<p align="center">
+    <img src="./READMEimages/envTestFDS_planning.gif" width="300px" height="300px"></img>
+    <img src="./READMEimages/envTestFDS.gif" width="300px" height="300px"></img>
+    <br>
+    Field D* planning and execution.
 </p>
 
 <p align="center">

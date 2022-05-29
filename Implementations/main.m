@@ -21,8 +21,7 @@ disp("Which search algorithm?"+newline+...
      "    5) D*Lite v2 optimized"+newline+...
      "    6) Field D*"+newline+...
      "    7) Field D* optimized"+newline)
-% algorithmType = input('search algorithm: ');
-algorithmType = 1;
+algorithmType = input('search algorithm: ');
 
 switch algorithmType
     case 1
@@ -50,10 +49,8 @@ switch algorithmType
         error("Wrong input!");
 end
 
-% plotVideo = input("Plot video? [0=No/1=Yes] ");
-% saveVideo = input("Save video? [0=No/1=Yes] ");
-plotVideo = 0;
-saveVideo = 0;
+plotVideo = input("Plot video? [0=No/1=Yes] ");
+saveVideo = input("Save video? [0=No/1=Yes] ");
 
 range = 3;
 cost = 1.5;
@@ -65,8 +62,7 @@ moves = [[1; 0], [1; 1], [0; 1], [-1; 1], [-1; 0], [-1; -1], [0; -1], [1; -1]];
 execute = true;
 while execute
     
-%     genRandom = input("Generate map at random? [0=No/1=Yes] ");
-    genRandom = 1;
+    genRandom = input("Generate map at random? [0=No/1=Yes] ");
     
     if genRandom
         D1 = 20;
@@ -240,7 +236,7 @@ while execute
         plotLegend();
     end
 
-    coppeliaSimulation = true;
+    coppeliaSimulation = input("Simulate on coppeliaSim? [0=No/1=Yes] ");
     if coppeliaSimulation
         %interpolation (linear, makima, spline, etc)
         size_path = size(path);

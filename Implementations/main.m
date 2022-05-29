@@ -142,25 +142,33 @@ while execute
 
     obstacles = [];
 
+    writerObj_p = 0;
     if saveVideo
         d = dir(strcat(pwd, pathDelimiter, nameAlgo, "_*.avi"));
+        
         fileNameVideo = strcat(nameAlgo, "_", num2str(length(d)));
         disp("Saving video on file: "+fileNameVideo)
         writerObj = VideoWriter(fileNameVideo);
         writerObj.FrameRate = 30;
         open(writerObj);
+        
+        fileNameVideo = strcat(nameAlgo, "_", num2str(length(d)+1));
+        disp("Saving video on file: "+fileNameVideo)
+        writerObj_p = VideoWriter(fileNameVideo);
+        writerObj_p.FrameRate = 30;
+        open(writerObj_p);
     end
     
     switch algorithmType
         case 1
             tic
             algorithm = D_Star(map, obstacles, Sstart, Sgoal, moves,...
-                range, cost, plotVideo);
+                range, cost, plotVideo, saveVideo, writerObj_p);
             tocTime = toc;
         case 2
             tic
             algorithm = D_star_lite_v1(map, obstacles, Sstart, Sgoal, moves,...
-                range, cost, plotVideo);
+                range, cost, plotVideo, saveVideo, writerObj_p);
             tocTime = toc;
         case 3
             tic
@@ -170,7 +178,7 @@ while execute
         case 4
             tic
             algorithm = D_star_lite_v2(map, obstacles, Sstart, Sgoal, moves,...
-                range, cost, plotVideo);
+                range, cost, plotVideo, saveVideo, writerObj_p);
             tocTime = toc;
         case 5
             tic
@@ -180,13 +188,16 @@ while execute
         case 6
             tic
             algorithm = Field_D_star(map, obstacles, Sstart, Sgoal, moves,...
-                range, cost, plotVideo);
+                range, cost, plotVideo, saveVideo, writerObj_p);
             tocTime = toc;
         case 7
             tic
             algorithm = Field_D_star_opt(map, obstacles, Sstart, Sgoal, moves,...
                 range, cost, plotVideo);
             tocTime = toc;
+    end
+    if saveVideo
+        close(writerObj_p);
     end
     
     disp('Inizialization terminated in: '+string(tocTime)+' s'+newline);
@@ -206,11 +217,10 @@ while execute
     end
     
     %return
-
     if saveVideo
         tic
         while(~algorithm.isFinish())
-            algorithm.step()
+            algorithm.step();
             
             frame = algorithm.buildImageMap();
             writeVideo(writerObj, frame);

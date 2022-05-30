@@ -202,40 +202,44 @@ figure
 subplot(1, 5, 1)
 boxplot(initTimes4Epoch)
 title("Initialization time")
-grid on;
-xlabel("Algorithm")
-
+xlabel("Cost")
+set(gca,'XTickLabel', [0.3, 0.6, 1, 5])
 ylabel("Time (s)")
+%ylim([0 8])
+grid on;
 
 subplot(1, 5, 2)
 boxplot(computationTimes4Epoch)
 title("Replanning time")
-xlabel("Algorithm")
+xlabel("Cost")
+set(gca,'XTickLabel', [0.3, 0.6, 1, 5])
 ylabel("Time (s)")
 grid on;
 
 subplot(1, 5, 3)
 boxplot(expCells4Epoch)
 title("Explored cells")
-xlabel("Algorithm")
+xlabel("Cost")
+set(gca,'XTickLabel', [0.3, 0.6, 1, 5])
 ylabel("Number of cells")
 grid on;
 
 subplot(1, 5, 4)
 boxplot(totSteps4Epoch)
 title("Total algorithm steps")
-xlabel("Algorithm")
+xlabel("Cost")
+set(gca,'XTickLabel', [0.3, 0.6, 1, 5])
 ylabel("Number of steps")
 grid on;
 
 subplot(1, 5, 5)
 boxplot(pathLength4Epoch)
 title("Path length")
-xlabel("Algorithm")
+xlabel("Cost")
+set(gca,'XTickLabel', [0.3, 0.6, 1, 5])
 ylabel("Path length")
 grid on;
 
-%%
 
 figure
 subplot(1, 1, 1)

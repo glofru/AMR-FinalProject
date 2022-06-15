@@ -16,9 +16,9 @@ Final project for the course of Autonomous and Mobile Robotics 2020/2021.
 1.  Implement D* and the two versions of D*Lite;
 2.  Implement Field D*;
 3.  Re-Implement these 4 algorithms as an add-on for this repository [Link 🔗](https://github.com/giulioturrisi/Differential-Drive-Robot);
-4.  Compare the performance of the algorithms.
-5.  Implement improved versions of D*, D\*Lite and Field D*
-6.  👷 WIP 👷
+4.  Compare the performance of the algorithms;
+5.  Implement improved versions of D*, D\*Lite and Field D*;
+6.  Test these algorithms on coppeliaSim with a differential drive robot.
 
 ## 📜 Report
 

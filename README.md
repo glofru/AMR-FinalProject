@@ -3,7 +3,7 @@
     <img src="./READMEimages/title.png" style="width: 750px;"></img>
 </p>
 
-Final project for the course of Autonomous and Mobile Robotics 2020/2021.
+Final project for the course of Autonomous and Mobile Robotics 2021/2022.
 
 >Student: Alessandro Lambertini Mat: `1938390`;
 >

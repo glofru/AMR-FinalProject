@@ -22,9 +22,9 @@ Final project for the course of Autonomous and Mobile Robotics 2020/2021.
 
 ## 📜 Report
 
--   report [Link 🔗](./Report.pdf) 👷 WIP 👷
+-   Report [Link 🔗](./Report.pdf)
 
--   presentation [Link 🔗](./Presentation.pdf) 👷 WIP 👷
+-   Presentation [Link 🔗](./Presentation.pdf)
 
     In these files you can read more about the code and the result of the project.
 
@@ -46,8 +46,6 @@ for any doubt or clarification contact us on:
     -   [Gianluca Lofrumento 🔗](https://www.instagram.com/gianlucchio/).
 
 ## 🎞️ Snapshots
-
-👷 WIP 👷
 
 <p align="center">
     <img src="./READMEimages/envTestGlobalMap.png" style="width: 300px; height: 300px"></img>

@@ -30,7 +30,7 @@ Final project for the course of Autonomous and Mobile Robotics 2020/2021.
 
 ## 💯 Final score:
 
-Score: `--/30`
+Score: `30/30`
 
 ## 🙋 Info
 

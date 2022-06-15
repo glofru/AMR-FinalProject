@@ -228,6 +228,8 @@ while execute
     else
         tic
         path = algorithm.run();
+        
+        disp(algorithm.g_diff)
 
         disp('run terminated in: '+string(toc)+' s'+newline);
     end
